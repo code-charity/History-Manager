@@ -1,0 +1,613 @@
+/*--------------------------------------------------------------
+>>> STYLES
+----------------------------------------------------------------
+# Header
+# Table
+    # Head
+    # Body
+# Themes
+    # Scrollbar
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# HEADER
+--------------------------------------------------------------*/
+
+header
+{
+    position: relative;
+}
+
+.search-results
+{
+    font-size: 16px;
+
+    position: absolute;
+    z-index: 1;
+    top: 48px;
+    left: 16px;
+
+    display: none;
+
+    width: 100%;
+    max-width: 768px;
+
+    color: #000;
+    border-top: 1px solid #ddd;
+    background: #fff;
+}
+
+.search-results:hover
+{
+    display: block;
+}
+
+.search-results > div
+{
+    overflow: hidden;
+
+    padding: 6px 16px 6px 48px;
+
+    cursor: default;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    hyphens: auto;
+
+    background-repeat: no-repeat;
+    background-position: 16px 4px;
+    background-size: 16px;
+
+    overflow-wrap: break-word;
+}
+
+.search-results > div:hover
+{
+    background-color: #efefef;
+}
+
+.search-results > .selected
+{
+    background-color: #e0e0e0;
+}
+
+
+/*--------------------------------------------------------------
+# TABLE
+--------------------------------------------------------------*/
+
+.table__row--window,
+.table:not([data-table-index='3']) .table--inner
+{
+    border-top: 1px solid rgba(0,0,0,.05);
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    background: rgba(0,0,0,.05);
+}
+
+html[theme=dark] .table__row--window,
+html[theme=dark] .table:not([data-table-index='3']) .table--inner
+{
+    border-top: 1px solid rgba(255,255,255,.05);
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    background: rgba(255,255,255,.05);
+}
+
+/*--------------------------------------------------------------
+# HEAD
+--------------------------------------------------------------*/
+
+.table__head > div
+{
+    box-sizing: border-box;
+    margin-left: 8px;
+
+    cursor: default;
+}
+
+.table__head > div[data-column-index]
+{
+    cursor: pointer;
+}
+
+.table__head > div[data-column-index]:hover
+{
+    opacity: .7;
+}
+
+.table__head > div:last-child
+{
+    padding-right: 8px;
+}
+
+.table__head > div[data-order-by=asc]::after
+{
+    position: relative;
+    top: -3px;
+
+    display: inline-block;
+
+    width: 0;
+    height: 0;
+    margin: 0 0 0 6px;
+
+    content: '';
+
+    border: 4px solid transparent;
+    border-bottom-color: #fff;
+}
+
+.table__head > div[data-order-by=desc]::after
+{
+    position: relative;
+    top: 1px;
+
+    display: inline-block;
+
+    width: 0;
+    height: 0;
+    margin: 0 0 0 6px;
+
+    content: '';
+
+    border: 4px solid transparent;
+    border-top-color: #fff;
+}
+
+.table:nth-child(2) > .table__head > div:nth-child(4)
+{
+    box-sizing: border-box;
+    padding-left: 3px;
+}
+
+
+/*--------------------------------------------------------------
+# BODY
+--------------------------------------------------------------*/
+
+.table__body
+{
+    overflow-y: auto;
+
+    height: calc(100% - 32px);
+}
+
+.table__body > div
+{
+    display: flex;
+
+    margin-top: 4px;
+}
+
+.table__body > div:last-child
+{
+    margin-bottom: 4px;
+}
+
+.table__body > div:not(.table--inner):hover,
+.table--inner > div:hover
+{
+    background-color: rgba(0,0,0,.1);
+}
+
+html[theme=dark] .table__body > div:not(.table--inner):hover,
+html[theme=dark] .table--inner > div:hover
+{
+    background-color: rgba(255,255,255,.1);
+}
+
+.table__body > div:not(.table--inner) > div
+{
+    line-height: 28px;
+
+    overflow: hidden;
+
+    box-sizing: border-box;
+    height: 28px;
+    margin-left: 8px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    hyphens: auto;
+
+    overflow-wrap: break-word;
+    flex: 1;
+}
+
+.table__body .table--inner > div {
+line-height: 28px;
+
+    overflow: hidden;
+
+    box-sizing: border-box;
+    min-height: 28px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    hyphens: auto;
+
+    overflow-wrap: break-word;
+    flex: 1;
+}
+
+.table__body > div > div:last-child
+{
+    padding-right: 8px;
+}
+
+.table[data-table-index='0'] .table__body > div:not(.table--inner) > div:last-child,
+.table[data-table-index='1'] .table__body > div:not(.table--inner) > div:nth-child(2),
+.table[data-table-index='2'] .table__body > div:not(.table--inner) > div:nth-child(3),
+.table[data-table-index='3'] .table--inner > div > div:last-child,
+.table[data-table-index='4'] .table__body > .table--inner > div > div:last-child,
+.table[data-table-index='5'] .table__body > div > div:nth-child(2)
+{
+    padding-left: 36px;
+
+    background-repeat: no-repeat;
+    background-position: 8px 4px;
+    background-size: 16px;
+}
+
+.table__body button
+{
+    font-size: 24px;
+    line-height: 0;
+
+    width: 24px;
+    height: 24px;
+    padding: 0;
+
+    cursor: pointer;
+
+    color: #000;
+    border: none;
+    outline: none;
+    background: transparent;
+
+    appearance: none;
+}
+
+.table[data-table-index='3'] button
+{
+    opacity: .25;
+    background-image: url(icons-black.png);
+    background-repeat: no-repeat;
+    background-position: -73px -121px;
+}
+
+html[theme=dark] .table[data-table-index='3'] button {
+    background-image: url(icons-white.png);
+}
+
+html[theme=dark] .table__body button
+{
+    color: #fff;
+}
+
+html .table__body .pinned button
+{
+    opacity: 1;
+}
+
+.table a
+{
+    text-decoration: none;
+}
+
+
+
+
+.table--inner
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.table--inner > div
+{
+    display: flex;
+}
+
+.table--inner > div > div
+{
+    flex: 1;
+}
+
+
+
+.table[data-table-index='1'] > .table__body > div > div:nth-child(4)
+{
+    font-size: 18px;
+    line-height: 28px;
+
+    cursor: pointer;
+
+    color: #ffd54f;
+    text-align: center;
+}
+
+.table[data-table-index='1'] > .table__body > div > div:nth-child(4):hover
+{
+    opacity: .7;
+}
+
+.table[data-table-index='1'] > .table__body > div > div:nth-child(5) input
+{
+    font: inherit;
+
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    padding: 0 0 0 4px;
+
+    color: #222;
+    border: none;
+    border-radius: 2px;
+    outline: none;
+    background: #fafafa;
+}
+
+
+/*--------------------------------------------------------------
+# FOOTER
+--------------------------------------------------------------*/
+
+.table__footer
+{
+    position: relative;
+
+    display: flex;
+
+    max-height: 32px;
+
+    background: #ccc;
+    box-shadow: 0 -1px 3px 2px rgb(0, 0, 0, .2);
+}
+
+.table__footer > button
+{
+    font: inherit;
+
+    min-width: 32px;
+    max-width: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 0;
+
+    cursor: pointer;
+
+    opacity: .5;
+    color: #000;
+    border: none;
+    outline: none;
+    background: transparent;
+
+    appearance: none;
+}
+
+.table__footer > button:hover
+{
+    opacity: 1;
+}
+
+.table__footer > button.selected
+{
+    font-weight: 700;
+
+    opacity: 1;
+}
+
+.table__footer > span
+{
+    display: flex;
+
+    width: 32px;
+    height: 32px;
+
+    align-items: center;
+    justify-content: center;
+}
+
+html[theme=dark] .table__footer > button
+{
+    color: #fff;
+}
+
+
+/*--------------------------------------------------------------
+# THEMES
+--------------------------------------------------------------*/
+
+html[theme=dark] .table__body a
+{
+    color: #0075ff;
+}
+
+
+/*--------------------------------------------------------------
+# SCROLLBAR
+--------------------------------------------------------------*/
+
+html[theme=dark] ::-webkit-scrollbar
+{
+    background-color: #333;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button
+{
+    display: block;
+
+    background-repeat: no-repeat;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:hover
+{
+    background-color: #555;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:vertical
+{
+    background-size: 7px 4px;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:horizontal
+{
+    background-size: 4px 7px;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:vertical:decrement
+{
+    width: 16px;
+    height: 15px;
+
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="7" height="4" fill="rgb(125, 125, 125)"><polygon points="3.5,0 0,4 7,4"/></svg>');
+    background-position: 4px 6px;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:vertical:increment
+{
+    width: 16px;
+    height: 15px;
+
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="7" height="4" fill="rgb(125, 125, 125)"><polygon points="0,0 7,0 3.5,4"/></svg>');
+    background-position: 4px 5px;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:horizontal:decrement
+{
+    width: 15px;
+    height: 16px;
+
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="7" fill="rgb(125, 125, 125)"><polygon points="0,3.5 4,0 4,7"/></svg>');
+    background-position: 5px 4px;
+}
+
+html[theme=dark] ::-webkit-scrollbar-button:single-button:horizontal:increment
+{
+    width: 15px;
+    height: 16px;
+
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="7" fill="rgb(125, 125, 125)"><polygon points="0,0 0,7 4,3.5"/></svg>');
+    background-position: 6px 4px;
+}
+
+html[theme=dark] ::-webkit-scrollbar-thumb
+{
+    border-right: 2px solid #333;
+    border-left: 2px solid #333;
+    background-color: #555;
+}
+
+html[theme=dark] ::-webkit-scrollbar-thumb:hover
+{
+    background-color: #666;
+}
+
+html[theme=dark] ::-webkit-scrollbar-thumb:active
+{
+    background-color: #666;
+}
+
+html[theme=dark] ::-webkit-scrollbar-corner
+{
+    background-color: #444;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.table[data-table-index='4'] > .table__body > div:not(.table--inner) > div:nth-child(3){
+        padding-left: 36px;
+        position: relative;
+}
+
+.table[data-table-index='4'] > .table__body > div:not(.table--inner) > div:nth-child(3) > div {
+    background-image: url(icons-black.png);
+    background-repeat: no-repeat;
+    content: '';
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: .3;
+}
+
+html[theme=dark] .table[data-table-index='4'] > .table__body > div:not(.table--inner) > div:nth-child(3) > div {
+    background-image: url(icons-white.png);
+}
+
+
+
+
+
+
+
+
+
+
+.table__row--window {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.table__row--window::before {
+    content: '▲';
+    margin: 0 8px 0 0;
+    font-size: 10px;
+    opacity: .5;
+}
+
+.table__row--window.collapsed::before {
+    content: '▼';
+}
+
+.table__row--window.collapsed + .table--inner {
+    display: none;
+}
+
+
+
+.caching-progress {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 18px;
+    opacity: .5;
+}
+
+
+
+
+.column {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    flex: 1;
+}
+
+.column > .table:not(:last-child) {
+    margin-bottom: 0;
+    margin-right: 0;
+}

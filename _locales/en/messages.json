@@ -1,0 +1,74 @@
+{
+    "artsAndEntertainment": {
+        "message": "Arts & entertainment"
+    },
+    "businessAndConsumerServices": {
+        "message": "Business & consumer services"
+    },
+    "communityAndSociety": {
+        "message": "Community & society"
+    },
+    "computersElectronicsAndTechnology": {
+        "message": "Computers electronics & technology"
+    },
+    "eCommerceAndShopping": {
+        "message": "E-commerce & shopping"
+    },
+    "finance": {
+        "message": "Finance"
+    },
+    "foodAndDrink": {
+        "message": "Food & drink"
+    },
+    "gambling": {
+        "message": "Gambling"
+    },
+    "games": {
+        "message": "Games"
+    },
+    "health": {
+        "message": "Health"
+    },
+    "heavyIndustryAndEngineering": {
+        "message": "Havy industry & engineering"
+    },
+    "hobbiesAndLeisure": {
+        "message": "Hobbies & leisure"
+    },
+    "homeAndGarden": {
+        "message": "Home & garden"
+    },
+    "jobsAndCareer": {
+        "message": "Jobs & career"
+    },
+    "lawAndGovernment": {
+        "message": "Law & government"
+    },
+    "lifestyle": {
+        "message": "Lifestyle"
+    },
+    "newsAndMedia": {
+        "message": "News & media"
+    },
+    "petsAndAnimals": {
+        "message": "Pets & animals"
+    },
+    "referenceMaterials": {
+        "message": "Reference materials"
+    },
+    "scienceAndEducation": {
+        "message": "Science & education"
+    },
+    "sports": {
+        "message": "Sports"
+    },
+    "travelAndTourism": {
+        "message": "Travel & tourism"
+    },
+    "vehicles": {
+        "message": "Vehicles"
+    },
+    "window": {
+        "message": "Window"
+    }
+}
