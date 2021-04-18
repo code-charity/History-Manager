@@ -1,253 +1,294 @@
 /*--------------------------------------------------------------
 >>> BACKGROUND
 ----------------------------------------------------------------
-# On installed
-# On updated
+# Global variables
+# Sorting
+# History
+# Tabs
+# Initialization
 --------------------------------------------------------------*/
 
 /*--------------------------------------------------------------
-# ONINSTALLED
+# GLOBAL VARIABLES
 --------------------------------------------------------------*/
 
-var extension_id = chrome.runtime.id,
-    storage = {},
-    for_search = [],
-    all = {
-        0: [],
-        1: [],
-        2: []
+var EXTENSION_ID = chrome.runtime.id,
+    SEARCH = [],
+    ALL = {
+        BY_CATEGORY: [],
+        BY_DOMAIN: [],
+        BY_PAGE: [],
+        BY_PARAM: [],
+        BY_PARAM_PRE: {}
     },
-    qqqq = {},
-    pre_all = {
-        0: {},
-        1: {},
-        2: {}
+    TOP = {
+        BY_CATEGORY: [],
+        BY_DOMAIN: [],
+        BY_PAGE: [],
+        BY_PARAM: []
     },
-    top2 = {
-        0: [],
-        1: [],
-        2: [],
-        l0: 0,
-        l1: 0,
-        l2: 0
-    },
+    RECENTLY_CLOSED = [],
     PINNED_TABS = {},
+    PARAMS = {},
+    WEBSITES = {},
+    URL_PARTS_REGEX = /\/[^/?#]+/g,
     SEARCH_REGEX = new RegExp('[?&](' + SEARCH_PARAMS.join('|') + ')=([^&]+)');
 
-function sort(array, index, order_by) {
-    if (order_by === 'asc') {
-        if (typeof array[0][index] === 'number') {
-            sorted = array.sort(function(a, b) {
-                return a[index] - b[index];
-            });
-        } else {
-            sorted = array.sort(function(a, b) {
-                return a[index].localeCompare(b[index]);
-            });
-        }
-    } else {
-        if (typeof array[0][index] === 'number') {
-            sorted = array.sort(function(a, b) {
-                return b[index] - a[index];
-            });
-        } else {
-            sorted = array.sort(function(a, b) {
-                return b[index].localeCompare(a[index]);
-            });
-        }
+
+/*--------------------------------------------------------------
+# SORTING
+--------------------------------------------------------------*/
+
+function sort(array, index) {
+    if (array[0]) {
+        sorted = array.sort(function(a, b) {
+            return b[index] - a[index];
+        });
     }
 
     return array;
 }
 
-function historyCache(start_time, end_time, step) {
-    chrome.history.search({
-        endTime: end_time,
-        maxResults: 0,
-        startTime: start_time,
-        text: ''
-    }, function(items) {
-        for (var i = 0, l = items.length; i < l; i++) {
-            var item = items[i];
 
-            var match = item.url.match(/\/[^/?#]+/g),
-                without_proto = decodeURIComponent(item.url.match(/\/\/(.*)/)[1]);
+/*--------------------------------------------------------------
+# HISTORY
+--------------------------------------------------------------*/
 
-            for_search.push([without_proto, item.typedCount]);
+/*--------------------------------------------------------------
+# ON INSTALL
+--------------------------------------------------------------*/
 
-            if (match) {
-                var current = storage;
+function cacheHistory() {
+    var time = new Date().getTime(),
+        start = time - 7776000000,
+        end = time;
 
-                all[1].push([item.visitCount, item.title, without_proto, 0, '']);
+    GLOBAL_TIME = time;
 
-                var q = without_proto.match(SEARCH_REGEX);
+    function cache(start, end) {
+        chrome.history.search({
+            endTime: end,
+            maxResults: 0,
+            startTime: start,
+            text: ''
+        }, function(items) {
+            for (var i = 0, l = items.length; i < l; i++) {
+                var item = items[i],
+                    decoded_url = decodeURIComponent(item.url),
+                    url_parts = decoded_url.match(URL_PARTS_REGEX);
 
-                if (q) {
-                    q = decodeURIComponent(q[2]);
+                if (url_parts) {
+                    var part = WEBSITES;
 
-                    if (!pre_all[2][match[0]]) {
-                        pre_all[2][match[0]] = 0;
+                    SEARCH.push([decoded_url, item.typedCount]);
+
+                    for (var j = 0, k = url_parts.length; j < k; j++) {
+                        var name = url_parts[j];
+
+                        if (!part[name]) {
+                            part[name] = {
+                                d: 0
+                            };
+                        }
+
+                        part = part[name];
+
+                        if (j === 0) {
+                            part.d += item.visitCount;
+                        }
+
+                        if (j + 1 === k) {
+                            part.a = item.lastVisitTime;
+                            part.b = item.title;
+                            part.c = item.typedCount;
+                            part.d = item.visitCount;
+                        }
                     }
 
-                    pre_all[2][match[0]] += item.visitCount;
+                    ALL.BY_PAGE.push([item.visitCount, item.title, decoded_url, 0, '']);
 
-                    if (!qqqq['q' + match[0]]) {
-                        qqqq['q' + match[0]] = {};
-                    }
+                    var params = decoded_url.match(SEARCH_REGEX);
 
-                    if (!qqqq['q' + match[0]][q]) {
-                        qqqq['q' + match[0]][q] = {
-                            url: without_proto,
-                            visitCount: item.visitCount
-                        };
+                    if (params) {
+                        var domain = url_parts[0];
+
+                        var param = params[2];
+
+                        if (!ALL.BY_PARAM_PRE[domain]) {
+                            ALL.BY_PARAM_PRE[domain] = 0;
+                        }
+
+                        ALL.BY_PARAM_PRE[domain] += item.visitCount;
+
+                        if (!PARAMS['q' + domain]) {
+                            PARAMS['q' + domain] = {};
+                        }
+
+                        if (!PARAMS['q' + domain][param]) {
+                            PARAMS['q' + domain][param] = {
+                                url: decoded_url,
+                                visitCount: item.visitCount
+                            };
+                        }
                     }
                 }
+            }
 
-                for (var j = 0, k = match.length; j < k; j++) {
-                    var string = decodeURIComponent(match[j]);
+            if (start > 0) {
+                end -= 7776000000;
+                start -= 7776000000;
 
-                    if (!current[string]) {
-                        current[string] = {
-                            d: 0
-                        };
-                    }
-
-                    if (j === 0) {
-                        current[string].d += item.visitCount;
-                    }
-
-                    current = current[string];
-
-                    if (j + 1 === k) {
-                        current.a = item.lastVisitTime;
-                        current.b = item.title;
-                        current.c = item.typedCount;
-                        current.d = item.visitCount;
-                    }
+                if (start < 0) {
+                    start = 0;
                 }
-            }
-        }
 
-        if (start_time > 0) {
-            end_time -= step;
-            start_time -= step;
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    for (var i = 0, l = tabs.length; i < l; i++) {
+                        var tab = tabs[i];
 
-            if (start_time < 0) {
-                start_time = 0;
-            }
-
-            console.log('Caching: ' + (100 - start_time / (global_time / 100)).toFixed(2) + '%');
-
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                for (var i = 0, l = tabs.length; i < l; i++) {
-                    if (tabs[i].url.indexOf(extension_id) !== -1) {
-                        chrome.tabs.sendMessage(tabs[i].id, {progress: (100 - start_time / (global_time / 100)).toFixed(2)});
+                        if (tab.url.indexOf(EXTENSION_ID) !== -1) {
+                            chrome.tabs.sendMessage(tab.id, {progress: (100 - start / (GLOBAL_TIME / 100)).toFixed(2)});
+                        }
                     }
+                });
+
+                setTimeout(function() {
+                    cache(start, end);
+                }, 200);
+            } else {
+                for (var key in WEBSITES) {
+                    var item = WEBSITES[key];
+
+                    ALL.BY_DOMAIN.push([key.substr(1), item.d]);
                 }
-            });
 
-            setTimeout(function() {
-                historyCache(start_time, end_time, step);
-            }, 200);
-        } else {
-            for (var key in storage) {
-                var item = storage[key];
+                for (var key in ALL.BY_PARAM_PRE) {
+                    var item = ALL.BY_PARAM_PRE[key];
 
-                all[0].push([key.substr(1), item.d]);
-            }
+                    ALL.BY_PARAM.push([item, key.substr(1)]);
+                }
 
-            for (var key in pre_all[2]) {
-                var item = pre_all[2][key];
+                TOP.BY_DOMAIN = sort(ALL.BY_DOMAIN, 1).slice(0, 100);
+                TOP.BY_PAGE = sort(ALL.BY_PAGE, 0).slice(0, 100);
+                TOP.BY_PARAM = sort(ALL.BY_PARAM, 0).slice(0, 100);
+                SEARCH = sort(SEARCH, 1);
 
-                all[2].push([item, key.substr(1)]);
-            }
+                TOP.l0 = ALL.BY_DOMAIN.length;
+                TOP.l1 = ALL.BY_PAGE.length;
+                TOP.l2 = ALL.BY_PARAM.length;
 
-            top2[0] = sort(all[0], 1).slice(0, 100);
-            top2[1] = sort(all[1], 0).slice(0, 100);
-            top2[2] = sort(all[2], 0).slice(0, 100);
-            for_search = sort(for_search, 1);
+                chrome.storage.local.set(WEBSITES, function() {
+                    chrome.storage.local.set(PARAMS, function() {
+                        chrome.storage.local.set({
+                            all: {
+                                0: ALL.BY_DOMAIN,
+                                1: ALL.BY_PAGE,
+                                2: ALL.BY_PARAM
+                            },
+                            top: {
+                                0: TOP.BY_DOMAIN,
+                                1: TOP.BY_PAGE,
+                                2: TOP.BY_PARAM,
+                                l0: TOP.l0,
+                                l1: TOP.l1,
+                                l2: TOP.l2
+                            },
+                            for_search: SEARCH,
+                            cached: true
+                        }, function() {
+                            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                                for (var i = 0, l = tabs.length; i < l; i++) {
+                                    var tab = tabs[i];
 
-            top2.l0 = all[0].length;
-            top2.l1 = all[1].length;
-            top2.l2 = all[2].length;
-
-            chrome.storage.local.set({
-                all: all,
-                top: top2,
-                for_search: for_search,
-                cached: true
-            }, function() {
-                chrome.storage.local.set(storage, function() {
-                    chrome.storage.local.set(qqqq, function() {
-                        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                            for (var i = 0, l = tabs.length; i < l; i++) {
-                                if (tabs[i].url.indexOf(extension_id) !== -1) {
-                                    chrome.tabs.sendMessage(tabs[i].id, {progress: 'loaded'});
+                                    if (tab.url.indexOf(EXTENSION_ID) !== -1) {
+                                        chrome.tabs.sendMessage(tab.id, {progress: 'loaded'});
+                                    }
                                 }
-                            }
+                            });
                         });
-
-                        console.log('Caching completed successfully');
-
-                        console.log('Data size: ~' + (JSON.stringify({
-                            all,
-                            top2,
-                            storage,
-                            qqqq
-                        }).length * 2 / 1000 / 1000).toFixed(2) + ' MB');
                     });
                 });
+            }
+        });
+    }
+
+    cache(start, end);
+}
+
+
+/*--------------------------------------------------------------
+# TABS
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# ON INSTALL
+--------------------------------------------------------------*/
+
+function cacheTabs() {
+    chrome.tabs.query({}, function(tabs) {
+        for (var i = 0, l = tabs.length; i < l; i++) {
+            var tab = tabs[i];
+
+            if (tab.pinned === true) {
+                PINNED_TABS[tab.id] = tab;
+            }
+        }
+    });
+}
+
+
+/*--------------------------------------------------------------
+# ADD TAB UPDATE LISTENER
+--------------------------------------------------------------*/
+
+function addTabUpdateListener() {
+    chrome.tabs.onUpdated.addListener(function(id, changes, tab) {
+        if (tab.pinned === true) {
+            PINNED_TABS[id] = tab;
+        }
+    });
+}
+
+
+/*--------------------------------------------------------------
+# ADD TAB REMOVE LISTENER
+--------------------------------------------------------------*/
+
+function addTabRemoveListener() {
+    chrome.tabs.onRemoved.addListener(function(id) {
+        var tab = PINNED_TABS[id];
+
+        if (tab) {
+            RECENTLY_CLOSED.push(
+                [
+                new Date().toString(),
+                tab.url,
+                tab.title
+                ]
+                );
+
+            chrome.storage.local.set({
+                recently_closed: RECENTLY_CLOSED.slice(0, 20)
+            }, function() {
+                delete PINNED_TABS[id];
             });
         }
     });
 }
 
+
+/*--------------------------------------------------------------
+# INITIALIZATION
+--------------------------------------------------------------*/
+
 chrome.runtime.onInstalled.addListener(function() {
     chrome.storage.local.get('cached', function(items) {
         if (items.cached !== true) {
-            var time = new Date().getTime(),
-                step = 7776000000;
-
-            global_time = time;
-
-            historyCache(time - step, time, step);
+            cacheHistory();
+            cacheTabs();
         }
     });
 });
 
-chrome.tabs.query({}, function(tabs) {
-    for (var i = 0, l = tabs.length; i < l; i++) {
-        var tab = tabs[i];
-
-        if (tab.pinned === true) {
-            PINNED_TABS[tab.id] = tab;
-        }
-    }
-});
-
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (tab.pinned === true) {
-        PINNED_TABS[tab.id] = tab;
-    }
-});
-
-chrome.tabs.onRemoved.addListener(function(tabId) {
-    if (PINNED_TABS[tabId]) {
-        chrome.storage.local.get('recently_closed', function(items) {
-            var recently_closed = items.recently_closed || [],
-                tab = PINNED_TABS[tabId];
-
-            recently_closed.push([new Date().toString(), tab.url, tab.title]);
-
-            chrome.storage.local.set({
-                recently_closed: recently_closed.slice(0, 20)
-            }, function() {
-                delete PINNED_TABS[tabId];
-            });
-        });
-    }
-});
-
-/*--------------------------------------------------------------
-# ONUPDATED
---------------------------------------------------------------*/
+addTabUpdateListener();
+addTabRemoveListener();
