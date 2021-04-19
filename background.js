@@ -175,12 +175,34 @@ function cacheHistory() {
 
                 setTimeout(function() {
                     cache(start, end);
-                }, 200);
+                }, 100);
             } else {
                 for (var key in WEBSITES) {
                     var item = WEBSITES[key];
 
+                    for (var category in CATEGORIES) {
+                        for (var website in CATEGORIES[category]) {
+                            if (key.indexOf(website) !== -1) {
+                                CATEGORIES[category][website] += item.d;
+                            }
+                        }
+                    }
+
                     ALL.BY_DOMAIN.push([key, item.d]);
+                }
+
+                for (var category in CATEGORIES) {
+                    var array = [0, category, []];
+
+                    for (var website in CATEGORIES[category]) {
+                        array[0] += CATEGORIES[category][website];
+
+                        array[2].push([CATEGORIES[category][website], website]);
+                    }
+
+                    array[2] = sort(array[2], 0);
+
+                    ALL.BY_CATEGORY.push(array);
                 }
 
                 for (var key in ALL.BY_PARAM_PRE) {
@@ -189,6 +211,7 @@ function cacheHistory() {
                     ALL.BY_PARAM.push([item, key]);
                 }
 
+                ALL.BY_CATEGORY = sort(ALL.BY_CATEGORY, 0);
                 TOP.BY_DOMAIN = sort(ALL.BY_DOMAIN, 1).slice(0, 100);
                 TOP.BY_PAGE = sort(ALL.BY_PAGE, 0).slice(0, 100);
                 TOP.BY_PARAM = sort(ALL.BY_PARAM, 0).slice(0, 100);
@@ -214,6 +237,7 @@ function cacheHistory() {
                                 l1: TOP.l1,
                                 l2: TOP.l2
                             },
+                            by_category: ALL.BY_CATEGORY,
                             for_search: SEARCH,
                             cached: true
                         }, function() {

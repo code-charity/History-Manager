@@ -8,6 +8,7 @@
 
     "background": {
         "scripts": [
+            "data/categories.js",
             "data/search-params.js",
             "background.js"
         ]

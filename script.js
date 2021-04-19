@@ -500,7 +500,7 @@ function renderTable(index, array) {
                 });
             });
 
-            a.href = 'https://' + array[i][2];
+            a.href = array[i][2];
             a.innerText = array[i][2];
 
             td3.appendChild(a);
@@ -673,14 +673,10 @@ function renderTable(index, array) {
                 visits = 0;
 
             button.innerText = '+';
-            button.data = CATEGORIES[array[i][1]];
+            button.data = array[i][2];
 
-            for (var key in button.data) {
-                visits += button.data[key];
-            }
-
-            td1.title = visits;
-            td1.innerText = visits;
+            td1.title = array[i][0];
+            td1.innerText = array[i][0];
 
             button.addEventListener('click', function() {
                 var parent = this.parentNode.parentNode.parentNode,
@@ -692,19 +688,19 @@ function renderTable(index, array) {
 
                         table.className = 'table--inner';
 
-                        for (var key in this.data) {
+                        for (var i = 0, l = this.data.length; i < l; i++) {
                             var tr = document.createElement('div'),
                                 td1 = document.createElement('div'),
                                 td3 = document.createElement('div'),
                                 a = document.createElement('a');
 
-                            td1.title = this.data[key];
-                            td1.innerText = this.data[key];
+                            td1.title = this.data[i][0];
+                            td1.innerText = this.data[i][0];
 
-                            a.href = 'https://' + key;
-                            a.innerText = key;
+                            a.href = this.data[i][1];
+                            a.innerText = this.data[i][1];
                             
-                            td3.style.backgroundImage = 'url(https://' + key + '/favicon.ico)';
+                            td3.style.backgroundImage = 'url(chrome://favicon/' + this.data[i][1] + ')';
 
                             td3.appendChild(a);
 
@@ -722,7 +718,7 @@ function renderTable(index, array) {
                         var table = document.createElement('div');
 
                         table.className = 'table--inner';
-                        table.link = 'https://' + item.children[2].children[0].innerText;
+                        table.link = item.children[2].children[0].innerText;
 
                         renderFirstTableItem(item.tree, table);
 
@@ -1049,7 +1045,7 @@ window.addEventListener('load', function() {
             TOP_SITES_length = Object.keys(TOP_SITES).length;
 
             parseBookmarks(function() {
-                chrome.storage.local.get(['top', 'tags', 'for_search'], function(items) {
+                chrome.storage.local.get(['top', 'tags', 'for_search', 'by_category'], function(items) {
                     TAGS = items.tags || {};
                     SEARCH = items.for_search || [];
 
@@ -1059,8 +1055,9 @@ window.addEventListener('load', function() {
                     TABLE[1].data.length = items.top.l1;
                     TABLE[2].data.table = items.top[2];
                     TABLE[2].data.length = items.top.l2;
+                    TABLE[4].data.table = items.by_category;
 
-                    for (var key in CATEGORIES) {
+                    /*for (var key in CATEGORIES) {
                         for (var link in CATEGORIES[key]) {
                             for (var i = 0, l = TABLE[0].data.table.length; i < l; i++) {
                                 if (TABLE[0].data.table[i][0].indexOf(link) !== -1) {
@@ -1072,7 +1069,7 @@ window.addEventListener('load', function() {
 
                     for (var key in CATEGORIES) {
                         TABLE[4].data.table.push([0, key]);
-                    }
+                    }*/
 
                     for (var i = 0, l = TABLE[1].data.table.length; i < l; i++) {
                         if (BOOKMARKS['https://' + TABLE[1].data.table[i][2]]) {
@@ -1126,7 +1123,7 @@ window.addEventListener('load', function() {
                 }
 
                 parseBookmarks(function() {
-                    chrome.storage.local.get(['top', 'tags', 'for_search'], function(items) {
+                    chrome.storage.local.get(['top', 'tags', 'for_search', 'by_category'], function(items) {
                         TAGS = items.tags || {};
                         SEARCH = items.for_search || [];
 
@@ -1136,8 +1133,9 @@ window.addEventListener('load', function() {
                         TABLE[1].data.length = items.top.l1;
                         TABLE[2].data.table = items.top[2];
                         TABLE[2].data.length = items.top.l2;
+                        TABLE[4].data.table = items.by_category;
 
-                        for (var key in CATEGORIES) {
+                        /*for (var key in CATEGORIES) {
                             for (var link in CATEGORIES[key]) {
                                 for (var i = 0, l = TABLE[0].data.table.length; i < l; i++) {
                                     if (TABLE[0].data.table[i][0].indexOf(link) !== -1) {
@@ -1149,7 +1147,7 @@ window.addEventListener('load', function() {
 
                         for (var key in CATEGORIES) {
                             TABLE[4].data.table.push([0, key]);
-                        }
+                        }*/
 
                         for (var i = 0, l = TABLE[1].data.table.length; i < l; i++) {
                             if (BOOKMARKS['https://' + TABLE[1].data.table[i][2]]) {
