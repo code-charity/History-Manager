@@ -74,9 +74,15 @@ function cacheHistory() {
             text: ''
         }, function(items) {
             for (var i = 0, l = items.length; i < l; i++) {
-                var item = items[i],
-                    decoded_url = decodeURIComponent(item.url),
-                    url_parts = decoded_url.match(URL_PARTS_REGEX);
+                var item = items[i];
+                
+                try {
+                    var decoded_url = decodeURIComponent(item.url);
+                } catch (err) {
+                    var decoded_url = item.url;
+                }
+
+                var url_parts = decoded_url.match(URL_PARTS_REGEX);
 
                 if (url_parts) {
                     var part = WEBSITES;
