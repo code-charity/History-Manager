@@ -377,7 +377,7 @@ function renderTable(index, array) {
             td1.title = array[i][1];
             td1.innerText = array[i][1];
 
-            td3.style.backgroundImage = 'url(chrome://favicon/https://' + array[i][0] + ')';
+            td3.style.backgroundImage = 'url(chrome://favicon/' + array[i][0] + ')';
 
             button.innerText = '+';
 
@@ -387,13 +387,13 @@ function renderTable(index, array) {
 
                 if (this.innerText === '+') {
                     if (!item.tree) {
-                        chrome.storage.local.get('/' + item.children[2].children[0].innerText, function(items) {
+                        chrome.storage.local.get(item.children[2].children[0].innerText, function(items) {
                             var table = document.createElement('div');
 
                             table.className = 'table--inner';
 
-                            table.link = 'https://' + item.children[2].children[0].innerText;
-                            item.tree = items['/' + item.children[2].children[0].innerText];
+                            table.link = item.children[2].children[0].innerText;
+                            item.tree = items[item.children[2].children[0].innerText];
 
                             renderFirstTableItem(item.tree, table);
 
@@ -403,7 +403,7 @@ function renderTable(index, array) {
                         var table = document.createElement('div');
 
                         table.className = 'table--inner';
-                        table.link = 'https://' + item.children[2].children[0].innerText;
+                        table.link = item.children[2].children[0].innerText;
 
                         renderFirstTableItem(item.tree, table);
 
@@ -418,8 +418,8 @@ function renderTable(index, array) {
                 }
             });
 
-            a.href = 'https://' + array[i][0];
-            a.innerText = decodeURIComponent(array[i][0]);
+            a.href = array[i][0];
+            a.innerText = array[i][0];
 
             td2.appendChild(button);
             td3.appendChild(a);
@@ -452,12 +452,12 @@ function renderTable(index, array) {
             td2.innerText = array[i][1];
             td2.title = array[i][1];
 
-            td2.style.backgroundImage = 'url(chrome://favicon/https://' + array[i][2] + ')';
+            td2.style.backgroundImage = 'url(chrome://favicon/' + array[i][2] + ')';
 
-            if (BOOKMARKS['https://' + array[i][2]]) {
+            if (BOOKMARKS[array[i][2]]) {
                 td4.innerText = '★';
 
-                td4.bookmarkId = BOOKMARKS['https://' + array[i][2]];
+                td4.bookmarkId = BOOKMARKS[array[i][2]];
             } else {
                 td4.innerText = '☆';
             }
@@ -529,9 +529,9 @@ function renderTable(index, array) {
 
             td1.title = array[i][0];
             td1.innerText = array[i][0];
-            td3.style.backgroundImage = 'url(chrome://favicon/https://' + array[i][1] + ')';
+            td3.style.backgroundImage = 'url(chrome://favicon/' + array[i][1] + ')';
 
-            a.href = 'https://' + array[i][1];
+            a.href = array[i][1];
             a.innerText = array[i][1];
 
             button.innerText = '+';
@@ -543,8 +543,8 @@ function renderTable(index, array) {
                 if (this.innerText === '+') {
                     var self = this;
 
-                    chrome.storage.local.get('q/' + item.children[2].children[0].innerText, function(items) {
-                        var items = items['q/' + item.children[2].children[0].innerText],
+                    chrome.storage.local.get('q' + item.children[2].children[0].innerText, function(items) {
+                        var items = items['q' + item.children[2].children[0].innerText],
                             table = document.createElement('div');
 
                         table.className = 'table--inner';
@@ -558,7 +558,7 @@ function renderTable(index, array) {
                             td1.title = items[key].visitCount;
                             td1.innerText = items[key].visitCount;
 
-                            a.href = 'https://' + items[key].url;
+                            a.href = items[key].url;
                             a.title = key;
                             a.innerText = key;
 

@@ -32,6 +32,7 @@ var EXTENSION_ID = chrome.runtime.id,
     PARAMS = {},
     WEBSITES = {},
     URL_PARTS_REGEX = /\/[^/?#]+/g,
+    PROTOCOL_REGEX = /[^/]+/g,
     SEARCH_REGEX = new RegExp('[?&](' + SEARCH_PARAMS.join('|') + ')=([^&]+)');
 
 
@@ -85,6 +86,14 @@ function cacheHistory() {
                     for (var j = 0, k = url_parts.length; j < k; j++) {
                         var name = url_parts[j];
 
+                        if (j === 0) {
+                            var protocol = decoded_url.match(PROTOCOL_REGEX);
+
+                            if (protocol) {
+                                name = protocol[0] + '/' + name;
+                            }
+                        }
+
                         if (!part[name]) {
                             part[name] = {
                                 d: 0
@@ -111,6 +120,12 @@ function cacheHistory() {
 
                     if (params) {
                         var domain = url_parts[0];
+
+                        var protocol = decoded_url.match(PROTOCOL_REGEX);
+
+                        if (protocol) {
+                            domain = protocol[0] + '/' + domain;
+                        }
 
                         var param = params[2];
 
@@ -159,13 +174,13 @@ function cacheHistory() {
                 for (var key in WEBSITES) {
                     var item = WEBSITES[key];
 
-                    ALL.BY_DOMAIN.push([key.substr(1), item.d]);
+                    ALL.BY_DOMAIN.push([key, item.d]);
                 }
 
                 for (var key in ALL.BY_PARAM_PRE) {
                     var item = ALL.BY_PARAM_PRE[key];
 
-                    ALL.BY_PARAM.push([item, key.substr(1)]);
+                    ALL.BY_PARAM.push([item, key]);
                 }
 
                 TOP.BY_DOMAIN = sort(ALL.BY_DOMAIN, 1).slice(0, 100);
