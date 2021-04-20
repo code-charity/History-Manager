@@ -413,6 +413,8 @@ function renderTable(index, array) {
                             table.link = item.children[2].children[0].innerText;
                             item.tree = items[item.children[2].children[0].innerText];
 
+                            console.log(item.tree);
+
                             renderFirstTableItem(item.tree, table);
 
                             parent.insertBefore(table, item.nextElementSibling);
@@ -698,27 +700,44 @@ function renderTable(index, array) {
 
             button.addEventListener('click', function() {
                 var parent = this.parentNode.parentNode.parentNode,
-                    item = this.parentNode.parentNode;
+                    item = this.parentNode.parentNode,
+                    self = this;
 
                 if (this.innerText === '+') {
-                    if (!item.tree) {
-                        var table = document.createElement('div');
+                    var table = document.createElement('div');
 
-                        table.className = 'table--inner';
-
-                        for (var i = 0, l = this.data.length; i < l; i++) {
+                    table.className = 'table--inner';
+                    
+                    function create() {
+                        for (var i = 0, l = self.data.length; i < l; i++) {
                             var tr = document.createElement('div'),
                                 td1 = document.createElement('div'),
                                 td3 = document.createElement('div'),
-                                a = document.createElement('a');
+                                a = document.createElement('a'),
+                                url = self.data[i][1],
+                                replaced = false;
 
-                            td1.title = this.data[i][0];
-                            td1.innerText = this.data[i][0];
+                            for (var j = 0, k = TABLE[0].data.table.length; j < k; j++) {
+                                var url2 = TABLE[0].data.table[j][0];
 
-                            a.href = this.data[i][1];
-                            a.innerText = this.data[i][1];
+                                if (url2.indexOf(url) !== -1) {
+                                    url = url2;
+
+                                    replaced = true;
+                                }
+                            }
+
+                            if (replaced === false) {
+                                url = 'https://' + url;
+                            }
+
+                            td1.title = self.data[i][0];
+                            td1.innerText = self.data[i][0];
+
+                            a.href = url;
+                            a.innerText = url;
                             
-                            td3.style.backgroundImage = 'url(chrome://favicon/' + this.data[i][1] + ')';
+                            td3.style.backgroundImage = 'url(chrome://favicon/' + url + ')';
 
                             td3.appendChild(a);
 
@@ -730,18 +749,35 @@ function renderTable(index, array) {
 
                             table.appendChild(tr);
                         }
-
-                        parent.insertBefore(table, item.nextElementSibling);
-                    } else {
-                        var table = document.createElement('div');
-
-                        table.className = 'table--inner';
-                        table.link = item.children[2].children[0].innerText;
-
-                        renderFirstTableItem(item.tree, table);
-
-                        parent.insertBefore(table, item.nextElementSibling);
                     }
+
+                    if (ALL_LOADED) {
+                        create();
+                    } else {
+                        var self = this;
+
+                        chrome.storage.local.get('all', function(items) {
+                            ALL_LOADED = true;
+
+                            for (var i = 0, l = items.all[1].length; i < l; i++) {
+                                if (BOOKMARKS['https://' + items.all[1][i][2]]) {
+                                    items.all[1][i][3] = 1;
+                                }
+
+                                if (TAGS[items.all[1][i][2]]) {
+                                    items.all[1][i][4] = TAGS[items.all[1][i][2]];
+                                }
+                            }
+
+                            TABLE[0].data.table = sort(items.all[0], TABLE[0].data.column, TABLE[0].data.order_by);
+                            TABLE[1].data.table = sort(items.all[1], TABLE[1].data.column, TABLE[1].data.order_by);
+                            TABLE[2].data.table = sort(items.all[2], TABLE[2].data.column, TABLE[2].data.order_by);
+
+                            create();
+                        });
+                    }
+
+                    parent.insertBefore(table, item.nextElementSibling);
 
                     this.innerText = '-';
                 } else {
