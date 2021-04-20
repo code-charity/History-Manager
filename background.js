@@ -314,7 +314,7 @@ function addTabRemoveListener() {
             }
 
             RECENTLY_CLOSED.push([
-                new Date().toString(),
+                new Date().getTime(),
                 tab.url,
                 tab.title
             ]);
