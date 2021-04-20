@@ -14,13 +14,11 @@
 
 var EXTENSION_ID = chrome.runtime.id,
     SEARCH = [],
-    ALL = {
-        BY_CATEGORY: [],
-        BY_DOMAIN: [],
-        BY_PAGE: [],
-        BY_PARAM: [],
-        BY_PARAM_PRE: {}
-    },
+    BY_CATEGORY: [],
+    BY_DOMAIN: [],
+    BY_PAGE: [],
+    BY_PARAM: [],
+    BY_PARAM_PRE: {}
     TOP = {
         BY_CATEGORY: [],
         BY_DOMAIN: [],
@@ -120,7 +118,7 @@ function cacheHistory() {
                         }
                     }
 
-                    ALL.BY_PAGE.push([item.visitCount, item.title, decoded_url, 0, '']);
+                    BY_PAGE.push([item.visitCount, item.title, decoded_url, 0, '']);
 
                     var params = decoded_url.match(SEARCH_REGEX);
 
@@ -135,11 +133,11 @@ function cacheHistory() {
 
                         var param = params[2];
 
-                        if (!ALL.BY_PARAM_PRE[domain]) {
-                            ALL.BY_PARAM_PRE[domain] = 0;
+                        if (!BY_PARAM_PRE[domain]) {
+                            BY_PARAM_PRE[domain] = 0;
                         }
 
-                        ALL.BY_PARAM_PRE[domain] += item.visitCount;
+                        BY_PARAM_PRE[domain] += item.visitCount;
 
                         if (!PARAMS['q' + domain]) {
                             PARAMS['q' + domain] = {};
@@ -188,7 +186,7 @@ function cacheHistory() {
                         }
                     }
 
-                    ALL.BY_DOMAIN.push([key, item.d]);
+                    BY_DOMAIN.push([key, item.d]);
                 }
 
                 for (var category in CATEGORIES) {
@@ -202,33 +200,31 @@ function cacheHistory() {
 
                     array[2] = sort(array[2], 0);
 
-                    ALL.BY_CATEGORY.push(array);
+                    BY_CATEGORY.push(array);
                 }
 
-                for (var key in ALL.BY_PARAM_PRE) {
-                    var item = ALL.BY_PARAM_PRE[key];
+                for (var key in BY_PARAM_PRE) {
+                    var item = BY_PARAM_PRE[key];
 
-                    ALL.BY_PARAM.push([item, key]);
+                    BY_PARAM.push([item, key]);
                 }
 
-                ALL.BY_CATEGORY = sort(ALL.BY_CATEGORY, 0);
-                TOP.BY_DOMAIN = sort(ALL.BY_DOMAIN, 1).slice(0, 100);
-                TOP.BY_PAGE = sort(ALL.BY_PAGE, 0).slice(0, 100);
-                TOP.BY_PARAM = sort(ALL.BY_PARAM, 0).slice(0, 100);
+                BY_CATEGORY = sort(BY_CATEGORY, 0);
+                TOP.BY_DOMAIN = sort(BY_DOMAIN, 1).slice(0, 100);
+                TOP.BY_PAGE = sort(BY_PAGE, 0).slice(0, 100);
+                TOP.BY_PARAM = sort(BY_PARAM, 0).slice(0, 100);
                 SEARCH = sort(SEARCH, 1);
 
-                TOP.l0 = ALL.BY_DOMAIN.length;
-                TOP.l1 = ALL.BY_PAGE.length;
-                TOP.l2 = ALL.BY_PARAM.length;
+                TOP.l0 = BY_DOMAIN.length;
+                TOP.l1 = BY_PAGE.length;
+                TOP.l2 = BY_PARAM.length;
 
                 chrome.storage.local.set(WEBSITES, function() {
                     chrome.storage.local.set(PARAMS, function() {
                         chrome.storage.local.set({
-                            all: {
-                                0: ALL.BY_DOMAIN,
-                                1: ALL.BY_PAGE,
-                                2: ALL.BY_PARAM
-                            },
+                            BY_DOMAIN,
+                            BY_PAGE,
+                            BY_PARAM
                             top: {
                                 0: TOP.BY_DOMAIN,
                                 1: TOP.BY_PAGE,
@@ -237,7 +233,7 @@ function cacheHistory() {
                                 l1: TOP.l1,
                                 l2: TOP.l2
                             },
-                            by_category: ALL.BY_CATEGORY,
+                            by_category: BY_CATEGORY,
                             for_search: SEARCH,
                             cached: true
                         }, function() {
