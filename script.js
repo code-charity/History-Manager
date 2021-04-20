@@ -1035,6 +1035,39 @@ function parseBookmarks(callback) {
     });
 }
 
+function updateTableWithRecentlyClosed(array) {
+    for (var i = 0, l = array.length; i < l; i++) {
+        var row = document.createElement('div'),
+            col1 = document.createElement('div'),
+            col2 = document.createElement('div'),
+            col3 = document.createElement('div'),
+            a = document.createElement('a'),
+            time_ago = (TIME - array[i][0]) / 3600000;
+
+        if (time_ago < 1) {
+            time_ago = Math.round(time_ago * 60) + ' minutes ago';
+        } else {
+            time_ago = Math.round(time_ago) + ' hours ago';
+        }
+
+        col1.title = time_ago;
+        col1.innerText = time_ago;
+        col2.style.backgroundImage = 'url(chrome://favicon/' + array[i][1] + ')';
+        a.title = array[i][1];
+        a.href = array[i][1];
+        a.innerText = array[i][1];
+        col3.title = array[i][2];
+        col3.innerText = array[i][2];
+
+        col2.appendChild(a);
+        row.appendChild(col1);
+        row.appendChild(col2);
+        row.appendChild(col3);
+
+        TABLE_BODY[5].appendChild(row);
+    }
+}
+
 
 /*--------------------------------------------------------------
 # INITIALIZATION
@@ -1187,30 +1220,10 @@ window.addEventListener('load', function() {
     });
 
     chrome.storage.local.get('recently_closed', function(items) {
-        var recently_closed = items.recently_closed || [];
+        if (items.recently_closed) {
+            updateTableWithRecentlyClosed(items.recently_closed);
+        } else {
 
-        for (var i = 0, l = recently_closed.length; i < l; i++) {
-            var row = document.createElement('div'),
-                col1 = document.createElement('div'),
-                col2 = document.createElement('div'),
-                col3 = document.createElement('div'),
-                a = document.createElement('a');
-
-            col1.title = recently_closed[i][0];
-            col1.innerText = recently_closed[i][0];
-            col2.style.backgroundImage = 'url(chrome://favicon/' + recently_closed[i][1] + ')';
-            a.title = recently_closed[i][1];
-            a.href = recently_closed[i][1];
-            a.innerText = recently_closed[i][1];
-            col3.title = recently_closed[i][2];
-            col3.innerText = recently_closed[i][2];
-
-            col2.appendChild(a);
-            row.appendChild(col1);
-            row.appendChild(col2);
-            row.appendChild(col3);
-
-            TABLE_BODY[5].appendChild(row);
         }
     });
 
