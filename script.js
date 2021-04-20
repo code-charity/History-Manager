@@ -70,6 +70,13 @@ TABLE[4].data = {
     order_by: 'desc'
 };
 
+TABLE[5].data = {
+    table: [],
+    page: 1,
+    column: 0,
+    order_by: 'desc'
+};
+
 
 /*--------------------------------------------------------------
 # TIME UPDATE
@@ -762,6 +769,10 @@ function renderTable(index, array) {
         }
     }
 
+    if (index === 5) {
+        updateTableWithRecentlyClosed();
+    }
+
     if (TABLE[index].data) {
         var pages = Math.ceil(TABLE[index].data.length / 100),
             current = TABLE[index].data.page;
@@ -1035,7 +1046,9 @@ function parseBookmarks(callback) {
     });
 }
 
-function updateTableWithRecentlyClosed(array) {
+function updateTableWithRecentlyClosed() {
+    var array = TABLE[5].data.table;
+
     for (var i = 0, l = array.length; i < l; i++) {
         var row = document.createElement('div'),
             col1 = document.createElement('div'),
@@ -1221,7 +1234,8 @@ window.addEventListener('load', function() {
 
     chrome.storage.local.get('recently_closed', function(items) {
         if (items.recently_closed) {
-            updateTableWithRecentlyClosed(items.recently_closed);
+            TABLE[5].data.table = items.recently_closed;
+            updateTableWithRecentlyClosed();
         } else {
 
         }

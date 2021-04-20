@@ -319,6 +319,8 @@ function addTabRemoveListener() {
                 tab.title
             ]);
 
+            RECENTLY_CLOSED = sort(RECENTLY_CLOSED, 0);
+
             chrome.storage.local.set({
                 recently_closed: RECENTLY_CLOSED.slice(0, 20)
             }, function() {
