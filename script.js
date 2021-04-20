@@ -729,6 +729,10 @@ function renderTable(index, array) {
 
                             if (replaced === false) {
                                 url = 'https://' + url;
+                                
+                                td3.style.backgroundImage = 'url(' + url + '/favicon.ico)';
+                            } else {
+                                td3.style.backgroundImage = 'url(chrome://favicon/' + url + ')';
                             }
 
                             td1.title = self.data[i][0];
@@ -737,8 +741,6 @@ function renderTable(index, array) {
                             a.href = url;
                             a.innerText = url;
                             
-                            td3.style.backgroundImage = 'url(chrome://favicon/' + url + ')';
-
                             td3.appendChild(a);
 
                             td1.className = 'col';
