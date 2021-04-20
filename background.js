@@ -266,10 +266,10 @@ function cacheHistory() {
 --------------------------------------------------------------*/
 
 /*--------------------------------------------------------------
-# ON INSTALL
+# CACHE PINNED TABS
 --------------------------------------------------------------*/
 
-function cacheTabs() {
+function cachePinnedTabs() {
     chrome.tabs.query({}, function(tabs) {
         for (var i = 0, l = tabs.length; i < l; i++) {
             var tab = tabs[i];
@@ -330,10 +330,11 @@ chrome.runtime.onInstalled.addListener(function() {
     chrome.storage.local.get('cached', function(items) {
         if (items.cached !== true) {
             cacheHistory();
-            cacheTabs();
         }
     });
 });
+
+cachePinnedTabs();
 
 addTabUpdateListener();
 addTabRemoveListener();
