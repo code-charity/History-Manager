@@ -304,13 +304,20 @@ function addTabRemoveListener() {
         var tab = PINNED_TABS[id];
 
         if (tab) {
-            RECENTLY_CLOSED.push(
-                [
+            for (var i = 0, l = RECENTLY_CLOSED.length; i < l; i++) {
+                if (RECENTLY_CLOSED[i][1] === tab.url) {
+                    RECENTLY_CLOSED.splice(i, 1);
+
+                    i--;
+                    l--;
+                }
+            }
+
+            RECENTLY_CLOSED.push([
                 new Date().toString(),
                 tab.url,
                 tab.title
-                ]
-                );
+            ]);
 
             chrome.storage.local.set({
                 recently_closed: RECENTLY_CLOSED.slice(0, 20)
