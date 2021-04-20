@@ -2,6 +2,7 @@
 >>> SCRIPT
 ----------------------------------------------------------------
 # Global variables
+# Time
 # Search bar
 # Table
     # Head
@@ -15,7 +16,8 @@ console.time();
 # GLOBAL VARIABLES
 --------------------------------------------------------------*/
 
-var BOOKMARKS = {},
+var TIME = new Date().getTime(),
+    BOOKMARKS = {},
     TAGS = {},
     ALL_LOADED = false,
     SEARCH = [],
@@ -67,6 +69,15 @@ TABLE[4].data = {
     column: 0,
     order_by: 'desc'
 };
+
+
+/*--------------------------------------------------------------
+# TIME UPDATE
+--------------------------------------------------------------*/
+
+setInterval(function() {
+    TIME += 60000;
+}, 60000);
 
 
 /*--------------------------------------------------------------
