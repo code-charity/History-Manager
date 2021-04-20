@@ -1086,6 +1086,58 @@ function updateTableWithRecentlyClosed() {
 # INITIALIZATION
 --------------------------------------------------------------*/
 
+function init() {
+    initTableHeaders();
+
+    TOP_SITES_length = Object.keys(TOP_SITES).length;
+
+    parseBookmarks(function() {
+        chrome.storage.local.get(['top', 'tags', 'for_search', 'by_category'], function(items) {
+            TAGS = items.tags || {};
+            SEARCH = items.for_search || [];
+
+            TABLE[0].data.table = items.top[0];
+            TABLE[0].data.length = items.top.l0;
+            TABLE[1].data.table = items.top[1];
+            TABLE[1].data.length = items.top.l1;
+            TABLE[2].data.table = items.top[2];
+            TABLE[2].data.length = items.top.l2;
+            TABLE[4].data.table = items.by_category;
+
+            /*for (var key in CATEGORIES) {
+                for (var link in CATEGORIES[key]) {
+                    for (var i = 0, l = TABLE[0].data.table.length; i < l; i++) {
+                        if (TABLE[0].data.table[i][0].indexOf(link) !== -1) {
+                            CATEGORIES[key][link] = TABLE[0].data.table[i][1];
+                        }
+                    }
+                }
+            }
+
+            for (var key in CATEGORIES) {
+                TABLE[4].data.table.push([0, key]);
+            }*/
+
+            for (var i = 0, l = TABLE[1].data.table.length; i < l; i++) {
+                if (BOOKMARKS['https://' + TABLE[1].data.table[i][2]]) {
+                    TABLE[1].data.table[i][3] = 1;
+                }
+
+                if (TAGS[TABLE[1].data.table[i][2]]) {
+                    TABLE[1].data.table[i][4] = TAGS[TABLE[1].data.table[i][2]];
+                }
+            }
+
+            renderTable(0);
+            renderTable(1);
+            renderTable(2);
+            renderTable(4);
+
+            console.timeEnd(); 
+        });
+    });
+}
+
 window.addEventListener('load', function() {
     if (location.href.indexOf('?loaded') === -1) {
         location.replace(location.href + '?loaded');
@@ -1097,55 +1149,7 @@ window.addEventListener('load', function() {
 
     chrome.storage.local.get('cached', function(items) {
         if (items.cached === true) {
-            initTableHeaders();
-
-            TOP_SITES_length = Object.keys(TOP_SITES).length;
-
-            parseBookmarks(function() {
-                chrome.storage.local.get(['top', 'tags', 'for_search', 'by_category'], function(items) {
-                    TAGS = items.tags || {};
-                    SEARCH = items.for_search || [];
-
-                    TABLE[0].data.table = items.top[0];
-                    TABLE[0].data.length = items.top.l0;
-                    TABLE[1].data.table = items.top[1];
-                    TABLE[1].data.length = items.top.l1;
-                    TABLE[2].data.table = items.top[2];
-                    TABLE[2].data.length = items.top.l2;
-                    TABLE[4].data.table = items.by_category;
-
-                    /*for (var key in CATEGORIES) {
-                        for (var link in CATEGORIES[key]) {
-                            for (var i = 0, l = TABLE[0].data.table.length; i < l; i++) {
-                                if (TABLE[0].data.table[i][0].indexOf(link) !== -1) {
-                                    CATEGORIES[key][link] = TABLE[0].data.table[i][1];
-                                }
-                            }
-                        }
-                    }
-
-                    for (var key in CATEGORIES) {
-                        TABLE[4].data.table.push([0, key]);
-                    }*/
-
-                    for (var i = 0, l = TABLE[1].data.table.length; i < l; i++) {
-                        if (BOOKMARKS['https://' + TABLE[1].data.table[i][2]]) {
-                            TABLE[1].data.table[i][3] = 1;
-                        }
-
-                        if (TAGS[TABLE[1].data.table[i][2]]) {
-                            TABLE[1].data.table[i][4] = TAGS[TABLE[1].data.table[i][2]];
-                        }
-                    }
-
-                    renderTable(0);
-                    renderTable(1);
-                    renderTable(2);
-                    renderTable(4);
-
-                    console.timeEnd(); 
-                });
-            });
+            init();
         } else {
             for (var key in CATEGORIES) {
                 for (var link in CATEGORIES[key]) {
@@ -1179,51 +1183,7 @@ window.addEventListener('load', function() {
                     TABLE_BODY[i].style.position = '';
                 }
 
-                parseBookmarks(function() {
-                    chrome.storage.local.get(['top', 'tags', 'for_search', 'by_category'], function(items) {
-                        TAGS = items.tags || {};
-                        SEARCH = items.for_search || [];
-
-                        TABLE[0].data.table = items.top[0];
-                        TABLE[0].data.length = items.top.l0;
-                        TABLE[1].data.table = items.top[1];
-                        TABLE[1].data.length = items.top.l1;
-                        TABLE[2].data.table = items.top[2];
-                        TABLE[2].data.length = items.top.l2;
-                        TABLE[4].data.table = items.by_category;
-
-                        /*for (var key in CATEGORIES) {
-                            for (var link in CATEGORIES[key]) {
-                                for (var i = 0, l = TABLE[0].data.table.length; i < l; i++) {
-                                    if (TABLE[0].data.table[i][0].indexOf(link) !== -1) {
-                                        CATEGORIES[key][link] = TABLE[0].data.table[i][1];
-                                    }
-                                }
-                            }
-                        }
-
-                        for (var key in CATEGORIES) {
-                            TABLE[4].data.table.push([0, key]);
-                        }*/
-
-                        for (var i = 0, l = TABLE[1].data.table.length; i < l; i++) {
-                            if (BOOKMARKS['https://' + TABLE[1].data.table[i][2]]) {
-                                TABLE[1].data.table[i][3] = 1;
-                            }
-
-                            if (TAGS[TABLE[1].data.table[i][2]]) {
-                                TABLE[1].data.table[i][4] = TAGS[TABLE[1].data.table[i][2]];
-                            }
-                        }
-
-                        renderTable(0);
-                        renderTable(1);
-                        renderTable(2);
-                        renderTable(4);
-
-                        console.timeEnd(); 
-                    });
-                });
+                init();
             } else {
                 for (var i = 0; i < 3; i++) {
                     TABLE_BODY[i].innerHTML = '<div class="caching-progress">' + request.progress + '%</div>';
