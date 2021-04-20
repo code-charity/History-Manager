@@ -19,7 +19,6 @@ console.time();
 var TIME = new Date().getTime(),
     BOOKMARKS = {},
     TAGS = {},
-    ALL_LOADED = false,
     SEARCH = [],
     TABLE = {
         4: document.querySelector('.table[data-table-index="4"]'),
@@ -44,6 +43,8 @@ var TIME = new Date().getTime(),
 
 TABLE[0].data = {
     table: [],
+    id: 'BY_DOMAIN',
+    loaded: false,
     page: 1,
     column: 0,
     order_by: 'desc'
@@ -51,6 +52,8 @@ TABLE[0].data = {
 
 TABLE[1].data = {
     table: [],
+    id: 'BY_PAGE',
+    loaded: false,
     page: 1,
     column: 0,
     order_by: 'desc'
@@ -58,6 +61,8 @@ TABLE[1].data = {
 
 TABLE[2].data = {
     table: [],
+    id: 'BY_PARAM',
+    loaded: false,
     page: 1,
     column: 0,
     order_by: 'desc'
@@ -238,29 +243,34 @@ function initTableHeaders() {
                 this.dataset.orderBy = this.dataset.orderBy === 'asc' ? 'desc' : 'asc';
             }
 
-            if (ALL_LOADED) {
+            if (table.data.loaded === true) {
                 table.data.table = sort(table.data.table, this.dataset.columnIndex, this.dataset.orderBy);
 
                 renderTable(Number(table.dataset.tableIndex));
             } else {
-                var self = this;
+                var self = this,
+                    id = table.data.id;
 
-                chrome.storage.local.get('all', function(items) {
-                    ALL_LOADED = true;
+                chrome.storage.local.get(id, function(items) {
+                    table.data.loaded = true;
 
-                    for (var i = 0, l = items.all[1].length; i < l; i++) {
-                        if (BOOKMARKS['https://' + items.all[1][i][2]]) {
-                            items.all[1][i][3] = 1;
+                    if (id === 'BY_DOMAIN') {
+                        TABLE[0].data.table = sort(items['BY_DOMAIN'], TABLE[0].data.column, TABLE[0].data.order_by);
+                    } else if (id === 'BY_PAGE') {
+                        for (var i = 0, l = items['BY_PAGE'].length; i < l; i++) {
+                            if (BOOKMARKS['https://' + items['BY_PAGE'][i][2]]) {
+                                items['BY_PAGE'][i][3] = 1;
+                            }
+
+                            if (TAGS[items['BY_PAGE'][i][2]]) {
+                                items['BY_PAGE'][i][4] = TAGS[items['BY_PAGE'][i][2]];
+                            }
                         }
 
-                        if (TAGS[items.all[1][i][2]]) {
-                            items.all[1][i][4] = TAGS[items.all[1][i][2]];
-                        }
+                        TABLE[1].data.table = sort(items['BY_PAGE'], TABLE[1].data.column, TABLE[1].data.order_by);
+                    } else if (id === 'BY_PARAM') {
+                        TABLE[2].data.table = sort(items['BY_PARAM'], TABLE[2].data.column, TABLE[2].data.order_by);
                     }
-
-                    TABLE[0].data.table = sort(items.all[0], TABLE[0].data.column, TABLE[0].data.order_by);
-                    TABLE[1].data.table = sort(items.all[1], TABLE[1].data.column, TABLE[1].data.order_by);
-                    TABLE[2].data.table = sort(items.all[2], TABLE[2].data.column, TABLE[2].data.order_by);
 
                     table.data.table = sort(table.data.table, self.dataset.columnIndex, self.dataset.orderBy);
 
@@ -753,27 +763,15 @@ function renderTable(index, array) {
                         }
                     }
 
-                    if (ALL_LOADED) {
+                    if (TABLE[0].data.loaded) {
                         create();
                     } else {
                         var self = this;
 
-                        chrome.storage.local.get('all', function(items) {
-                            ALL_LOADED = true;
+                        chrome.storage.local.get('BY_DOMAIN', function(items) {
+                            TABLE[0].data.loaded = true;
 
-                            for (var i = 0, l = items.all[1].length; i < l; i++) {
-                                if (BOOKMARKS['https://' + items.all[1][i][2]]) {
-                                    items.all[1][i][3] = 1;
-                                }
-
-                                if (TAGS[items.all[1][i][2]]) {
-                                    items.all[1][i][4] = TAGS[items.all[1][i][2]];
-                                }
-                            }
-
-                            TABLE[0].data.table = sort(items.all[0], TABLE[0].data.column, TABLE[0].data.order_by);
-                            TABLE[1].data.table = sort(items.all[1], TABLE[1].data.column, TABLE[1].data.order_by);
-                            TABLE[2].data.table = sort(items.all[2], TABLE[2].data.column, TABLE[2].data.order_by);
+                            TABLE[0].data.table = sort(items['BY_DOMAIN'], TABLE[0].data.column, TABLE[0].data.order_by);
 
                             create();
                         });
@@ -848,7 +846,7 @@ function renderTable(index, array) {
                 }
 
                 button.addEventListener('click', function() {
-                    if (ALL_LOADED) {
+                    if (TABLE[index].data.loaded) {
                         var prev = this.parentNode.querySelector('.selected');
 
                         this.parentNode.parentNode.data.page = Number(this.innerText);
@@ -861,24 +859,29 @@ function renderTable(index, array) {
 
                         renderTable(Number(this.parentNode.parentNode.dataset.tableIndex));
                     } else {
-                        var self = this;
+                        var self = this,
+                            id = TABLE[index].data.id;
 
-                        chrome.storage.local.get('all', function(items) {
-                            ALL_LOADED = true;
+                        chrome.storage.local.get(id, function(items) {
+                            TABLE[index].data.loaded = true;
 
-                            for (var i = 0, l = items.all[1].length; i < l; i++) {
-                                if (BOOKMARKS['https://' + items.all[1][i][2]]) {
-                                    items.all[1][i][3] = 1;
+                            if (id === 'BY_DOMAIN') {
+                                TABLE[0].data.table = sort(items['BY_DOMAIN'], TABLE[0].data.column, TABLE[0].data.order_by);
+                            } else if (id === 'BY_PAGE') {
+                                for (var i = 0, l = items['BY_PAGE'].length; i < l; i++) {
+                                    if (BOOKMARKS['https://' + items['BY_PAGE'][i][2]]) {
+                                        items['BY_PAGE'][i][3] = 1;
+                                    }
+
+                                    if (TAGS[items['BY_PAGE'][i][2]]) {
+                                        items['BY_PAGE'][i][4] = TAGS[items['BY_PAGE'][i][2]];
+                                    }
                                 }
 
-                                if (TAGS[items.all[1][i][2]]) {
-                                    items.all[1][i][4] = TAGS[items.all[1][i][2]];
-                                }
+                                TABLE[1].data.table = sort(items['BY_PAGE'], TABLE[1].data.column, TABLE[1].data.order_by);
+                            } else if (id === 'BY_PARAM') {
+                                TABLE[2].data.table = sort(items['BY_PARAM'], TABLE[2].data.column, TABLE[2].data.order_by);
                             }
-
-                            TABLE[0].data.table = sort(items.all[0], TABLE[0].data.column, TABLE[0].data.order_by);
-                            TABLE[1].data.table = sort(items.all[1], TABLE[1].data.column, TABLE[1].data.order_by);
-                            TABLE[2].data.table = sort(items.all[2], TABLE[2].data.column, TABLE[2].data.order_by);
 
                             var prev = self.parentNode.querySelector('.selected');
 

@@ -14,11 +14,11 @@
 
 var EXTENSION_ID = chrome.runtime.id,
     SEARCH = [],
-    BY_CATEGORY: [],
-    BY_DOMAIN: [],
-    BY_PAGE: [],
-    BY_PARAM: [],
-    BY_PARAM_PRE: {}
+    BY_CATEGORY = [],
+    BY_DOMAIN = [],
+    BY_PAGE = [],
+    BY_PARAM = [],
+    BY_PARAM_PRE = {}
     TOP = {
         BY_CATEGORY: [],
         BY_DOMAIN: [],
@@ -224,7 +224,7 @@ function cacheHistory() {
                         chrome.storage.local.set({
                             BY_DOMAIN,
                             BY_PAGE,
-                            BY_PARAM
+                            BY_PARAM,
                             top: {
                                 0: TOP.BY_DOMAIN,
                                 1: TOP.BY_PAGE,
