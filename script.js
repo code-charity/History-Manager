@@ -313,28 +313,40 @@ function sort(array, index, order_by) {
 --------------------------------------------------------------*/
 
 function renderFirstTableItem(object, parent) {
+    var sorted = [];
+
     for (var key in object) {
+        if (key.indexOf('/') !== -1) {
+            sorted.push([object[key].d, key, object[key]]);
+        }
+    }
+
+    sorted = sort(sorted, 0);
+
+    for (var i = 0, l = sorted.length; i < l; i++) {
+        var item = sorted[i],
+            key = item[1];
+
         if (
             key !== 'a' &&
             key !== 'b' &&
             key !== 'c' &&
             key !== 'd'
         ) {
-            var item = object[key],
-                tr = document.createElement('div'),
+            var tr = document.createElement('div'),
                 td1 = document.createElement('div'),
                 td2 = document.createElement('div'),
                 td3 = document.createElement('div'),
                 a = document.createElement('a');
 
-            tr.tree = item;
-            tr.link = parent.link + key;
-            td1.title = item.d;
-            td1.innerText = item.d;
+            tr.tree = item[2];
+            tr.link = parent.link + item[1];
+            td1.title = item[0];
+            td1.innerText = item[0];
 
             var empty = true;
 
-            for (var key2 in item) {
+            for (var key2 in item[2]) {
                 if (key2.indexOf('/') !== -1) {
                     empty = false;
                 }
@@ -370,8 +382,8 @@ function renderFirstTableItem(object, parent) {
                 td2.appendChild(button);
             }
 
-            a.href = parent.link + key;
-            a.innerText = key;
+            a.href = parent.link + item[1];
+            a.innerText = item[1];
 
             td3.appendChild(a);
 
@@ -575,22 +587,30 @@ function renderTable(index, array) {
 
                     chrome.storage.local.get('q' + item.children[2].children[0].innerText, function(items) {
                         var items = items['q' + item.children[2].children[0].innerText],
-                            table = document.createElement('div');
+                            table = document.createElement('div'),
+                            sorted = [];
 
                         table.className = 'table--inner';
 
                         for (var key in items) {
-                            var tr = document.createElement('div'),
+                            sorted.push([items[key].visitCount, key, items[key].url]);
+                        }
+
+                        sorted = sort(sorted, 0);
+
+                        for (var i = 0, l = sorted.length; i < l; i++) {
+                            var element = sorted[i],
+                                tr = document.createElement('div'),
                                 td1 = document.createElement('div'),
                                 td2 = document.createElement('div'),
                                 a = document.createElement('a');
 
-                            td1.title = items[key].visitCount;
-                            td1.innerText = items[key].visitCount;
+                            td1.title = element[0];
+                            td1.innerText = element[0];
 
-                            a.href = items[key].url;
-                            a.title = key;
-                            a.innerText = key;
+                            a.href = element[2];
+                            a.title = element[1];
+                            a.innerText = element[1];
 
                             td2.appendChild(a);
 
