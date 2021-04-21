@@ -85,8 +85,6 @@ function cacheHistory() {
                 if (url_parts) {
                     var part = WEBSITES;
 
-                    SEARCH.push([decoded_url, item.typedCount]);
-
                     for (var j = 0, k = url_parts.length; j < k; j++) {
                         var name = url_parts[j];
 
@@ -94,7 +92,7 @@ function cacheHistory() {
                             var protocol = decoded_url.match(PROTOCOL_REGEX);
 
                             if (protocol) {
-                                name = protocol[0] + '/' + name;
+                                name = protocol[0] + '/' + name;                                
                             }
                         }
 
@@ -187,6 +185,7 @@ function cacheHistory() {
                     }
 
                     BY_DOMAIN.push([key, item.d]);
+                    SEARCH.push([key, item.c || 0, key.match(/\/\/([^/]+)/)[1]]);
                 }
 
                 for (var category in CATEGORIES) {

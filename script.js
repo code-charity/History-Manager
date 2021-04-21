@@ -110,7 +110,8 @@ function initSearchBar() {
     document.querySelector('header > input').addEventListener('input', function(event) {
         var results = [],
             first = null,
-            cursor_position = this.selectionStart;
+            cursor_position = this.selectionStart,
+            r = new RegExp('[^\w]' + this.value);
 
         search_results_element.innerHTML = '';
 
@@ -132,9 +133,10 @@ function initSearchBar() {
             }*/
 
             for (var i = 0, l = SEARCH.length; i < l; i++) {
-                var item = SEARCH[i];
+                var item = SEARCH[i],
+                    m = item[2].match(r);
 
-                if (item[0].indexOf(this.value) === 0) {
+                if (m) {
                     results.push(item);
                 }
             }
@@ -146,19 +148,20 @@ function initSearchBar() {
             for (var i = 0, l = results.length; i < l; i++) {
                 var item = document.createElement('div');
 
-                item.innerText = results[i][0];
-                item.style.backgroundImage = 'url(https://' + results[i][0].match(/[^/]+/)[0] + '/favicon.ico)';
+                item.innerText = results[i][2];
+                item.dataset.url = results[i][0];
+                item.style.backgroundImage = 'url(chrome://favicon/' + results[i][0] + ')';
 
                 item.addEventListener('click', function() {
                     search_results_element.style.display = 'none';
 
-                    window.open('https://' + this.innerText, '_self');
+                    window.open(this.innerText, '_self');
                 });
 
                 search_results_element.appendChild(item);
             }
 
-            first = results[0][0];
+            first = results[0][2];
 
             if (first) {
                 search_results_element.children[0].className = 'selected';
