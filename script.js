@@ -109,6 +109,7 @@ function initSearchBar() {
 
     document.querySelector('header > input').addEventListener('input', function(event) {
         var results = [],
+            pre_results = {},
             first = null,
             cursor_position = this.selectionStart,
             r = new RegExp('[^\w]' + this.value);
@@ -119,33 +120,40 @@ function initSearchBar() {
             for (var i = 0, l = SEARCH.length; i < l; i++) {
                 var item = SEARCH[i];
 
-                if (item[0].indexOf(this.value) === 0) {
-                    results.push(item);
+                if (item[0].indexOf(this.value) === 0 && !pre_results[key]) {
+                    pre_results[item[0]] = item;
                 }
             }
 
             for (var key in BOOKMARKS) {
                 if (key.indexOf(this.value) === 0) {
-                    var start_with = key.match(/[^/]+\/\/(www\.)?/)[1];
+                    var start_with = key.match(/[^/]+\/\/(www\.)?/)[1],
+                        url = key.replace(start_with, '');
 
-                    results.push([
-                        key.replace(start_with, ''),
-                        0,
-                        start_with
-                    ]);
+                    if (!pre_results[key]) {
+                        pre_results[url] = [
+                            url,
+                            0,
+                            start_with
+                        ];
+                    }
                 }
             }
 
             for (var i = 0; i < TOP_SITES_length; i++) {
                 var key = TOP_SITES[i];
 
-                if (key.indexOf(this.value) === 0) {
-                    results.push([
+                if (key.indexOf(this.value) === 0 && !pre_results[key]) {
+                    pre_results[key] = [
                         key,
                         0,
                         'https://'
-                    ]);
+                    ];
                 }
+            }
+
+            for (var key in pre_results) {
+                results.push(pre_results[key]);
             }
 
             results = sort(results, 1);
