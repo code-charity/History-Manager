@@ -132,11 +132,19 @@ function initSearchBar() {
                 }
             }*/
 
-            for (var i = 0, l = SEARCH.length; i < l; i++) {
+            /*for (var i = 0, l = SEARCH.length; i < l; i++) {
                 var item = SEARCH[i],
-                    m = item[2].match(r);
+                    m = item[0].match(r);
 
                 if (m) {
+                    results.push(item);
+                }
+            }*/
+
+            for (var i = 0, l = SEARCH.length; i < l; i++) {
+                var item = SEARCH[i];
+
+                if (item[0].indexOf(this.value) === 0) {
                     results.push(item);
                 }
             }
@@ -148,9 +156,9 @@ function initSearchBar() {
             for (var i = 0, l = results.length; i < l; i++) {
                 var item = document.createElement('div');
 
-                item.innerText = results[i][2];
-                item.dataset.url = results[i][0];
-                item.style.backgroundImage = 'url(chrome://favicon/' + results[i][0] + ')';
+                item.innerText = results[i][0];
+                item.dataset.url = results[i][2] + results[i][0];
+                item.style.backgroundImage = 'url(chrome://favicon/' + results[i][2] + results[i][0] + ')';
 
                 item.addEventListener('click', function() {
                     search_results_element.style.display = 'none';
@@ -161,7 +169,7 @@ function initSearchBar() {
                 search_results_element.appendChild(item);
             }
 
-            first = results[0][2];
+            first = results[0][0];
 
             if (first) {
                 search_results_element.children[0].className = 'selected';

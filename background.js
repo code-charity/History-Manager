@@ -31,6 +31,7 @@ var EXTENSION_ID = chrome.runtime.id,
     WEBSITES = {},
     URL_PARTS_REGEX = /\/[^/?#]+/g,
     PROTOCOL_REGEX = /[^/]+/g,
+    PROTOCOL_WWW_REGEX = /[^/]+\/\/(www\.)?/,
     SEARCH_REGEX = new RegExp('[?&](' + SEARCH_PARAMS.join('|') + ')=([^&]+)');
 
 
@@ -185,7 +186,10 @@ function cacheHistory() {
                     }
 
                     BY_DOMAIN.push([key, item.d]);
-                    SEARCH.push([key, item.c || 0, key.match(/\/\/([^/]+)/)[1]]);
+
+                    var start_with = key.match(PROTOCOL_WWW_REGEX)[0];
+
+                    SEARCH.push([key.replace(start_with, ''), item.c || 0, start_with]);
                 }
 
                 for (var category in CATEGORIES) {
