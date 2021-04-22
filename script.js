@@ -149,6 +149,18 @@ function initSearchBar() {
                 }
             }
 
+            for (var key in BOOKMARKS) {
+                if (key.indexOf(this.value) === 0) {
+                    var start_with = key.match(/[^/]+\/\/(www\.)?/)[1];
+
+                    results.push([
+                        key.replace(start_with, ''),
+                        0,
+                        start_with
+                    ]);
+                }
+            }
+
             results = sort(results, 1);
 
             results = results.slice(0, 6);
