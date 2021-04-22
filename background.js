@@ -105,9 +105,7 @@ function cacheHistory() {
 
                         part = part[name];
 
-                        if (j === 0) {
-                            part.d += item.visitCount;
-                        }
+                        part.d += item.visitCount;
 
                         if (j + 1 === k) {
                             part.a = item.lastVisitTime;
