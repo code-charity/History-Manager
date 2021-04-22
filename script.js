@@ -116,31 +116,6 @@ function initSearchBar() {
         search_results_element.innerHTML = '';
 
         if (this.value.length > 0 && event.inputType !== 'deleteContentBackward') {
-            /*for (var i = 0; i < TOP_SITES_length; i++) {
-                var result = TOP_SITES[i];
-
-                if (result.indexOf(this.value) === 0 && first === null) {
-                    first = result;
-                } else if (result.indexOf(this.value) !== -1) {
-                    results.push(result);
-                }
-            }*/
-
-            /*for (var key in BOOKMARKS) {
-                if (key.indexOf(this.value) !== -1) {
-                    results.push([key.match(/\/\/(.*)/)[1], 9999]);
-                }
-            }*/
-
-            /*for (var i = 0, l = SEARCH.length; i < l; i++) {
-                var item = SEARCH[i],
-                    m = item[0].match(r);
-
-                if (m) {
-                    results.push(item);
-                }
-            }*/
-
             for (var i = 0, l = SEARCH.length; i < l; i++) {
                 var item = SEARCH[i];
 
@@ -157,6 +132,18 @@ function initSearchBar() {
                         key.replace(start_with, ''),
                         0,
                         start_with
+                    ]);
+                }
+            }
+
+            for (var i = 0; i < TOP_SITES_length; i++) {
+                var key = TOP_SITES[i];
+
+                if (key.indexOf(this.value) === 0) {
+                    results.push([
+                        key,
+                        0,
+                        'https://'
                     ]);
                 }
             }
