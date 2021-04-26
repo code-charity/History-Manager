@@ -16,7 +16,14 @@
 header
 {
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+/*header>input:focus {
+    opacity: .2
+}*/
 
 .search-results
 {
@@ -24,8 +31,7 @@ header
 
     position: absolute;
     z-index: 1;
-    top: 48px;
-    left: 16px;
+    top: 56px;
 
     display: none;
 

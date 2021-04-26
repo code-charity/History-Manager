@@ -18,21 +18,27 @@
 			}
 
 			header {
-				height: 64px;
+				min-height: 40px;
 				padding: 0 16px;
 				background: #ccc;
 			}
 
-			header>input {
+			.search-field {
+				display: flex;
+				align-items: center;
 				font-size: 16px;
-				width: 100%;
-				max-width: 736px;
-				height: 16px;
-				margin: 16px 0;
-				padding: 8px 16px;
-				color: #fff;
-				border: 0;
-				outline: none;
+			    width: 100%;
+			    padding: 8px 16px;
+			    box-sizing: border-box;
+			    min-height: 40px;
+			    max-width: 768px;
+			    outline: none;
+			    flex-wrap: wrap;
+			    overflow-wrap: anywhere;
+			}
+
+			.search-field > span {
+
 			}
 
 			main {
@@ -131,8 +137,9 @@
 				background: #333;
 			}
 
-			html[theme=dark] header>input {
-				color: #000;
+			html[theme=dark] header>input,
+			html[theme=dark] .search-input {
+				color: #fff;
 			}
 
 			html[theme=dark] .table {
@@ -147,7 +154,7 @@
 	</head>
 	<body>
 		<header>
-			<input type="text" placeholder="Search" autofocus spellcheck="false">
+			<div class="search-field" contenteditable autofocus></div>
 
 			<div class="search-results"></div>
 		</header>
