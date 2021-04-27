@@ -157,7 +157,11 @@ function initSearchBar() {
                 var element = document.createElement('span');
                     
                 element.textContent = match[i].replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, '');
-                element.style.opacity = Math.max(.2, i / (l / 100) / 100);
+                
+                var a = (i + 1) / l;
+
+                element.style.opacity = a;
+                element.style.fontSize = a * 20 + 'px';
 
                 this.appendChild(element);
             }

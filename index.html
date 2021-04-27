@@ -26,15 +26,16 @@
 			.search-field {
 				display: flex;
 				align-items: center;
-				font-size: 16px;
+				font-size: 20px;
 			    width: 100%;
 			    padding: 8px 16px;
 			    box-sizing: border-box;
 			    min-height: 40px;
-			    max-width: 768px;
+			    max-width: 480px;
 			    outline: none;
 			    flex-wrap: wrap;
 			    overflow-wrap: anywhere;
+			    justify-content: center;
 			}
 
 			.search-field > span {
@@ -154,7 +155,7 @@
 	</head>
 	<body>
 		<header>
-			<div class="search-field" contenteditable autofocus></div>
+			<div class="search-field" contenteditable autofocus spellcheck="false"></div>
 
 			<div class="search-results"></div>
 		</header>
