@@ -31,15 +31,24 @@
 			    padding: 8px 16px;
 			    box-sizing: border-box;
 			    min-height: 40px;
-			    max-width: 480px;
+			    max-width: 768px;
 			    outline: none;
 			    flex-wrap: wrap;
 			    overflow-wrap: anywhere;
 			    justify-content: center;
+			    background: #fff;
+			    color: #000;
+			    margin: 8px 16px;
+    			border-radius: 4px;
+			}
+
+			.search-field:empty::before {
+				content: 'Search...';
+				opacity: .5
 			}
 
 			.search-field > span {
-
+				transition: 300ms
 			}
 
 			main {
@@ -136,11 +145,6 @@
 
 			html[theme=dark] header {
 				background: #333;
-			}
-
-			html[theme=dark] header>input,
-			html[theme=dark] .search-input {
-				color: #fff;
 			}
 
 			html[theme=dark] .table {

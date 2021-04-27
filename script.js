@@ -100,9 +100,12 @@ function initSearchBar() {
     var input = document.querySelector('.search-field');
 
     input.change = function () {
-        /*var selection = window.getSelection(),
-            ranges = [];
+        var selection = window.getSelection(),
+            value = this.textContent;
+        
+        /*var ranges = [];
 
+        // COPY SELECTION
         for (var i = 0, l = selection.rangeCount; i < l; i++) {
             var range = selection.getRangeAt(i);
 
@@ -112,43 +115,67 @@ function initSearchBar() {
                 startContainer: range.startContainer,
                 startOffset: range.startOffset
             });
-        }
+        }*/
 
-        console.log(selection.toString());
+        for (var i = 0, l = this.childNodes.length; i < l; i++) {
+            var child = this.childNodes[i];
 
-        //this.style.opacity = Math.min(1, Math.max(this.value.length / 10 + .2, .2));
+            if (child.nodeType === Node.TEXT_NODE) {
+                var match = child.textContent.match(/([^\s]+|[\s]+)/g);
 
-        var match = this.innerText.match(/[^\s]+/g);
+                if (match) {
+                    for (var j = 0, k = match.length; j < k; j++) {
+                        var element = document.createElement('span'),
+                            text = match[j].replace(/[\s\r\n\x0B\x0C\u0085\u2028\u2029]+/g, '');
+                            
+                        if (text !== '') {
+                            element.textContent = text;
+                        } else {
+                            element.className = 'space';
+                            element.innerHTML = '&nbsp;';
+                        }
 
-        console.log(selection, match);
+                        this.insertBefore(element, child);
+                    }
 
-        if (match) {
-            this.innerHTML = '';
+                    child.remove();
+                }
+            } else if (child.tagName === 'SPAN') {
+                var match = child.textContent.match(/([^\s]+|[\s]+)/g),
+                    match2 = child.textContent.match(/[\s]+/g);
 
-            for (var i = 0, l = match.length; i < l; i++) {
-                var span = document.createElement('span');
+                if (match && match2) {
+                    for (var j = 0, k = match.length; j < k; j++) {
+                        var element = document.createElement('span'),
+                            text = match[j].replace(/[\s\r\n\x0B\x0C\u0085\u2028\u2029]+/g, '');
+                            
+                        if (text !== '') {
+                            element.textContent = text;
+                        } else {
+                            element.className = 'space';
+                            element.innerHTML = '&nbsp;';
+                        }
 
-                span.innerText = match[i];
+                        this.insertBefore(element, child);
+                    }
 
-                search_input.appendChild(span);
+                    child.remove();
+                }
             }
         }
 
-        selection.removeAllRanges();
+        var non_space = this.querySelectorAll('span:not(.space)');
 
-        for (var i = 0, l = ranges.length; i < l; i++) {
-            var range = ranges[i],
-                new_range = document.createRange();
+        for (var i = 0, l = non_space.length; i < l; i++) {
+            var element = non_space[i],
+                a = (i + 1) / l;
 
-            new_range.setStart(range.startContainer, range.startOffset);
-            new_range.setEnd(range.endContainer, range.endOffset);
-
-            selection.addRange(new_range);
+            element.style.opacity = a;
+            element.style.fontSize = a * 20 + 'px';
         }
 
-        search_input.focus();*/
-
-        var match = this.textContent.match(/([^\s]+|[\s]+)/g);
+        // CREATE SPANS
+        /*var match = this.textContent.match(/([^\s]+|[\s]+)/g);
 
         if (match) {
             this.innerHTML = '';
@@ -165,25 +192,114 @@ function initSearchBar() {
 
                 this.appendChild(element);
             }
+        }*/
+
+        // REPLACE SELECTION
+        /*selection.removeAllRanges();
+
+        var range = document.createRange(),
+            element = this.children > 0 ? this.children[this.children.length - 1] : this;
+
+            console.log(element, element.textContent.length - 1);
+
+        range.setStart(element, element.textContent.length - 1);
+
+        selection.addRange(range);*/
+
+        /*for (var i = 0, l = ranges.length; i < l; i++) {
+            var range = ranges[i],
+                new_range = document.createRange();
+
+            new_range.setStart(range.startContainer, range.startOffset);
+            new_range.setEnd(range.endContainer, range.endOffset);
+
+            selection.addRange(new_range);
+        }*/
+
+        var results = [],
+            pre_results = {},
+            first = null,
+            cursor_position = this.selectionStart,
+            r = new RegExp('[^\w]' + value);
+
+        search_results_element.innerHTML = '';
+
+        if (value.length > 0 && event.inputType !== 'deleteContentBackward') {
+            for (var i = 0, l = SEARCH.length; i < l; i++) {
+                var item = SEARCH[i];
+
+                if (item[0].indexOf(value) === 0 && !pre_results[key]) {
+                    pre_results[item[0]] = item;
+                }
+            }
+
+            for (var key in BOOKMARKS) {
+                if (key.indexOf(value) === 0) {
+                    var start_with = key.match(/[^/]+\/\/(www\.)?/)[1],
+                        url = key.replace(start_with, '');
+
+                    if (!pre_results[key]) {
+                        pre_results[url] = [
+                            url,
+                            0,
+                            start_with
+                        ];
+                    }
+                }
+            }
+
+            for (var i = 0; i < TOP_SITES_length; i++) {
+                var key = TOP_SITES[i];
+
+                if (key.indexOf(value) === 0 && !pre_results[key]) {
+                    pre_results[key] = [
+                        key,
+                        0,
+                        'https://'
+                    ];
+                }
+            }
+
+            for (var key in pre_results) {
+                results.push(pre_results[key]);
+            }
+
+            results = sort(results, 1);
+
+            results = results.slice(0, 6);
+
+            for (var i = 0, l = results.length; i < l; i++) {
+                var item = document.createElement('div');
+
+                item.innerText = results[i][0];
+                item.dataset.url = results[i][2] + results[i][0];
+                item.style.backgroundImage = 'url(chrome://favicon/' + results[i][2] + results[i][0] + ')';
+
+                item.addEventListener('click', function() {
+                    search_results_element.style.display = 'none';
+
+                    window.open(this.innerText, '_self');
+                });
+
+                search_results_element.appendChild(item);
+            }
         }
 
-        //this.style.opacity = Math.min(1, Math.max(this.value.length / 10 + .2, .2));
-
-        /*if (this.value === 0) {
+        if (value === 0) {
             search_results_element.style.display = '';
         } else {
             search_results_element.style.display = 'block';
-        }*/
+        }
     };
 
     input.addEventListener('focus', function() {
-        /*if (this.innerText.length > 0) {
+        if (this.innerText.length > 0) {
             search_results_element.style.display = 'block';
-        }*/
+        }
     });
 
     input.addEventListener('blur', function() {
-        //search_results_element.style.display = '';
+        search_results_element.style.display = '';
     });
 
     input.addEventListener('input', function() {

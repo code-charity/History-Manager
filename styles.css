@@ -41,6 +41,8 @@ header
     color: #000;
     border-top: 1px solid #ddd;
     background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px 2px rgba(0,0,0,.2);
 }
 
 .search-results:hover
