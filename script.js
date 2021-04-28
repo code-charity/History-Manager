@@ -285,6 +285,15 @@ function initSearchBar() {
             }
         }
 
+        first = results[0][0];
+
+        if (first) {
+            search_results_element.children[0].className = 'selected';
+
+            this.value = first;
+            //this.setSelectionRange(cursor_position, this.value.length);
+        }
+
         if (value === 0) {
             search_results_element.style.display = '';
         } else {
@@ -304,6 +313,48 @@ function initSearchBar() {
 
     input.addEventListener('input', function() {
         this.change();
+    });
+
+    input.addEventListener('keydown', function(event) {
+        var key = event.key;
+
+        if (key === 'Enter') {
+            window.open('https://' + this.value, '_self');
+        } else if (key === 'ArrowUp') {
+            var selected = search_results_element.querySelector('.selected'),
+                elements = search_results_element.children;
+
+            if (!selected) {
+                elements[elements.length - 1].classList.add('selected');
+            } else if (Array.prototype.indexOf.call(selected.parentNode.children, selected) === 0) {
+                selected.classList.remove('selected');
+
+                elements[elements.length - 1].classList.add('selected');
+            } else {
+                selected.classList.remove('selected');
+
+                elements[Array.prototype.indexOf.call(selected.parentNode.children, selected) - 1].classList.add('selected');
+            }
+
+            this.value = search_results_element.querySelector('.selected').innerText;
+        } else if (key === 'ArrowDown') {
+            var selected = search_results_element.querySelector('.selected'),
+                elements = search_results_element.children;
+
+            if (!selected) {
+                elements[0].classList.add('selected');
+            } else if (Array.prototype.indexOf.call(selected.parentNode.children, selected) === elements.length - 1) {
+                selected.classList.remove('selected');
+
+                elements[0].classList.add('selected');
+            } else {
+                selected.classList.remove('selected');
+
+                elements[Array.prototype.indexOf.call(selected.parentNode.children, selected) + 1].classList.add('selected');
+            }
+
+            this.value = search_results_element.querySelector('.selected').innerText;
+        }
     });
 
     /*document.querySelector('header > input').addEventListener('input', function(event) {
@@ -389,48 +440,6 @@ function initSearchBar() {
             } else {
                 search_results_element.style.display = '';
             }
-        }
-    });
-
-    document.querySelector('header > input').addEventListener('keydown', function(event) {
-        var key = event.key;
-
-        if (key === 'Enter') {
-            window.open('https://' + this.value, '_self');
-        } else if (key === 'ArrowUp') {
-            var selected = search_results_element.querySelector('.selected'),
-                elements = search_results_element.children;
-
-            if (!selected) {
-                elements[elements.length - 1].classList.add('selected');
-            } else if (Array.prototype.indexOf.call(selected.parentNode.children, selected) === 0) {
-                selected.classList.remove('selected');
-
-                elements[elements.length - 1].classList.add('selected');
-            } else {
-                selected.classList.remove('selected');
-
-                elements[Array.prototype.indexOf.call(selected.parentNode.children, selected) - 1].classList.add('selected');
-            }
-
-            this.value = search_results_element.querySelector('.selected').innerText;
-        } else if (key === 'ArrowDown') {
-            var selected = search_results_element.querySelector('.selected'),
-                elements = search_results_element.children;
-
-            if (!selected) {
-                elements[0].classList.add('selected');
-            } else if (Array.prototype.indexOf.call(selected.parentNode.children, selected) === elements.length - 1) {
-                selected.classList.remove('selected');
-
-                elements[0].classList.add('selected');
-            } else {
-                selected.classList.remove('selected');
-
-                elements[Array.prototype.indexOf.call(selected.parentNode.children, selected) + 1].classList.add('selected');
-            }
-
-            this.value = search_results_element.querySelector('.selected').innerText;
         }
     });*/
 }
