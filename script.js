@@ -278,7 +278,7 @@ function initSearchBar() {
                 item.addEventListener('click', function() {
                     search_results_element.style.display = 'none';
 
-                    window.open(this.innerText, '_self');
+                    window.open(this.dataset.url, '_self');
                 });
 
                 search_results_element.appendChild(item);
