@@ -1,0 +1,1 @@
+PARAMS_REGEX = /[?&](q|search)=([^&]+)/g;
