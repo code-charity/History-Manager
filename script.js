@@ -264,37 +264,37 @@ function initSearchBar() {
                 results.push(pre_results[key]);
             }
 
-            results = sort(results, 1);
+            if (results[0]) {
+                results = sort(results, 1);
 
-            results = results.slice(0, 6);
+                results = results.slice(0, 6);
 
-            for (var i = 0, l = results.length; i < l; i++) {
-                var item = document.createElement('div');
+                for (var i = 0, l = results.length; i < l; i++) {
+                    var item = document.createElement('div');
 
-                item.innerText = results[i][0];
-                item.dataset.url = results[i][2] + results[i][0];
-                item.style.backgroundImage = 'url(chrome://favicon/' + results[i][2] + results[i][0] + ')';
+                    item.innerText = results[i][0];
+                    item.dataset.url = results[i][2] + results[i][0];
+                    item.style.backgroundImage = 'url(chrome://favicon/' + results[i][2] + results[i][0] + ')';
 
-                item.addEventListener('click', function() {
-                    search_results_element.style.display = 'none';
+                    item.addEventListener('click', function() {
+                        search_results_element.style.display = 'none';
 
-                    window.open(this.dataset.url, '_self');
-                });
+                        window.open(this.dataset.url, '_self');
+                    });
 
-                search_results_element.appendChild(item);
+                    search_results_element.appendChild(item);
+                }
             }
         }
 
-        first = results[0][0];
-
-        if (first) {
+        if (results[0] && results[0][0]) {
             search_results_element.children[0].className = 'selected';
 
-            this.value = first;
+            //this.textContent = first;
             //this.setSelectionRange(cursor_position, this.value.length);
         }
 
-        if (value === 0) {
+        if (value.length === 0 || results.length === 0) {
             search_results_element.style.display = '';
         } else {
             search_results_element.style.display = 'block';

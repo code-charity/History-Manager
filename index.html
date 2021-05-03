@@ -24,31 +24,32 @@
 			}
 
 			.search-field {
-				display: flex;
-				align-items: center;
 				font-size: 20px;
-			    width: 100%;
-			    padding: 8px 16px;
-			    box-sizing: border-box;
-			    min-height: 40px;
-			    max-width: 768px;
-			    outline: none;
-			    flex-wrap: wrap;
-			    overflow-wrap: anywhere;
-			    justify-content: center;
-			    background: #fff;
-			    color: #000;
-			    margin: 8px 16px;
-    			border-radius: 4px;
+				display: flex;
+				box-sizing: border-box;
+				width: 100%;
+				max-width: 768px;
+				min-height: 40px;
+				margin: 8px 16px;
+				padding: 8px 16px;
+				text-align: center;
+				color: #000;
+				border-radius: 4px;
+				outline: none;
+				background: #fff;
+				align-items: center;
+				flex-wrap: wrap;
+				overflow-wrap: anywhere;
+				justify-content: center;
 			}
 
 			.search-field:empty::before {
 				content: 'Search...';
-				opacity: .5
+				opacity: .5;
 			}
 
-			.search-field > span {
-				transition: 300ms
+			.search-field>span {
+				transition: 300ms;
 			}
 
 			main {
