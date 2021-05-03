@@ -359,14 +359,14 @@ html .table__body .pinned button
 
 
 
-.table__body > div[data-selected],
-.table--inner > div[data-selected] {
-    background: #2962FF;
+.table__body > .selected,
+.table--inner > .selected {
+    background: #F00;
 }
 
-.table__body > div[data-selected] *::selection,
-.table--inner > div[data-selected] *::selection {
-    background: transparent;
+.table__body > .selection,
+.table--inner > .selection {
+    background: #0F0;
 }
 
 

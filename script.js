@@ -1461,7 +1461,7 @@ function updateTableWithRecentlyClosed() {
     window.addEventListener('mouseup', mouseup);
 });*/
 
-document.addEventListener('selectionchange', function(event) {
+/*document.addEventListener('selectionchange', function(event) {
     var selection = document.getSelection();
 
     for (var i = 0, l = selection.rangeCount; i < l; i++) {
@@ -1520,6 +1520,97 @@ window.addEventListener('click', function(event) {
                     item.dataset.selected = true;
                 }
             }
+        }
+    }
+});*/
+
+window.addEventListener('mousedown', function(event) {
+    var table,
+        rows = [],
+        start_row,
+        next_row,
+        end_row,
+        start_mouse_y = 0,
+        end_mouse_y = 0;
+
+    function mousemove(event) {
+        for (var i = 0, l = rows.length; i < l; i++) {
+            rows[i].classList.remove('selection');
+        }
+
+        rows = [start_row];
+
+        for (var i = 0, l = event.path.length; i < l; i++) {
+            var item = event.path[i];
+
+            if (
+                item.parentNode &&
+                (
+                    item.parentNode.className === 'table__body' ||
+                    item.parentNode.className === 'table--inner'
+                )
+            ) {
+                end_row = item;
+            }
+        }
+
+        if (end_row) {
+            next_row = start_row;
+
+            while (next_row !== end_row) {
+                if (start_mouse_y < event.clientY) {
+                    next_row = next_row.nextElementSibling;
+                } else {
+                    next_row = next_row.previousElementSibling;
+                }
+                
+                rows.push(next_row);
+            }
+        
+            rows.push(end_row);
+        }
+        
+        for (var i = 0, l = rows.length; i < l; i++) {
+            rows[i].classList.add('selection');
+        }
+
+        end_row.classList.add('selection');
+    }
+
+    function mouseup() {
+        for (var i = 0, l = rows.length; i < l; i++) {
+            rows[i].classList.remove('selection');
+            rows[i].classList.toggle('selected');
+        }
+
+        window.removeEventListener('mousemove', mousemove);
+        window.removeEventListener('mouseup', mouseup);
+    }
+
+    window.addEventListener('mousemove', mousemove);
+    window.addEventListener('mouseup', mouseup);
+
+    start_mouse_y = event.clientY;
+
+    for (var i = 0, l = event.path.length; i < l; i++) {
+        var item = event.path[i];
+
+        if (item.className === 'table') {
+            table = item;            
+        }
+
+        if (
+            item.parentNode &&
+            (
+                item.parentNode.className === 'table__body' ||
+                item.parentNode.className === 'table--inner'
+            )
+        ) {
+            start_row = item;
+
+            rows.push(start_row);
+
+            event.preventDefault();
         }
     }
 });
