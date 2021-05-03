@@ -1554,7 +1554,7 @@ window.addEventListener('mousedown', function(event) {
             }
         }
 
-        if (end_row) {
+        if (end_row && start_row !== end_row) {
             next_row = start_row;
 
             while (next_row !== end_row) {
@@ -1578,6 +1578,8 @@ window.addEventListener('mousedown', function(event) {
     }
 
     function mouseup() {
+        console.log(rows);
+
         for (var i = 0, l = rows.length; i < l; i++) {
             rows[i].classList.remove('selection');
             rows[i].classList.toggle('selected');
