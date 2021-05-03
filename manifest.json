@@ -10,6 +10,7 @@
         "scripts": [
             "data/categories.js",
             "data/params.js",
+            "data/useless-params.js",
             "background.js"
         ]
     },

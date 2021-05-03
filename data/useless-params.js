@@ -1,0 +1,1 @@
+USELESS_PARAMS_REGEX = /[?&](ei)=[^&]+/g;

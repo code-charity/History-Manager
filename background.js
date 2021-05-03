@@ -80,6 +80,8 @@ function cacheHistory() {
                     var decoded_url = item.url;
                 }
 
+                decoded_url = decoded_url.replace(USELESS_PARAMS_REGEX, '');
+
                 var url_parts = decoded_url.match(URL_PARTS_REGEX);
 
                 if (url_parts) {
