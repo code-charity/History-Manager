@@ -32,7 +32,7 @@ var EXTENSION_ID = chrome.runtime.id,
     URL_PARTS_REGEX = /\/[^/?#]+/g,
     PROTOCOL_REGEX = /[^/]+/g,
     PROTOCOL_WWW_REGEX = /[^/]+\/\/(www\.)?/,
-    SEARCH_REGEX = new RegExp('[?&](' + SEARCH_PARAMS.join('|') + ')=([^&]+)');
+    SEARCH_REGEX = PARAMS_REGEX;
 
 
 /*--------------------------------------------------------------
