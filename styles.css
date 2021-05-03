@@ -358,6 +358,18 @@ html .table__body .pinned button
 }
 
 
+
+.table__body > div[data-selected],
+.table--inner > div[data-selected] {
+    background: #2962FF;
+}
+
+.table__body > div[data-selected] *::selection,
+.table--inner > div[data-selected] *::selection {
+    background: transparent;
+}
+
+
 /*--------------------------------------------------------------
 # FOOTER
 --------------------------------------------------------------*/
