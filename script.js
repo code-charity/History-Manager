@@ -812,6 +812,7 @@ function renderTable(index, array) {
                     var self = this;
 
                     chrome.storage.local.get('q' + item.children[2].children[0].innerText, function(items) {
+                        console.log(items);
                         var items = items['q' + item.children[2].children[0].innerText],
                             table = document.createElement('div'),
                             sorted = [];

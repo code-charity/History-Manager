@@ -31,8 +31,7 @@ var EXTENSION_ID = chrome.runtime.id,
     WEBSITES = {},
     URL_PARTS_REGEX = /\/[^/?#]+/g,
     PROTOCOL_REGEX = /[^/]+/g,
-    PROTOCOL_WWW_REGEX = /[^/]+\/\/(www\.)?/,
-    SEARCH_REGEX = PARAMS_REGEX;
+    PROTOCOL_WWW_REGEX = /[^/]+\/\/(www\.)?/;
 
 
 /*--------------------------------------------------------------
@@ -117,7 +116,7 @@ function cacheHistory() {
 
                     BY_PAGE.push([item.visitCount, item.title, decoded_url, 0, '']);
 
-                    var params = decoded_url.match(SEARCH_REGEX);
+                    var params = decoded_url.match(PARAMS_REGEX);
 
                     if (params) {
                         var domain = url_parts[0];
