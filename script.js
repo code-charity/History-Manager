@@ -48,7 +48,10 @@ TABLE[0].data = {
     loaded: false,
     page: 1,
     column: 0,
-    order_by: 'desc'
+    order_by: 'desc',
+    selection: {
+        length: 0
+    }
 };
 
 TABLE[1].data = {
@@ -57,7 +60,10 @@ TABLE[1].data = {
     loaded: false,
     page: 1,
     column: 0,
-    order_by: 'desc'
+    order_by: 'desc',
+    selection: {
+        length: 0
+    }
 };
 
 TABLE[2].data = {
@@ -66,21 +72,30 @@ TABLE[2].data = {
     loaded: false,
     page: 1,
     column: 0,
-    order_by: 'desc'
+    order_by: 'desc',
+    selection: {
+        length: 0
+    }
 };
 
 TABLE[4].data = {
     table: [],
     page: 1,
     column: 0,
-    order_by: 'desc'
+    order_by: 'desc',
+    selection: {
+        length: 0
+    }
 };
 
 TABLE[5].data = {
     table: [],
     page: 1,
     column: 0,
-    order_by: 'desc'
+    order_by: 'desc',
+    selection: {
+        length: 0
+    }
 };
 
 
@@ -641,6 +656,15 @@ function renderTable(index, array) {
                 td3 = document.createElement('div'),
                 a = document.createElement('a');
 
+            tr.data = {
+                object: array[i],
+                index: i
+            };
+
+            if (TABLE[index].data.selection[i]) {
+                tr.classList.add('selected');
+            }
+
             td1.title = array[i][1];
             td1.innerText = array[i][1];
 
@@ -713,6 +737,15 @@ function renderTable(index, array) {
                 td5 = document.createElement('div'),
                 a = document.createElement('a'),
                 input = document.createElement('input');
+
+            tr.data = {
+                object: array[i],
+                index: i
+            };
+
+            if (TABLE[index].data.selection[i]) {
+                tr.classList.add('selected');
+            }
 
             input.type = 'text';
 
@@ -795,6 +828,15 @@ function renderTable(index, array) {
                 button = document.createElement('button'),
                 td3 = document.createElement('div'),
                 a = document.createElement('a');
+
+            tr.data = {
+                object: array[i],
+                index: i
+            };
+
+            if (TABLE[index].data.selection[i]) {
+                tr.classList.add('selected');
+            }
 
             td1.title = array[i][0];
             td1.innerText = array[i][0];
@@ -950,6 +992,15 @@ function renderTable(index, array) {
                 icon = document.createElement('div'),
                 visits = 0;
 
+            tr.data = {
+                object: array[i],
+                index: i
+            };
+
+            if (TABLE[index].data.selection[i]) {
+                tr.classList.add('selected');
+            }
+
             button.innerText = '+';
             button.data = array[i][2];
 
@@ -1061,7 +1112,7 @@ function renderTable(index, array) {
         var pages = Math.ceil(TABLE[index].data.length / 100),
             current = TABLE[index].data.page;
 
-        TABLE[index].children[2].innerHTML = '';
+        TABLE[index].children[2].children[1].innerHTML = '';
 
         if (pages > 1) {
             for (var i = 0; i < pages; i++) {
@@ -1074,7 +1125,7 @@ function renderTable(index, array) {
 
                     span.innerText = '...';
 
-                    TABLE[index].children[2].appendChild(span);
+                    TABLE[index].children[2].children[1].appendChild(span);
                 }
 
                 if (current < pages - 4 && i === current + 1) {
@@ -1084,7 +1135,7 @@ function renderTable(index, array) {
 
                     span.innerText = '...';
 
-                    TABLE[index].children[2].appendChild(span);
+                    TABLE[index].children[2].children[1].appendChild(span);
                 }
 
                 button.innerText = i + 1;
@@ -1097,7 +1148,7 @@ function renderTable(index, array) {
                     if (TABLE[index].data.loaded) {
                         var prev = this.parentNode.querySelector('.selected');
 
-                        this.parentNode.parentNode.data.page = Number(this.innerText);
+                        this.parentNode.parentNode.parentNode.data.page = Number(this.innerText);
 
                         if (prev) {
                             prev.classList.remove('selected');
@@ -1105,7 +1156,7 @@ function renderTable(index, array) {
 
                         this.classList.add('selected');
 
-                        renderTable(Number(this.parentNode.parentNode.dataset.tableIndex));
+                        renderTable(Number(this.parentNode.parentNode.parentNode.dataset.tableIndex));
                     } else {
                         var self = this,
                             id = TABLE[index].data.id;
@@ -1133,7 +1184,7 @@ function renderTable(index, array) {
 
                             var prev = self.parentNode.querySelector('.selected');
 
-                            self.parentNode.parentNode.data.page = Number(self.innerText);
+                            self.parentNode.parentNode.parentNode.data.page = Number(self.innerText);
 
                             if (prev) {
                                 prev.classList.remove('selected');
@@ -1141,12 +1192,12 @@ function renderTable(index, array) {
 
                             self.classList.add('selected');
 
-                            renderTable(Number(self.parentNode.parentNode.dataset.tableIndex));
+                            renderTable(Number(self.parentNode.parentNode.parentNode.dataset.tableIndex));
                         });
                     }
                 });
 
-                TABLE[index].children[2].appendChild(button);
+                TABLE[index].children[2].children[1].appendChild(button);
             }
         }
     }
@@ -1524,6 +1575,88 @@ window.addEventListener('click', function(event) {
     }
 });*/
 
+function createSelectionBar(table) {
+    var bar = table.children[2].children[0];
+
+    if (bar.children.length > 0) {
+        return;
+    }
+    
+    var undo_button = document.createElement('button'),
+        delete_button = document.createElement('button'),
+        bookmark_button = document.createElement('button');
+
+    undo_button.textContent = 'Undo selection';
+    delete_button.textContent = 'Delete';
+    bookmark_button.textContent = 'Bookmark';
+
+    undo_button.addEventListener('click', function() {
+        var table = this.parentNode.parentNode.parentNode,
+            elements = table.querySelectorAll('.selected');
+
+        for (var i = 0, l = elements.length; i < l; i++) {
+            elements[i].classList.remove('selected');
+        }
+
+        removeSelectionBar(table);
+
+        table.data.selection = {
+            length: 0
+        };
+    });
+
+    delete_button.addEventListener('click', function() {
+        var table = this.parentNode.parentNode.parentNode,
+            elements = table.querySelectorAll('.selected');
+
+        for (var i = elements.length - 1; i > 0; i--) {
+            var element = elements[i - 1];
+
+            delete table.data.table[element.data.index];
+            delete table.data.selection[element.data.index];
+
+            element.remove();
+        }
+
+        removeSelectionBar(table);
+
+        table.data.selection = {
+            length: 0
+        };
+    });
+
+    bookmark_button.addEventListener('click', function() {
+        var table = this.parentNode.parentNode.parentNode;
+
+        for (var key in table.data.selection) {
+            var element = elements[key];
+
+            delete table.data.table[element.data.index];
+            delete table.data.selection[element.data.index];
+
+            chrome.bookmarks.create({
+                title: this.parentNode.children[1].innerText,
+                url: this.parentNode.children[2].children[0].href,
+                parentId: '1'
+            }, function (item) {
+                self.bookmarkId = item.id;
+            });
+        }
+    });
+
+    bar.appendChild(undo_button);
+    bar.appendChild(delete_button);
+    bar.appendChild(bookmark_button);
+}
+
+function removeSelectionBar(table) {
+    var elements = table.children[2].children[0].children;
+
+    for (var i = elements.length; i > 0; i--) {
+        elements[i - 1].remove();
+    }
+}
+
 window.addEventListener('mousedown', function(event) {
     var table,
         rows = [],
@@ -1575,8 +1708,26 @@ window.addEventListener('mousedown', function(event) {
 
     function mouseup() {
         for (var i = 0, l = rows.length; i < l; i++) {
-            rows[i].classList.remove('selection');
-            rows[i].classList.toggle('selected');
+            var row = rows[i];
+
+            row.classList.remove('selection');
+            row.classList.toggle('selected');
+
+            if (row.classList.contains('selected')) {
+                table.data.selection[row.data.index] = row.data.object;
+
+                table.data.selection.length++;
+            } else {
+                delete table.data.selection[row.data.index];
+
+                table.data.selection.length--;
+            }
+        }
+
+        if (table.data.selection.length === 0) {
+            removeSelectionBar(table);
+        } else {
+            createSelectionBar(table);
         }
 
         window.removeEventListener('mousemove', mousemove);

@@ -362,12 +362,14 @@ html .table__body .pinned button
 
 .table__body > .selected,
 .table--inner > .selected {
-    background: #F00;
+    background: #FFD740;
+    color: #222;
 }
 
 .table__body > .selection,
 .table--inner > .selection {
-    background: #0F0;
+    background: #FFAB00;
+    color: #222;
 }
 
 
@@ -380,14 +382,27 @@ html .table__body .pinned button
     position: relative;
 
     display: flex;
-
-    max-height: 32px;
+    flex-direction: column;
 
     background: #ccc;
     box-shadow: 0 -1px 3px 2px rgb(0, 0, 0, .2);
 }
 
-.table__footer > button
+.table__selection
+{
+    display: flex;
+    background: #FFD740;
+    max-height: 32px;
+    color: #222;
+}
+
+.table__pagination
+{
+    display: flex;
+    height: 32px;
+}
+
+.table__pagination > button
 {
     font: inherit;
 
@@ -408,19 +423,19 @@ html .table__body .pinned button
     appearance: none;
 }
 
-.table__footer > button:hover
+.table__pagination > button:hover
 {
     opacity: 1;
 }
 
-.table__footer > button.selected
+.table__pagination > button.selected
 {
     font-weight: 700;
 
     opacity: 1;
 }
 
-.table__footer > span
+.table__pagination > span
 {
     display: flex;
 
@@ -431,7 +446,7 @@ html .table__body .pinned button
     justify-content: center;
 }
 
-html[theme=dark] .table__footer > button
+html[theme=dark] .table__pagination > button
 {
     color: #fff;
 }
