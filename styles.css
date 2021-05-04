@@ -175,12 +175,13 @@ html[theme=dark] .table:not([data-table-index='3']) .table--inner
 {
     overflow-y: auto;
 
-    height: calc(100% - 32px);
+    flex: 1;
 }
 
 .table__body > div
 {
     display: flex;
+    cursor: default;
 
     margin-top: 4px;
 }
@@ -190,14 +191,14 @@ html[theme=dark] .table:not([data-table-index='3']) .table--inner
     margin-bottom: 4px;
 }
 
-.table__body > div:not(.table--inner):hover,
-.table--inner > div:hover
+.table__body > div:not(.table--inner):not(.selection):hover,
+.table--inner > div::not(.selection)hover
 {
     background-color: rgba(0,0,0,.1);
 }
 
-html[theme=dark] .table__body > div:not(.table--inner):hover,
-html[theme=dark] .table--inner > div:hover
+html[theme=dark] .table__body > div:not(.table--inner):not(.selection):hover,
+html[theme=dark] .table--inner > div:not(.selection):hover
 {
     background-color: rgba(255,255,255,.1);
 }

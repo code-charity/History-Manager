@@ -1538,7 +1538,7 @@ window.addEventListener('mousedown', function(event) {
             rows[i].classList.remove('selection');
         }
 
-        rows = [start_row];
+        rows.splice(1, rows.length);
 
         for (var i = 0, l = event.path.length; i < l; i++) {
             var item = event.path[i];
@@ -1566,20 +1566,14 @@ window.addEventListener('mousedown', function(event) {
                 
                 rows.push(next_row);
             }
-        
-            rows.push(end_row);
         }
         
         for (var i = 0, l = rows.length; i < l; i++) {
             rows[i].classList.add('selection');
         }
-
-        end_row.classList.add('selection');
     }
 
     function mouseup() {
-        console.log(rows);
-
         for (var i = 0, l = rows.length; i < l; i++) {
             rows[i].classList.remove('selection');
             rows[i].classList.toggle('selected');
