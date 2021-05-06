@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Grid</title>
+		<style>
+			body {
+				display: flex;
+				overflow: hidden;
+				flex-direction: column;
+				height: 100vh;
+				margin: 0;
+				background: #fff;
+			}
+
+			.grid__row {
+				margin-top: 16px;
+				margin-right: 16px;
+				margin-left: 16px;
+			}
+
+			.grid__row:last-child {
+				margin-bottom: 16px;
+			}
+
+			.grid__cell {
+				font: 400 32px monospace;
+				background: #f0f0f0;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.grid__cell:not(:last-child) {
+				margin-right: 16px;
+			}
+
+			.grid__cell[data-dragging=true] {
+				background: #d7e3ff;
+			}
+		</style>
+		<link rel="stylesheet" type="text/css" href="../components/grid/grid.css">
+	</head>
+	<body>
+		<script src="../components/grid/grid.js"></script>
+		<script src="grid.js"></script>
+	</body>
+</html>

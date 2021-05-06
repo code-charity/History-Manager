@@ -1,0 +1,19 @@
+.grid {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.grid__row {
+	display: flex;
+	flex: 1;
+}
+
+.grid__cell {
+	display: flex;
+	flex: 1;
+}
+
+.grid__cell[data-dragging=true] {
+	opacity: .75;
+}
