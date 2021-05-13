@@ -306,6 +306,8 @@ function initSearchBar() {
         if (results[0] && results[0][0]) {
             search_results_element.children[0].className = 'selected';
 
+            this.value = results[0][0];
+
             //this.textContent = first;
             //this.setSelectionRange(cursor_position, this.value.length);
         }
