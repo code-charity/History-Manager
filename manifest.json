@@ -15,7 +15,7 @@
         ]
     },
 
-    "chrome_url_overrides": {
+    "2chrome_url_overrides": {
         "newtab": "index.html"
     },
 

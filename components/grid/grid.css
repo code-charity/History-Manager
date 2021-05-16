@@ -1,19 +1,94 @@
 .grid {
 	display: flex;
+}
+
+.grid__item {
+	display: flex;
+	flex: 1;
+	position: relative;
+}
+
+/*.grid-item__row {
+	flex: 1;
+	display: flex;
+	transition: margin 200ms;
+	height: 100%;
+	position: relative;
+}
+
+.grid-item__column {
+	flex: 1;
+	display: flex;
 	flex-direction: column;
-	flex: 1;
+	transition: margin 200ms;
+	width: 100%;
+	position: relative;
 }
 
-.grid__row {
-	display: flex;
-	flex: 1;
+.grid-item__top {
+	position: absolute;
+	top: 0;
+	left: 25%;
+	width: 50%;
+	height: 25%;
+}*/
+
+.grid-item__left {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 25%;
+	height: 100%;
 }
 
-.grid__cell {
-	display: flex;
-	flex: 1;
+/*.grid-item__center {
+	position: absolute;
+	top: 25%;
+	left: 25%;
+	width: 50%;
+	height: 50%;
+}*/
+
+.grid-item__center {
+	position: absolute;
+	top: 0;
+	left: 25%;
+	width: 50%;
+	height: 100%;
 }
 
-.grid__cell[data-dragging=true] {
-	opacity: .75;
+.grid-item__right {
+	position: absolute;
+	top: 0;
+	left: 75%;
+	width: 25%;
+	height: 100%;
+}
+
+/*.grid-item__bottom {
+	position: absolute;
+	top: 75%;
+	left: 25%;
+	width: 50%;
+	height: 25%;
+}
+
+.grid__item[data-drag-over='left'] {
+	margin: 0 0 0 32px;
+}
+
+.grid__item[data-drag-over='center'] {
+	margin: 0;
+}
+
+.grid__item[data-drag-over='right'] {
+	margin: 0 32px 0 0;
+}*/
+
+.grid__item[data-drag-over='left'] > .grid-item__left {
+	background: #e1bee7;
+}
+
+.grid__item[data-drag-over='right'] > .grid-item__right {
+	background: #e1bee7;
 }

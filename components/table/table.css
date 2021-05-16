@@ -48,6 +48,16 @@
     display: flex;
 }
 
+.table__body > .selected {
+    background: #FFD740;
+    color: #222;
+}
+
+.table__body > .selection {
+    background: #FFAB00;
+    color: #222;
+}
+
 .table__body>div>div {
     overflow: hidden;
     margin: 8px;
