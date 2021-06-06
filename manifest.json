@@ -5,17 +5,14 @@
     "version_name": "1.0-alpha",
 
     "default_locale": "en",
-
+    
     "background": {
         "scripts": [
-            "data/categories.js",
-            "data/params.js",
-            "data/useless-params.js",
             "background.js"
         ]
     },
 
-    "2chrome_url_overrides": {
+    "chrome_url_overrides": {
         "newtab": "index.html"
     },
 
@@ -23,6 +20,8 @@
         "bookmarks",
         "chrome://favicon/",
         "history",
+        "http://*/*",
+        "https://*/*",
         "storage",
         "unlimitedStorage",
         "tabs"
