@@ -1620,27 +1620,140 @@ function renderTables() {
 
 function updateTabManager() {
     var container = document.querySelector('.satus-tab-manager'),
-        tab_manager_skeleton = {};
+        tab_manager_skeleton = {
+            head: {
+                element: 'h1',
+                class: 'satus-h1--title',
+                text: 'Tabs'
+            },
+            body: {
+                element: 'div'
+            }
+        },
+        window_index = 0;
 
     if (container) {
         satus.empty(container);
 
         for (var i in TABS) {
-            tab_manager_skeleton[i] = {
+            tab_manager_skeleton.body[i] = {
                 element: 'div',
+                class: 'satus-div--window' + (window_index === 0 ? ' active' : ''),
 
                 title: {
                     element: 'button',
-                    text: 'window'
+                    class: 'satus-button--window',
+                    text: 'window',
+                    onclick: function() {
+                        this.parentNode.classList.toggle('active');
+                    }
                 }
             };
 
             for (var j in TABS[i]) {
                 var tab = TABS[i][j];
 
-                tab_manager_skeleton[i]['row-' + j] = {
+                tab_manager_skeleton.body[i]['row-' + j] = {
                     element: 'div',
                     class: 'satus-tab-manager__row',
+                    dataset: {
+                        windowId: i,
+                        index: j
+                    },
+                    events: {
+                        mousedown: {
+                            type: 'mousedown',
+                            listener: function(event) {
+                                if (event.button === 0) {
+                                    var button = this,
+                                        parent = button.parentNode,
+                                        index = Array.prototype.slice.call(parent.children).indexOf(button),
+                                        rect = button.getBoundingClientRect(),
+                                        offset_x = event.clientX - rect.left,
+                                        offset_y = event.clientY - rect.top,
+                                        selected;
+
+                                    button.classList.add('active');
+                                    button.style.width = rect.width + 'px';
+
+                                    event.preventDefault();
+                                    event.stopPropagation();
+
+                                    document.body.appendChild(button);
+
+                                    function mousemove(event) {
+                                        var founded = false;
+
+                                        button.style.left = event.clientX - offset_x + 'px';
+                                        button.style.top = event.clientY - offset_y + 'px';
+
+                                        for (var i = 0, l = event.path.length - 2; i < l; i++) {
+                                            var element = event.path[i];
+
+                                            if (element.className.indexOf('satus-tab-manager__row') !== -1) {
+                                                if (selected !== element) {
+                                                    if (selected) {
+                                                        selected.classList.remove('selected--before');
+                                                        selected.classList.remove('selected--after');
+                                                    }
+
+                                                    selected = element;
+                                                } else {
+                                                    var selected_rect = selected.getBoundingClientRect();
+
+                                                    if (event.clientY - selected_rect.top < selected_rect.height / 2) {
+                                                        selected.classList.remove('selected--after');
+                                                        selected.classList.add('selected--before');
+                                                    } else {
+                                                        selected.classList.remove('selected--before');
+                                                        selected.classList.add('selected--after');
+                                                    }
+                                                }
+
+                                                founded = true;
+                                            }
+                                        }
+
+                                        if (founded === false && selected) {
+                                            selected.classList.remove('selected--before');
+                                            selected.classList.remove('selected--after');
+
+                                            selected = null;
+                                        }
+                                    }
+
+                                    function mouseup(event) {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+
+                                        button.classList.remove('active');
+
+                                        if (selected) {
+                                            selected.classList.remove('selected--before');
+                                            selected.classList.remove('selected--after');
+                                        }
+
+                                        parent.insertBefore(button, selected || parent.children[index]);
+
+                                        button.dataset.index = Array.prototype.slice.call(parent.children).indexOf(button);
+
+                                        chrome.tabs.move(TABS[Number(button.dataset.windowId)][index - 1].id, {index: Number(button.dataset.index) - 1});
+
+                                        window.removeEventListener('mousemove', mousemove);
+                                        window.removeEventListener('mouseup', mouseup);
+
+                                        return false;
+                                    }
+
+                                    window.addEventListener('mousemove', mousemove);
+                                    window.addEventListener('mouseup', mouseup, true);
+
+                                    return false;
+                                }
+                            },
+                            options: true
+                        }
+                    },
 
                     pin: {
                         element: 'button',
@@ -1670,6 +1783,8 @@ function updateTabManager() {
                     }
                 };
             }
+
+            window_index++;
         }
 
         satus.render(tab_manager_skeleton, container);
@@ -1716,34 +1831,40 @@ chrome.bookmarks.getTree(function (bookmarks) {
 --------------------------------------------------------------*/
 
 chrome.tabs.query({}, function (tabs) {
+    console.log('QUERY');
     for (var i = 0, l = tabs.length; i < l; i++) {
         var tab = tabs[i];
 
-        if (!TABS['w' + tab.windowId]) {
-            TABS['w' + tab.windowId] = {};
+        if (!TABS[tab.windowId]) {
+            TABS[tab.windowId] = {};
         }
 
-        TABS['w' + tab.windowId]['t' + tab.id] = tab;
+        TABS[tab.windowId][tab.index] = tab;
     }
 
     renderTables();
 });
 
 chrome.tabs.onAttached.addListener(function(tabId, attachInfo) {
+    console.log('ATTACHED');
+    var tab = {};
+
+    if (TABS.hasOwnProperty(attachInfo.newWindowId) === false) {
+        TABS[attachInfo.newWindowId] = {};
+    }
+
     for (var key in TABS) {
-        if (TABS[key].hasOwnProperty('t' + tabId)) {
-            if (TABS.hasOwnProperty('w' + attachInfo.newWindowId) === false) {
-                TABS['w' + attachInfo.newWindowId] = {};
+        for (var index in TABS[key]) {
+            if (TABS[key][index].id === tabId) {
+                Object.assign(tab, TABS[key][index]);
+             
+                delete TABS[key][index];
             }
-
-            TABS['w' + attachInfo.newWindowId]['t' + tabId] = TABS[key]['t' + tabId];
-            TABS['w' + attachInfo.newWindowId]['t' + tabId].index = attachInfo.newPosition;
-
-            delete TABS[key]['t' + tabId];
-
-            break;
         }
     }
+
+    tab.index = attachInfo.newPosition;
+    TABS[attachInfo.newWindowId][attachInfo.newPosition] = tab;
 
     for (var key in TABS) {
         if (Object.keys(TABS[key]).length === 0) {
@@ -1751,30 +1872,32 @@ chrome.tabs.onAttached.addListener(function(tabId, attachInfo) {
         }
     }
 
+    console.log(Object.assign({}, TABS));
+
     updateTabManager();
 });
 
 chrome.tabs.onCreated.addListener(function(tab) {
-    if (TABS.hasOwnProperty('w' + tab.windowId) === false) {
-        TABS['w' + tab.windowId] = {};
+    console.log('CREATED');
+    if (TABS.hasOwnProperty(tab.windowId) === false) {
+        TABS[tab.windowId] = {};
     }
 
-    TABS['w' + tab.windowId]['t' + tab.id] = tab;
-    TABS['w' + tab.windowId]['t' + tab.id].url = TABS['w' + tab.windowId]['t' + tab.id].pendingUrl;
+    TABS[tab.windowId][tab.index] = tab;
+    TABS[tab.windowId][tab.index].url = TABS[tab.windowId][tab.index].pendingUrl;
 
     updateTabManager();
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-    for (var key in TABS) {
-        if (TABS[key].hasOwnProperty('t' + tabId)) {
-            delete TABS[key]['t' + tabId];
+    console.log('REMOVED');
+    for (var index in TABS[removeInfo.windowId]) {
+        if (TABS[removeInfo.windowId][index].id === tabId) {
+            delete TABS[removeInfo.windowId][index];
 
-            if (Object.keys(TABS[key]).length === 0) {
-                delete TABS[key];
+            if (Object.keys(TABS[removeInfo.windowId]).length === 0) {
+                delete TABS[removeInfo.windowId];
             }
-
-            break;
         }
     }
 
@@ -1782,9 +1905,10 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    console.log('UPDATED');
     for (var key in TABS) {
-        if (TABS[key].hasOwnProperty('t' + tabId)) {
-            TABS[key]['t' + tabId] = tab;
+        if (TABS[key].hasOwnProperty(tab.index)) {
+            TABS[key][tab.index] = tab;
 
             break;
         }
@@ -1794,13 +1918,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 });
 
 chrome.tabs.onMoved.addListener(function(tabId, moveInfo) {
-    for (var key in TABS) {
-        if (TABS[key].hasOwnProperty('t' + tabId)) {
-            TABS[key]['t' + tabId].index = moveInfo.toIndex;
+    console.log('MOVED');
+    var tab = TABS[moveInfo.windowId][moveInfo.fromIndex];
 
-            break;
-        }
-    }
+    tab.index = moveInfo.toIndex;
+
+    TABS[moveInfo.windowId][moveInfo.fromIndex] = TABS[moveInfo.windowId][moveInfo.toIndex];
+    TABS[moveInfo.windowId][moveInfo.toIndex] = tab;
 
     updateTabManager();
 });

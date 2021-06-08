@@ -155,7 +155,15 @@ satus.render = function (skeleton, container) {
         element.classList.add('satus-' + skeleton.element);
 
         if (skeleton.hasOwnProperty('class')) {
-            element.classList.add(skeleton.class.split(' '));
+            element.className += ' ' + skeleton.class;
+        }
+
+        if (skeleton.hasOwnProperty('events')) {
+            for (var key in skeleton.events) {
+                var event = skeleton.events[key];
+                
+                element.addEventListener(event.type, event.listener, event.options);
+            }
         }
 
         if (skeleton.hasOwnProperty('text')) {

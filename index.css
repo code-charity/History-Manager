@@ -445,10 +445,85 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     height: 100%;
 }
 
+.satus-h1--title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    line-height: 18px;
+    height: 40px;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    border-bottom: 2px solid var(--satus-theme-border-0);
+}
+
+.satus-div--window {
+    overflow: hidden;
+    height: 32px;
+}
+
+.satus-div--window.active {
+    height: auto;
+}
+
+.satus-button--window {
+    width: 100%;
+    border: none;
+    height: 32px;
+    text-align: left;
+    padding: 0 16px;
+    background: rgba(0,0,0,.05);
+    box-shadow: 0 1px 4px 1px rgba(0,0,0,.2);
+}
+
+.satus-button--window::before {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin: 0 8px 0 0;
+    content: '';
+    border: 4px solid transparent;
+    border-left-color: currentColor;
+    position: relative;
+    top: -3px;
+    left: 2px;
+}
+
+.satus-div--window.active .satus-button--window::before {
+    transform: rotate(90deg);
+    top: 0;
+    left: 0;
+}
+
 .satus-tab-manager__row {
     display: inline-flex;
-    width: 100%;
+    width: calc(100% - 32px);
     align-items: center;
+    height: 32px;
+    padding: 0 16px;
+}
+
+.satus-tab-manager__row.selected--before {
+    border-top: 32px solid rgba(0,0,0,.1);
+}
+
+.satus-tab-manager__row.selected--after {
+    border-bottom: 32px solid rgba(0,0,0,.1);
+}
+
+.satus-tab-manager__ghost {
+    width: 100%;
+    height: 32px;
+    background: rgba(0,0,0,.1);
+}
+
+.satus-tab-manager__row.active {
+    position: absolute;
+    z-index: 99999;
+    background: var(--satus-theme-background-1);
+    width: auto;
+    box-shadow: 0 4px 8px 2px rgba(0,0,0,.2);
+    pointer-events: none;
 }
 
 .satus-tab-manager__row button {
@@ -469,14 +544,14 @@ body[data-dark-theme='true'] .satus-tab-manager__row button {
     background-image: url(icons-white.png);
 }
 
-.satus-tab-manager a {
+.satus-tab-manager__row a {
     overflow: hidden;
     white-space: nowrap;
     text-decoration: none;
     text-overflow: ellipsis;
-    color: #0075ff;
     align-items: center;
     flex: 1;
+    color: #0075ff;
 }
 
 
