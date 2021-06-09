@@ -161,7 +161,7 @@ satus.render = function (skeleton, container) {
         if (skeleton.hasOwnProperty('events')) {
             for (var key in skeleton.events) {
                 var event = skeleton.events[key];
-                
+
                 element.addEventListener(event.type, event.listener, event.options);
             }
         }
@@ -250,6 +250,12 @@ satus.storage = {
 --------------------------------------------------------------*/
 
 satus.storage.load = function (keys, callback) {
+    if (typeof keys === 'function') {
+        callback = keys;
+
+        keys = null;
+    }
+
     chrome.storage.local.get(keys, function (items) {
         for (var key in items) {
             satus.storage.data[key] = items[key];
@@ -621,7 +627,7 @@ satus.elements.table = function (skeleton) {
     };
     table.pagination = pagination;
 
-    table.createRows = function(data, parent, columns) {
+    table.createRows = function (data, parent, columns) {
         for (var i = 0, l = data.length; i < l; i++) {
             var row = document.createElement('div'),
                 is_filtered = true;
@@ -658,11 +664,11 @@ satus.elements.table = function (skeleton) {
                                 var skip = false,
                                     item = this.data[key],
                                     row = {};
-                                
+
                                 for (var i = 0, l = columns.length; i < l; i++) {
                                     if (this.column.key === columns[i].key) {
                                         columns[i] = this.column;
-                                    } 
+                                    }
                                 }
 
                                 for (var i = 0, l = columns.length; i < l; i++) {
@@ -674,7 +680,7 @@ satus.elements.table = function (skeleton) {
 
                                     row[column.key] = column.key === 'key' ? key : item[column.key];
                                 }
-                                
+
                                 if (skip === false) {
                                     rows.push(row);
                                 }
@@ -787,7 +793,7 @@ satus.elements.table = function (skeleton) {
             sort = skeleton.columns[i].sort;
 
         column.key = skeleton.columns[i].key,
-        column.innerText = satus.locale.get(skeleton.columns[i].label);
+            column.innerText = satus.locale.get(skeleton.columns[i].label);
 
         if (sort !== false) {
             column.addEventListener('click', function () {
@@ -1090,11 +1096,11 @@ satus.elements.select = function (skeleton) {
         satus.render(skeleton.options[i], select);
     }
 
-    select.addEventListener('change', function() {
+    select.addEventListener('change', function () {
         this.change(this.value);
     });
 
-    select.setValue = function(value) {
+    select.setValue = function (value) {
         for (var i = 0, l = this.children.length; i < l; i++) {
             if (value === this.children[i].value) {
                 this.children[i].selected = true;
