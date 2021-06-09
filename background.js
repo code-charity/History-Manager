@@ -9,11 +9,11 @@ var HM = {
 # MESSAGES
 --------------------------------------------------------------*/
 
-chrome.runtime.onMessage.addListener(function(request, sender) {
+chrome.runtime.onMessage.addListener(function (request, sender) {
     if (request.type === 'linkCheck') {
         var xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function () {
             cell.textContent = this.status;
 
             chrome.runtime.sendMessage({
@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 --------------------------------------------------------------*/
 
 function cachePinnedTabs() {
-    chrome.tabs.query({}, function(tabs) {
+    chrome.tabs.query({}, function (tabs) {
         for (var i = 0, l = tabs.length; i < l; i++) {
             var tab = tabs[i];
 
@@ -56,7 +56,7 @@ function cachePinnedTabs() {
 --------------------------------------------------------------*/
 
 function addTabUpdateListener() {
-    chrome.tabs.onUpdated.addListener(function(id, changes, tab) {
+    chrome.tabs.onUpdated.addListener(function (id, changes, tab) {
         if (tab.pinned === true) {
             PINNED_TABS[id] = tab;
         }
@@ -69,7 +69,7 @@ function addTabUpdateListener() {
 --------------------------------------------------------------*/
 
 function addTabRemoveListener() {
-    chrome.tabs.onRemoved.addListener(function(id) {
+    chrome.tabs.onRemoved.addListener(function (id) {
         var tab = PINNED_TABS[id];
 
         if (tab) {
@@ -88,13 +88,13 @@ function addTabRemoveListener() {
                 tab.title
             ]);
 
-            RECENTLY_CLOSED = RECENTLY_CLOSED.sort(function(a, b) {
-                return b[index] - a[index];
+            RECENTLY_CLOSED = RECENTLY_CLOSED.sort(function (a, b) {
+                return b[0] - a[0];
             });
 
             chrome.storage.local.set({
                 recently_closed: RECENTLY_CLOSED.slice(0, 20)
-            }, function() {
+            }, function () {
                 delete PINNED_TABS[id];
             });
         }
