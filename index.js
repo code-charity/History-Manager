@@ -157,6 +157,27 @@ var DB = {
         object_store.count().onsuccess = function(event) {
             callback(event.target.result);
         };
+    },
+    search: function(query, object_store_name, keys, callback) {
+        var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
+            object_store = transaction.objectStore(object_store_name),
+            result = [];
+
+        object_store.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+
+            if (cursor && result.length < 100) {
+                for (var i = 0, l = keys.length; i < l; i++) {
+                    if (cursor.value[keys[i]].indexOf(query) !== -1) {
+                        result.push(cursor.value);
+                    }
+                }
+
+                cursor.continue();
+            } else {
+                callback(result, object_store_name);
+            }
+        };
     }
 };
 
@@ -562,6 +583,25 @@ var skeleton = {
 
                             container.appendChild(item);
 
+                            var item = document.createElement('div');
+
+                            item.innerHTML = self.value + ' - <span style="opacity: .4;">Tables</span>';
+                            item.dataset.value = self.value;
+
+                            item.addEventListener('click', function () {
+                                var tables = document.querySelectorAll('.satus-table');
+
+                                for (var i = 0, l = tables.length; i < l; i++) {
+                                    var table = tables[i];
+
+                                    if (table.onsearch) {
+                                        table.onsearch(this.dataset.value);
+                                    }
+                                }
+                            });
+
+                            container.appendChild(item);
+
                             for (var i = 0, l = results.length; i < l; i++) {
                                 var result = results[i],
                                     item = document.createElement('div');
@@ -592,7 +632,11 @@ var skeleton = {
                             container = document.querySelector('.search-results');
 
                         if (key === 'Enter') {
-                            window.open(document.querySelector('.search-results .selected').dataset.url, '_self');
+                            var item = document.querySelector('.search-results .selected');
+
+                            item.click();
+
+                            container.style.display = '';
                         } else if (key === 'ArrowUp') {
                             var selected = container.querySelector('.selected'),
                                 elements = container.children;
@@ -1506,6 +1550,15 @@ var skeleton = {
                         direction: table.order.by === 'asc' ? 'next' : 'prev',
                         offset: table.pageIndex * 100 - 100
                     });
+                },
+                onsearch: function (query) {
+                    var table = this;
+
+                    DB.search(query, 'domains', ['url'], function(items) {
+                        table.data = items;
+
+                        table.update();
+                    });
                 }
             },
 
@@ -1619,6 +1672,15 @@ var skeleton = {
                         direction: table.order.by === 'asc' ? 'next' : 'prev',
                         offset: table.pageIndex * 100 - 100
                     });
+                },
+                onsearch: function (query) {
+                    var table = this;
+
+                    DB.search(query, 'pages', ['url', 'title'], function(items) {
+                        table.data = items;
+
+                        table.update();
+                    });
                 }
             },
 
@@ -1693,6 +1755,15 @@ var skeleton = {
                         index_name: table.order.key + 'Index',
                         direction: table.order.by === 'asc' ? 'next' : 'prev',
                         offset: table.pageIndex * 100 - 100
+                    });
+                },
+                onsearch: function (query) {
+                    var table = this;
+
+                    DB.search(query, 'params', ['url'], function(items) {
+                        table.data = items;
+
+                        table.update();
                     });
                 }
             },
