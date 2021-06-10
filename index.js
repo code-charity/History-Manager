@@ -14,7 +14,6 @@ var HM = {
         transitions: []
     },
     BOOKMARKS = {},
-    TRANSITIONS = {},
     TABS = {},
     LOADED = false,
     REGEX_PROTOCOL = /[^:]+/g,
@@ -119,6 +118,8 @@ var DB = {
 
             request.onblocked = function() {
                 console.log('DB: blocked 1');
+
+                DB.open(callback);
             };
         });
     },
@@ -126,7 +127,8 @@ var DB = {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name),
             limit = options.limit || 100,
-            result = [];
+            result = [],
+            offset = false;
 
         if (options.index_name) {
             object_store = object_store.index(options.index_name);
@@ -135,12 +137,16 @@ var DB = {
         object_store.openCursor(null, options.direction).onsuccess = function(event) {
             var cursor = event.target.result;
 
-            if (cursor && result.length < limit) {
+            if (options.offset && offset === false) {
+                offset = true;
+
+                cursor.advance(options.offset);
+            } else if (cursor && result.length < limit) {
                 result.push(cursor.value);
 
                 cursor.continue();
             } else {
-                callback(result);
+                callback(result, object_store_name);
             }
         };
     },
@@ -514,7 +520,7 @@ var skeleton = {
                             }
                         });*/
 
-                        getDBData('domains', 'typedCountIndex', 'desc', 0, function (items) {
+                        DB.get('domains', function (items) {
                             var results = [];
 
                             for (var i = 0, l = items.length; i < l; i++) {
@@ -547,7 +553,7 @@ var skeleton = {
 
                             var item = document.createElement('div');
 
-                            item.innerHTML = self.value + (' - <span style="opacity: .4;">Search ' + (SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).name || 'Google') + '</span>';
+                            item.innerHTML = self.value + ' - <span style="opacity: .4;">Search ' + ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).name || 'Google') + '</span>';
                             item.dataset.url = ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).url || 'https://www.google.com/search?q=') + self.value;
 
                             item.addEventListener('click', function () {
@@ -576,7 +582,10 @@ var skeleton = {
                             } else {
                                 container.style.display = 'block';
                             }
-                        }, false);
+                        }, {
+                            index_name: 'typedCountIndex',
+                            direction: 'prev'
+                        });
                     },
                     onkeydown: function (event) {
                         var key = event.key,
@@ -928,8 +937,8 @@ var skeleton = {
                         skeleton.grid.items[2].week.labels.push(week_days[i]);
                     }
 
-                    for (var key in TRANSITIONS) {
-                        var item = TRANSITIONS[key];
+                    for (var key in HM.transitions) {
+                        var item = HM.transitions[key];
 
                         skeleton.grid.items[5].transitions.labels.push(item.transition);
                         skeleton.grid.items[5].transitions.data.push(item.visitCount);
@@ -999,31 +1008,44 @@ var skeleton = {
                             onpage: function () {
                                 var table = this;
 
-                                getDBData('domains', 'visitCountIndex', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                                    table.data = data;
+                                DB.get('domains', function(items) {
+                                    table.data = items;
 
                                     table.update();
+                                }, {
+                                    index_name: table.order.key + 'Index',
+                                    direction: table.order.by === 'asc' ? 'next' : 'prev',
+                                    offset: table.pageIndex * 100 - 100
                                 });
                             },
                             onsort: function () {
                                 var table = this;
 
-                                getDBData('domains', 'visitCountIndex', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                                    table.data = data;
+                                DB.get('domains', function(items) {
+                                    table.data = items;
 
                                     table.update();
+                                }, {
+                                    index_name: table.order.key + 'Index',
+                                    direction: table.order.by === 'asc' ? 'next' : 'prev',
+                                    offset: table.pageIndex * 100 - 100
                                 });
                             }
                         }]
                     };
 
-                    getDBData('domains', 'visitCountIndex', 'desc', 0, function (items, length, name) {
-                        skeleton.items[0].data = items;
-                        skeleton.items[0].count = length;
+                    DB.get('domains', function(items) {
+                        DB.count('domains', function(count) {
+                            skeleton.items[0].data = items;
+                            skeleton.items[0].count = count;
 
-                        satus.render(skeleton, main);
+                            satus.render(skeleton, main);
 
-                        document.querySelector('.satus-table--broken-links').update();
+                            document.querySelector('.satus-table--broken-links').update();
+                        });
+                    }, {
+                        index_name: 'visitCountIndex',
+                        direction: 'prev'
                     });
 
                     document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
@@ -1141,17 +1163,16 @@ var skeleton = {
                                             data = {},
                                             threads = 0;
 
-                                        for (var i = 0, l = DB.objectStoreNames.length; i < l; i++) {
-                                            getDBData(DB.objectStoreNames[i], null, 'asc', 0, function (items, length, name) {
-                                                data[name] = items;
+                                        for (var i = 0, l = DB.indexedDB.objectStoreNames.length; i < l; i++) {
+                                            DB.get(DB.indexedDB.objectStoreNames[i], function (items, object_store_name) {
+                                                data[object_store_name] = items;
 
                                                 threads--;
 
                                                 if (threads === 0) {
-                                                    console.log(data);
                                                     parse(data, self);
                                                 }
-                                            }, false);
+                                            }, {});
 
                                             threads++;
                                         }
@@ -1463,19 +1484,27 @@ var skeleton = {
                 onpage: function () {
                     var table = this;
 
-                    getDBData(table.db_object_name, table.order.key + 'Index', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                        table.data = data;
+                    DB.get('domains', function(items) {
+                        table.data = items;
 
                         table.update();
+                    }, {
+                        index_name: table.order.key + 'Index',
+                        direction: table.order.by === 'asc' ? 'next' : 'prev',
+                        offset: table.pageIndex * 100 - 100
                     });
                 },
                 onsort: function () {
                     var table = this;
 
-                    getDBData(table.db_object_name, table.order.key + 'Index', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                        table.data = data;
+                    DB.get('domains', function(items) {
+                        table.data = items;
 
                         table.update();
+                    }, {
+                        index_name: table.order.key + 'Index',
+                        direction: table.order.by === 'asc' ? 'next' : 'prev',
+                        offset: table.pageIndex * 100 - 100
                     });
                 }
             },
@@ -1568,19 +1597,27 @@ var skeleton = {
                 onpage: function () {
                     var table = this;
 
-                    getDBData(table.db_object_name, table.order.key + 'Index', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                        table.data = data;
+                    DB.get('pages', function(items) {
+                        table.data = items;
 
                         table.update();
+                    }, {
+                        index_name: table.order.key + 'Index',
+                        direction: table.order.by === 'asc' ? 'next' : 'prev',
+                        offset: table.pageIndex * 100 - 100
                     });
                 },
                 onsort: function () {
                     var table = this;
 
-                    getDBData(table.db_object_name, table.order.key + 'Index', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                        table.data = data;
+                    DB.get('pages', function(items) {
+                        table.data = items;
 
                         table.update();
+                    }, {
+                        index_name: table.order.key + 'Index',
+                        direction: table.order.by === 'asc' ? 'next' : 'prev',
+                        offset: table.pageIndex * 100 - 100
                     });
                 }
             },
@@ -1635,19 +1672,27 @@ var skeleton = {
                 onpage: function () {
                     var table = this;
 
-                    getDBData(table.db_object_name, table.order.key + 'Index', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                        table.data = data;
+                    DB.get('params', function(items) {
+                        table.data = items;
 
                         table.update();
+                    }, {
+                        index_name: table.order.key + 'Index',
+                        direction: table.order.by === 'asc' ? 'next' : 'prev',
+                        offset: table.pageIndex * 100 - 100
                     });
                 },
                 onsort: function () {
                     var table = this;
 
-                    getDBData(table.db_object_name, table.order.key + 'Index', table.order.by, table.pageIndex * 100 - 100, function (data, count) {
-                        table.data = data;
+                    DB.get('params', function(items) {
+                        table.data = items;
 
                         table.update();
+                    }, {
+                        index_name: table.order.key + 'Index',
+                        direction: table.order.by === 'asc' ? 'next' : 'prev',
+                        offset: table.pageIndex * 100 - 100
                     });
                 }
             },
@@ -1781,7 +1826,10 @@ function renderTables() {
 
             table_pages.update();
         });
-    }, {});
+    }, {
+        index_name: 'visitCountIndex',
+        direction: 'prev'
+    });
 
     var table_recently_closed = document.querySelector('.satus-table--recently-closed');
 
@@ -1979,14 +2027,30 @@ satus.storage.load(function (items) {
     }
 
     satus.locale.load('_locales/en/messages.json', function () {
+        var main = document.querySelector('.satus-main');
+
         satus.storage.attributes = [
             'dark-theme',
             'privacy-mode'
         ];
 
+        satus.render({
+            element: 'div',
+            class: 'satus-main--status',
+            text: 'loadingBrowserHistory'
+        }, main);
+
         DB.open(function() {
             HM.history.get(function(items) {
                 if (items.length > 0) {
+                    satus.empty(main);
+
+                    satus.render({
+                        element: 'div',
+                        class: 'satus-main--status',
+                        text: 'dataProcessing'
+                    }, main);
+
                     DB.get('transitions', function(transitions) {
                         var pages_object_store = DB.indexedDB.transaction('pages', 'readwrite').objectStore('pages'),
                             domains = {},

@@ -817,6 +817,8 @@ satus.elements.table = function (skeleton) {
                 if (table.onsort) {
                     table.onsort();
                 } else {
+                    table.data = satus.sort(table.order.key, table.order.by, table.data);
+                    
                     table.update();
                 }
             });

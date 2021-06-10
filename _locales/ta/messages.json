@@ -41,6 +41,9 @@
     "darkTheme": {
         "message": "Dark theme"
     },
+    "dataProcessing": {
+        "message": "Data processing"
+    },
     "december": {
         "message": "December"
     },
@@ -97,6 +100,9 @@
     },
     "lifestyle": {
         "message": "Lifestyle"
+    },
+    "loadingBrowserHistory": {
+        "message": "Loading browser history"
     },
     "march": {
         "message": "March"

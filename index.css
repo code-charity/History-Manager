@@ -223,6 +223,20 @@ body[data-privacy-mode='true'] .favicon {
     padding: 64px 0 0 64px;
 }
 
+.satus-main--status {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    opacity: .5;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
 .satus-grid {
     box-sizing: border-box;
     padding: 8px;
