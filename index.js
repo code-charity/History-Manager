@@ -161,15 +161,33 @@ var DB = {
     search: function(query, object_store_name, keys, callback) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name),
-            result = [];
+            result = [],
+            is_regex = false;
+
+        if (typeof query === 'object' && query.test) {
+            is_regex = true;
+        }
 
         object_store.openCursor().onsuccess = function(event) {
-            var cursor = event.target.result;
+            var cursor = event.target.result,
+                founded = false;
 
             if (cursor && result.length < 100) {
                 for (var i = 0, l = keys.length; i < l; i++) {
-                    if (cursor.value[keys[i]].indexOf(query) !== -1) {
-                        result.push(cursor.value);
+                    if (founded === false) {
+                        if (is_regex === false) {
+                            if (cursor.value[keys[i]].indexOf(query) !== -1) {
+                                result.push(cursor.value);
+
+                                founded = true;
+                            }
+                        } else {
+                            if (query.test(cursor.value[keys[i]]) === true) {
+                                result.push(cursor.value);
+
+                                founded = true;
+                            }
+                        }
                     }
                 }
 
@@ -602,6 +620,25 @@ var skeleton = {
 
                             container.appendChild(item);
 
+                            var item = document.createElement('div');
+
+                            item.innerHTML = '/' + self.value + '/ - <span style="opacity: .4;">Regex</span>';
+                            item.dataset.value = self.value;
+
+                            item.addEventListener('click', function () {
+                                var tables = document.querySelectorAll('.satus-table');
+
+                                for (var i = 0, l = tables.length; i < l; i++) {
+                                    var table = tables[i];
+
+                                    if (table.onsearch) {
+                                        table.onsearch(new RegExp(this.dataset.value));
+                                    }
+                                }
+                            });
+
+                            container.appendChild(item);
+
                             for (var i = 0, l = results.length; i < l; i++) {
                                 var result = results[i],
                                     item = document.createElement('div');
@@ -621,6 +658,10 @@ var skeleton = {
                                 container.style.display = '';
                             } else {
                                 container.style.display = 'block';
+
+                                if (container.children[0]) {
+                                    container.children[0].classList.add('selected');
+                                }
                             }
                         }, {
                             index_name: 'typedCountIndex',
@@ -653,7 +694,7 @@ var skeleton = {
                                 elements[Array.prototype.indexOf.call(selected.parentNode.children, selected) - 1].classList.add('selected');
                             }
 
-                            this.value = container.querySelector('.selected').innerText;
+                            //this.value = container.querySelector('.selected').innerText;
                         } else if (key === 'ArrowDown') {
                             var selected = container.querySelector('.selected'),
                                 elements = container.children;
@@ -670,7 +711,7 @@ var skeleton = {
                                 elements[Array.prototype.indexOf.call(selected.parentNode.children, selected) + 1].classList.add('selected');
                             }
 
-                            this.value = container.querySelector('.selected').innerText;
+                            //this.value = container.querySelector('.selected').innerText;
                         }
                     }
                 },
@@ -1553,6 +1594,8 @@ var skeleton = {
                 },
                 onsearch: function (query) {
                     var table = this;
+
+                    console.log(query);
 
                     DB.search(query, 'domains', ['url'], function(items) {
                         table.data = items;
