@@ -41,6 +41,7 @@
 
 body {
     background: var(--satus-theme-background-0);
+    overflow: hidden;
 }
 
 body[data-dark-theme='true'] {
@@ -467,16 +468,16 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     border-bottom: 2px solid var(--satus-theme-border-0);
 }
 
-.satus-div--window {
+.tab-manager__window {
+    height: auto;
+}
+
+.tab-manager__window.collapsed {
     overflow: hidden;
     height: 32px;
 }
 
-.satus-div--window.active {
-    height: auto;
-}
-
-.satus-button--window {
+.tab-manager__window-button {
     width: 100%;
     height: 32px;
     padding: 0 16px;
@@ -486,7 +487,7 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     box-shadow: 0 1px 4px 1px rgba(0, 0, 0, .2);
 }
 
-.satus-button--window::before {
+.tab-manager__window-button::before {
     position: relative;
     top: -3px;
     left: 2px;
@@ -499,25 +500,25 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     border-left-color: currentColor;
 }
 
-.satus-div--window.active .satus-button--window::before {
+.tab-manager__window:not(.collapsed) .tab-manager__window-button::before {
     top: 0;
     left: 0;
     transform: rotate(90deg);
 }
 
-.satus-tab-manager__row {
+.tab-manager__item {
     display: inline-flex;
     width: calc(100% - 32px);
     height: 32px;
-    padding: 0 16px;
+    padding: 0 8px;
     align-items: center;
 }
 
-.satus-tab-manager__row.selected--before {
+.tab-manager__item.selected--before {
     border-top: 32px solid rgba(0, 0, 0, .1);
 }
 
-.satus-tab-manager__row.selected--after {
+.tab-manager__item.selected--after {
     border-bottom: 32px solid rgba(0, 0, 0, .1);
 }
 
@@ -527,7 +528,7 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     background: rgba(0, 0, 0, .1);
 }
 
-.satus-tab-manager__row.active {
+.tab-manager__item.active {
     position: absolute;
     z-index: 99999;
     width: auto;
@@ -536,7 +537,7 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     box-shadow: 0 4px 8px 2px rgba(0, 0, 0, .2);
 }
 
-.satus-tab-manager__row button {
+.tab-manager__item .satus-button--pin {
     width: 24px;
     height: 24px;
     margin: 0 8px 0 0;
@@ -546,15 +547,15 @@ body[data-dark-theme='true'] ::-webkit-scrollbar-corner {
     background-position: -74px -120px;
 }
 
-.satus-tab-manager__row button[data-pinned='true'] {
+.tab-manager__item[data-pinned='true'] .satus-button--pin {
     opacity: 1;
 }
 
-body[data-dark-theme='true'] .satus-tab-manager__row button {
+body[data-dark-theme='true'] .tab-manager__item .satus-button--pin {
     background-image: url(icons-white.png);
 }
 
-.satus-tab-manager__row a {
+.tab-manager__item a {
     overflow: hidden;
     white-space: nowrap;
     text-decoration: none;
@@ -562,6 +563,10 @@ body[data-dark-theme='true'] .satus-tab-manager__row button {
     color: #0075ff;
     align-items: center;
     flex: 1;
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 16px;
+    padding: 0 24px;
 }
 
 
@@ -590,7 +595,7 @@ body[data-dark-theme='true'] .satus-tab-manager__row button {
     background: currentColor;
 }
 
-.satus-tree--item>.satus-button {
+.satus-tree--item > .satus-button {
     border: none;
     background: transparent;
     box-shadow: none;

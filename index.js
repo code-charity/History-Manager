@@ -14,7 +14,6 @@ var HM = {
         transitions: []
     },
     BOOKMARKS = {},
-    TABS = {},
     LOADED = false,
     REGEX_PROTOCOL = /[^:]+/g,
     REGEX_DOMAIN = /[^/]+[/]+[^/]+/g,
@@ -286,101 +285,263 @@ chrome.bookmarks.getTree(function (bookmarks) {
 # TABS
 --------------------------------------------------------------*/
 
+HM.tabs = document.createElement('div');
+
+HM.tabs.removeEmptyWindows = function() {
+    for (var i = 0, l = this.children.length; i < l; i++) {
+        var list = this.children[i];
+
+        if (list.children.length === 1) {
+            list.remove();
+        }
+    }
+};
+
+HM.tabs.returnWindow = function(id) {
+    for (var i = 0, l = this.children.length; i < l; i++) {
+        if (this.children[i].dataset.id == id) {
+            return this.children[i];
+        }
+    }
+
+    var element = document.createElement('div'),
+        button = document.createElement('button');
+
+    element.className = 'tab-manager__window';
+    element.dataset.id = id;
+
+    button.className = 'satus-button tab-manager__window-button';
+    button.textContent = this.children.length + 1;
+    button.addEventListener('click', function() {
+        this.parentNode.classList.toggle('collapsed');
+    });
+
+    element.appendChild(button);
+
+    this.appendChild(element);
+
+    return element;
+};
+
+HM.tabs.createTab = function(tab) {
+    var list = HM.tabs.returnWindow(tab.windowId),
+        item = document.createElement('div'),
+        pin_button = document.createElement('button'),
+        a = document.createElement('a');
+
+    item.className = 'tab-manager__item';
+    item.data = tab;
+    item.addEventListener('mousedown', function (event) {
+        if (event.button === 0 && event.target.nodeName !== 'BUTTON') {
+            var button = this,
+                parent = button.parentNode,
+                index = Array.prototype.slice.call(parent.children).indexOf(button),
+                rect = button.getBoundingClientRect(),
+                offset_x = event.clientX - rect.left,
+                offset_y = event.clientY - rect.top,
+                selected,
+                is_moved = false;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            function mousemove(event) {
+                var founded = false;
+
+                if (is_moved === false) {
+                    is_moved = true;
+
+                    button.classList.add('active');
+                    button.style.width = rect.width + 'px';
+
+                    document.body.appendChild(button);
+                }
+
+                button.style.left = event.clientX - offset_x + 'px';
+                button.style.top = event.clientY - offset_y + 'px';
+
+                for (var i = 0, l = event.path.length - 2; i < l; i++) {
+                    var element = event.path[i];
+
+                    if (element.className.indexOf('tab-manager__item') !== -1 && button.dataset.pinned == element.dataset.pinned) {
+                        if (selected !== element) {
+                            if (selected) {
+                                selected.classList.remove('selected--before');
+                                selected.classList.remove('selected--after');
+                            }
+
+                            selected = element;
+                        } else {
+                            var selected_rect = selected.getBoundingClientRect();
+
+                            if (event.clientY - selected_rect.top < selected_rect.height / 2) {
+                                selected.classList.remove('selected--after');
+                                selected.classList.add('selected--before');
+                            } else {
+                                selected.classList.remove('selected--before');
+                                selected.classList.add('selected--after');
+                            }
+                        }
+
+                        founded = true;
+                    }
+                }
+
+                if (founded === false && selected) {
+                    selected.classList.remove('selected--before');
+                    selected.classList.remove('selected--after');
+
+                    selected = null;
+                }
+            }
+
+            function mouseup(event) {
+                if (is_moved === true) {
+                    var new_position = 0;
+
+                    button.classList.remove('active');
+
+                    if (selected) {
+                        new_position = Array.prototype.slice.call(parent.children).indexOf(selected);
+
+                        if (selected.classList.contains('selected--before')) {
+                            parent.insertBefore(button, selected);
+
+                            new_position--;
+                        } else {
+                            parent.insertBefore(button, selected.nextElementSibling);
+
+                            new_position++;
+                        }
+
+                        selected.classList.remove('selected--before');
+                        selected.classList.remove('selected--after');
+                    } else {
+                        parent.insertBefore(button, parent.children[index]);
+
+                        new_position = Array.prototype.slice.call(parent.children).indexOf(button);
+                    }
+
+                    button.removeAttribute('style');
+
+                    chrome.tabs.move(button.data.id, {
+                        index: new_position
+                    });
+                }
+
+                window.removeEventListener('mousemove', mousemove);
+                window.removeEventListener('mouseup', mouseup);
+            }
+
+            window.addEventListener('mousemove', mousemove);
+            window.addEventListener('mouseup', mouseup);
+        }
+    });
+
+    pin_button.className = 'satus-button satus-button--pin';
+
+    if (tab.pinned === true) {
+        item.dataset.pinned = true;
+    } else {
+        item.dataset.pinned = false;
+    }
+
+    pin_button.addEventListener('click', function(event) {
+        var item = this.parentNode,
+            status = item.dataset.pinned != 'true';
+
+        item.dataset.pinned = status;
+
+        chrome.tabs.update(item.data.id, {
+            pinned: status
+        });
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        return false;
+    });
+
+    a.href = tab.url;
+    a.textContent = tab.title;
+    a.style.backgroundImage = 'url(chrome://favicon/' + tab.url + ')';
+
+    item.appendChild(pin_button);
+    item.appendChild(a);
+    list.insertBefore(item, list.children[tab.index + 1]);
+};
+
+HM.tabs.returnTab = function(tab_id, window_id) {
+    if (satus.isset(window_id)) {
+        var list = HM.tabs.returnWindow(window_id);
+
+        for (var i = 1, l = list.children.length; i < l; i++) {
+            var item = list.children[i];
+
+            if (item.data.id === tab_id) {
+                return item;
+            }
+        }
+    } else {
+        for (var i = 0, l = this.children.length; i < l; i++) {
+            var list = this.children[i];
+
+            for (var j = 1, k = list.children.length; j < k; j++) {
+                var item = list.children[j];
+
+                if (item.data.id === tab_id) {
+                    return item;
+                }
+            }
+        }
+    }
+};
+
 chrome.tabs.query({}, function (tabs) {
-    console.log('QUERY');
     for (var i = 0, l = tabs.length; i < l; i++) {
         var tab = tabs[i];
 
-        if (!TABS[tab.windowId]) {
-            TABS[tab.windowId] = {};
-        }
-
-        TABS[tab.windowId][tab.index] = tab;
+        HM.tabs.createTab(tab);
     }
 });
 
-chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
-    console.log('ATTACHED');
-    var tab = {};
+chrome.tabs.onAttached.addListener(function (tab_id, attach_info) {
+    var list = HM.tabs.returnWindow(attach_info.newWindowId),
+        item = HM.tabs.returnTab(tab_id);
 
-    if (TABS.hasOwnProperty(attachInfo.newWindowId) === false) {
-        TABS[attachInfo.newWindowId] = {};
-    }
+    list.insertBefore(item, list.children[attach_info.newPosition + 1]);
 
-    for (var key in TABS) {
-        for (var index in TABS[key]) {
-            if (TABS[key][index].id === tabId) {
-                Object.assign(tab, TABS[key][index]);
-
-                delete TABS[key][index];
-            }
-        }
-    }
-
-    tab.index = attachInfo.newPosition;
-    TABS[attachInfo.newWindowId][attachInfo.newPosition] = tab;
-
-    for (var key in TABS) {
-        if (Object.keys(TABS[key]).length === 0) {
-            delete TABS[key];
-        }
-    }
-
-    console.log(Object.assign({}, TABS));
-
-    updateTabManager();
+    HM.tabs.removeEmptyWindows();
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {
-    console.log('CREATED');
-    if (TABS.hasOwnProperty(tab.windowId) === false) {
-        TABS[tab.windowId] = {};
-    }
-
-    TABS[tab.windowId][tab.index] = tab;
-    TABS[tab.windowId][tab.index].url = TABS[tab.windowId][tab.index].pendingUrl;
-
-    updateTabManager();
+    HM.tabs.createTab(tab);
 });
 
-chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-    console.log('REMOVED');
-    for (var index in TABS[removeInfo.windowId]) {
-        if (TABS[removeInfo.windowId][index].id === tabId) {
-            delete TABS[removeInfo.windowId][index];
+chrome.tabs.onMoved.addListener(function (tab_id, move_info) {
+    var list = HM.tabs.returnWindow(move_info.windowId),
+        item = HM.tabs.returnTab(tab_id, move_info.windowId);
 
-            if (Object.keys(TABS[removeInfo.windowId]).length === 0) {
-                delete TABS[removeInfo.windowId];
-            }
-        }
-    }
-
-    updateTabManager();
+    list.insertBefore(item, list.children[move_info.toIndex + 1]);
 });
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    console.log('UPDATED');
-    for (var key in TABS) {
-        if (TABS[key].hasOwnProperty(tab.index)) {
-            TABS[key][tab.index] = tab;
+chrome.tabs.onRemoved.addListener(function (tab_id, remove_info) {
+    HM.tabs.returnTab(tab_id, remove_info.windowId).remove();
 
-            break;
-        }
-    }
-
-    updateTabManager();
+    HM.tabs.removeEmptyWindows();
 });
 
-chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
-    console.log('MOVED');
-    var tab = TABS[moveInfo.windowId][moveInfo.fromIndex];
+chrome.tabs.onUpdated.addListener(function (tab_id, change_info, tab) {
+    if (change_info.url || change_info.title) {
+        var item = HM.tabs.returnTab(tab_id, tab.windowId),
+            a = item.children[1];
 
-    tab.index = moveInfo.toIndex;
+        item.data = tab;
 
-    TABS[moveInfo.windowId][moveInfo.fromIndex] = TABS[moveInfo.windowId][moveInfo.toIndex];
-    TABS[moveInfo.windowId][moveInfo.toIndex] = tab;
-
-    updateTabManager();
+        a.href = tab.url;
+        a.textContent = tab.title;
+        a.style.backgroundImage = 'url(chrome://favicon/' + tab.url + ')';
+    }
 });
 
 
@@ -1595,8 +1756,6 @@ var skeleton = {
                 onsearch: function (query) {
                     var table = this;
 
-                    console.log(query);
-
                     DB.search(query, 'domains', ['url'], function(items) {
                         table.data = items;
 
@@ -1814,7 +1973,10 @@ var skeleton = {
             // PINNED TABS
             {
                 element: 'div',
-                class: 'satus-tab-manager'
+                class: 'satus-tab-manager',
+                onrender: function() {
+                    this.appendChild(HM.tabs);
+                }
             },
 
             // RECENTLY CLOSED
@@ -2339,7 +2501,6 @@ satus.storage.load(function (items) {
                                     });
 
                                     renderTables();
-                                    updateTabManager();
                                 }
                             });
 
@@ -2352,7 +2513,6 @@ satus.storage.load(function (items) {
                     }, {});
                 } else {
                     renderTables();
-                    updateTabManager();
                 }
             });
         });
