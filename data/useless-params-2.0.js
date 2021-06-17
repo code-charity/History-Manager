@@ -1,6 +1,4 @@
-/* IN DEVELOPMENT */
-
-var USELESS_PARAMS = {
+USELESS_PARAMS = {
     '9gag.com': {
         'exceptions': [
             '^https?:\\/\\/comment-cdn\\.9gag\\.com\\/.*?comment-list.json\\?'
