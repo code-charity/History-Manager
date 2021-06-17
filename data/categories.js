@@ -22,8 +22,6 @@ for (var category in CATEGORIES) {
 
 var CATEGORIES = {
     "artsAndEntertainment": {
-        ".co.jp": 0,
-        ".wordpress.com": 0,
         "1.fr": 0,
         "1.php": 0,
         "1cak.com": 0,
@@ -1983,12 +1981,6 @@ var CATEGORIES = {
         "zoosk.com": 0
     },
     "computersElectronicsAndTechnology": {
-        ".42.fr": 0,
-        ".hypestat.com": 0,
-        ".microsoft.com": 0,
-        ".rtfd.io": 0,
-        ".s1.html": 0,
-        ".tor2web.org": 0,
         "0.0.gsnos": 0,
         "0.html": 0,
         "1.25.partner": 0,
@@ -4569,8 +4561,6 @@ var CATEGORIES = {
         "zozo.jp": 0
     },
     "multimedia": {
-        ".deviantart.com": 0,
-        ".in.us": 0,
         "1.mil": 0,
         "11foot8.com": 0,
         "140journos.com": 0,
@@ -6250,16 +6240,6 @@ var CATEGORIES = {
         "zoeken.php": 0
     },
     "onlineServices": {
-        ".ac.uk": 0,
-        ".co.jp": 0,
-        ".com.br": 0,
-        ".gc.ca": 0,
-        ".gov.au": 0,
-        ".gov.br": 0,
-        ".laposte.fr": 0,
-        ".ozstoners.com": 0,
-        ".state.pa": 0,
-        ".yahoo.com": 0,
         "000000000000000000000.html": 0,
         "0to255.com": 0,
         "1122.com.uy": 0,
@@ -7997,21 +7977,6 @@ var CATEGORIES = {
         "yourdictionary.com": 0
     },
     "research": {
-        ".ac.nz": 0,
-        ".ac.uk": 0,
-        ".ca.us": 0,
-        ".co.jp": 0,
-        ".co.uk": 0,
-        ".edu.au": 0,
-        ".ezproxy.fiu": 0,
-        ".gc.ca": 0,
-        ".gov.au": 0,
-        ".gv.at": 0,
-        ".master.com": 0,
-        ".nih.gov": 0,
-        ".ny.us": 0,
-        ".qc.ca": 0,
-        ".state.tx": 0,
         "00.html": 0,
         "000000000000000000000.html": 0,
         "1.34.partner": 0,
@@ -10593,7 +10558,6 @@ var CATEGORIES = {
         "yt1s.com": 0
     },
     "shopping": {
-        ".co.jp": 0,
         "0.aspx": 0,
         "001.jsp": 0,
         "1.php": 0,
