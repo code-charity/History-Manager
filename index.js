@@ -149,6 +149,30 @@ var DB = {
             }
         };
     },
+    getByKeys: function(keys, object_store_name, callback) {
+        var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
+            object_store = transaction.objectStore(object_store_name),
+            threads = 0,
+            result = {};
+
+        for (var i = 0, l = keys.length; i < l; i++) {
+            var key = keys[i];
+
+            threads++;
+
+            object_store.get(key).onsuccess = function(event) {
+                threads--;
+
+                if (event.target.result) {
+                    result[event.target.result[event.target.source.keyPath]] = event.target.result;
+                }
+
+                if (threads === 0) {
+                    callback(result);
+                }
+            };
+        }
+    },
     count: function(object_store_name, callback) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name);
@@ -2295,6 +2319,188 @@ function updateTabManager() {
 # INITIALIZATION
 --------------------------------------------------------------*/
 
+function updateHistoryData(items, transitions, domains, params) {
+    var pages_object_store = DB.indexedDB.transaction('pages', 'readwrite').objectStore('pages'),
+        visits = satus.storage.data.visits || {},
+        threads = 0;
+
+    for (var i = 0, l = items.length; i < l; i++) {
+        var item = items[i],
+            parts = item.url.match(REGEX_PARTS),
+            link = parts[0].substr(1),
+            domain = link.replace(/^www\./, '');
+
+        if (!domains[domain]) {
+            domains[domain] = {
+                url: item.url.match(REGEX_PROTOCOL)[0] + '://' + link,
+                typedCount: 0,
+                visitCount: 0,
+                path: {}
+            };
+        }
+
+        var object = domains[domain].path;
+
+        for (var j = 1, k = parts.length; j < k; j++) {
+            var name = parts[j];
+
+            if (!object[name]) {
+                object[name] = {
+                    visitCount: 0,
+                    path: {}
+                };
+            }
+
+            object.visitCount += item.visitCount;
+
+            object = object[name].path;
+
+            if (j + 1 === k) {
+                object.lastVisitTime = item.lastVisitTime;
+                object.title = item.title;
+                object.typedCount = item.typedCount;
+                object.visitCount = item.visitCount;
+            }
+        }
+
+        domains[domain].typedCount += item.typedCount;
+        domains[domain].visitCount += item.visitCount;
+
+        pages_object_store.put({
+            'id': item.id,
+            'lastVisitTime': item.lastVisitTime,
+            'tags': '',
+            'title': item.title,
+            'typedCount': item.typedCount,
+            'url': item.url,
+            'visitCount': item.visitCount
+        });
+
+        if (item.url.indexOf('?') !== -1) {
+            try {
+                var decoded_url = decodeURIComponent(item.url);
+            } catch (err) {
+                var decoded_url = item.url;
+            }
+
+            var param = decoded_url.match(REGEX_PARAMS);
+
+            if (param) {
+                var domain = parts[0];
+
+                if (!params[domain]) {
+                    params[domain] = {
+                        domain: domain.substr(1),
+                        url: item.url.match(REGEX_PROTOCOL)[0] + '://' + domain,
+                        visitCount: 0,
+                        path: {}
+                    };
+                }
+
+                params[domain].visitCount += item.visitCount;
+
+                if (!params[domain].path[param[1]]) {
+                    params[domain].path[param[1]] = {
+                        visitCount: 0,
+                        path: {}
+                    };
+                }
+
+                params[domain].path[param[1]].visitCount += item.visitCount;
+
+                if (!params[domain].path[param[1]].path[param[2]]) {
+                    params[domain].path[param[1]].path[param[2]] = {
+                        visitCount: 0,
+                        path: {}
+                    };
+                }
+
+                params[domain].path[param[1]].path[param[2]].visitCount += item.visitCount;
+                params[domain].path[param[1]].path[param[2]].path[decoded_url] = item.visitCount;
+            }
+        }
+
+        chrome.history.getVisits({
+            url: item.url
+        }, function (visitItems) {
+            for (var i = 0, l = visitItems.length; i < l; i++) {
+                var visitItem = visitItems[i],
+                    date = new Date(visitItem.visitTime),
+                    year = date.getFullYear(),
+                    month = date.getMonth(),
+                    day = date.getDate(),
+                    hours = date.getHours();
+
+                if (!visits[year]) {
+                    visits[year] = {};
+                }
+
+                if (!visits[year][month]) {
+                    visits[year][month] = {};
+                }
+
+                if (!visits[year][month][day]) {
+                    visits[year][month][day] = {};
+                }
+
+                if (!visits[year][month][day][hours]) {
+                    visits[year][month][day][hours] = 0;
+                }
+
+                visits[year][month][day][hours]++;
+
+                if (!HM.transitions[visitItem.transition]) {
+                    HM.transitions[visitItem.transition] = {
+                        transition: visitItem.transition,
+                        visitCount: 0
+                    };
+                }
+
+                HM.transitions[visitItem.transition].visitCount++;
+            }
+
+            threads--;
+
+            if (threads === 0) {
+                saveHistoryData(domains, params, transitions, visits);
+            }
+        });
+
+        threads++;
+    }
+}
+
+function saveHistoryData(domains, params, transitions, visits) {
+    var domains_object_store = DB.indexedDB.transaction('domains', 'readwrite').objectStore('domains'),
+        params_object_store = DB.indexedDB.transaction('params', 'readwrite').objectStore('params'),
+        transitions_object_store = DB.indexedDB.transaction('transitions', 'readwrite').objectStore('transitions');
+
+    for (var key in domains) {
+        domains[key].domain = key;
+
+        domains_object_store.put(domains[key]);
+    }
+
+    for (var key in params) {
+        params_object_store.put(params[key]);
+    }
+
+    for (var key in HM.transitions) {
+        transitions_object_store.put(HM.transitions[key]);
+    }
+
+    navigator.storage.estimate().then(function (result) {
+        document.querySelector('.satus-footer__indexeddb-size').textContent = 'IndexedDB: ' + (result.usageDetails.indexedDB / 8e+6).toFixed(2) + ' MB';
+    });
+
+    chrome.storage.local.set({
+        database_cached: true,
+        visits: visits
+    });
+
+    renderTables();
+}
+
 satus.storage.load(function (items) {
     if (items.search_autofocus !== false && location.href.indexOf('?loaded') === -1) {
         location.replace(location.href + '?loaded');
@@ -2328,184 +2534,22 @@ satus.storage.load(function (items) {
                     }, main);
 
                     DB.get('transitions', function(transitions) {
-                        var pages_object_store = DB.indexedDB.transaction('pages', 'readwrite').objectStore('pages'),
-                            domains = {},
-                            params = {},
-                            visits = satus.storage.data.visits || {},
-                            threads = 0;
+                        var keys = [];
 
                         HM.transitions = transitions || [];
 
                         for (var i = 0, l = items.length; i < l; i++) {
-                            var item = items[i],
-                                parts = item.url.match(REGEX_PARTS),
-                                link = parts[0].substr(1),
-                                domain = link.replace(/^www\./, '');
+                            var parts = items[i].url.match(REGEX_PARTS),
+                                link = parts[0].substr(1);
 
-                            if (!domains[domain]) {
-                                domains[domain] = {
-                                    url: item.url.match(REGEX_PROTOCOL)[0] + '://' + link,
-                                    typedCount: 0,
-                                    visitCount: 0,
-                                    path: {}
-                                };
-                            }
-
-                            var object = domains[domain].path;
-
-                            for (var j = 1, k = parts.length; j < k; j++) {
-                                var name = parts[j];
-
-                                if (!object[name]) {
-                                    object[name] = {
-                                        visitCount: 0,
-                                        path: {}
-                                    };
-                                }
-
-                                object.visitCount += item.visitCount;
-
-                                object = object[name].path;
-
-                                if (j + 1 === k) {
-                                    object.lastVisitTime = item.lastVisitTime;
-                                    object.title = item.title;
-                                    object.typedCount = item.typedCount;
-                                    object.visitCount = item.visitCount;
-                                }
-                            }
-
-                            domains[domain].typedCount += item.typedCount;
-                            domains[domain].visitCount += item.visitCount;
-
-                            pages_object_store.add({
-                                'id': item.id,
-                                'lastVisitTime': item.lastVisitTime,
-                                'tags': '',
-                                'title': item.title,
-                                'typedCount': item.typedCount,
-                                'url': item.url,
-                                'visitCount': item.visitCount
-                            });
-
-                            if (item.url.indexOf('?') !== -1) {
-                                try {
-                                    var decoded_url = decodeURIComponent(item.url);
-                                } catch (err) {
-                                    var decoded_url = item.url;
-                                }
-
-                                var param = decoded_url.match(REGEX_PARAMS);
-
-                                if (param) {
-                                    var domain = parts[0];
-
-                                    if (!params[domain]) {
-                                        params[domain] = {
-                                            domain: domain.substr(1),
-                                            url: item.url.match(REGEX_PROTOCOL)[0] + '://' + domain,
-                                            visitCount: 0,
-                                            path: {}
-                                        };
-                                    }
-
-                                    params[domain].visitCount += item.visitCount;
-
-                                    if (!params[domain].path[param[1]]) {
-                                        params[domain].path[param[1]] = {
-                                            visitCount: 0,
-                                            path: {}
-                                        };
-                                    }
-
-                                    params[domain].path[param[1]].visitCount += item.visitCount;
-
-                                    if (!params[domain].path[param[1]].path[param[2]]) {
-                                        params[domain].path[param[1]].path[param[2]] = {
-                                            visitCount: 0,
-                                            path: {}
-                                        };
-                                    }
-
-                                    params[domain].path[param[1]].path[param[2]].visitCount += item.visitCount;
-                                    params[domain].path[param[1]].path[param[2]].path[decoded_url] = item.visitCount;
-                                }
-                            }
-
-                            chrome.history.getVisits({
-                                url: item.url
-                            }, function (visitItems) {
-                                for (var i = 0, l = visitItems.length; i < l; i++) {
-                                    var visitItem = visitItems[i],
-                                        date = new Date(visitItem.visitTime),
-                                        year = date.getFullYear(),
-                                        month = date.getMonth(),
-                                        day = date.getDate(),
-                                        hours = date.getHours();
-
-                                    if (!visits[year]) {
-                                        visits[year] = {};
-                                    }
-
-                                    if (!visits[year][month]) {
-                                        visits[year][month] = {};
-                                    }
-
-                                    if (!visits[year][month][day]) {
-                                        visits[year][month][day] = {};
-                                    }
-
-                                    if (!visits[year][month][day][hours]) {
-                                        visits[year][month][day][hours] = 0;
-                                    }
-
-                                    visits[year][month][day][hours]++;
-
-                                    if (!HM.transitions[visitItem.transition]) {
-                                        HM.transitions[visitItem.transition] = {
-                                            transition: visitItem.transition,
-                                            visitCount: 0
-                                        };
-                                    }
-
-                                    HM.transitions[visitItem.transition].visitCount++;
-                                }
-
-                                threads--;
-
-                                if (threads === 0) {
-                                    var domains_object_store = DB.indexedDB.transaction('domains', 'readwrite').objectStore('domains'),
-                                        params_object_store = DB.indexedDB.transaction('params', 'readwrite').objectStore('params'),
-                                        transitions_object_store = DB.indexedDB.transaction('transitions', 'readwrite').objectStore('transitions');
-
-                                    for (var key in domains) {
-                                        domains[key].domain = key;
-
-                                        domains_object_store.add(domains[key]);
-                                    }
-
-                                    for (var key in params) {
-                                        params_object_store.add(params[key]);
-                                    }
-
-                                    for (var key in HM.transitions) {
-                                        transitions_object_store.add(HM.transitions[key]);
-                                    }
-
-                                    navigator.storage.estimate().then(function (result) {
-                                        document.querySelector('.satus-footer__indexeddb-size').textContent = 'IndexedDB: ' + (result.usageDetails.indexedDB / 8e+6).toFixed(2) + ' MB';
-                                    });
-
-                                    chrome.storage.local.set({
-                                        visits: visits
-                                    });
-
-                                    renderTables();
-                                }
-                            });
-
-                            threads++;
+                            keys.push(link.replace(/^www\./, ''));
                         }
+
+                        DB.getByKeys(keys, 'domains', function(domains) {
+                            DB.getByKeys(keys, 'params', function(params) {
+                                updateHistoryData(items, transitions, domains, params);
+                            });
+                        });
 
                         chrome.storage.local.set({
                             database_version: (satus.storage.data.database_version || 1) + 1
