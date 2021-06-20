@@ -1403,7 +1403,7 @@ var skeleton = {
                                                 li.className = 'satus-tree--item';
 
                                                 button.className = 'satus-button';
-                                                button.textContent = key;
+                                                button.innerHTML = '<b>' + key + '</b>';
                                                 button.object = object[key];
 
                                                 if (typeof object[key] === 'object') {
@@ -1419,7 +1419,7 @@ var skeleton = {
                                                         }
                                                     });
                                                 } else {
-                                                    button.textContent += ': ' + object[key];
+                                                    button.innerHTML += ': ' + object[key];
                                                 }
 
                                                 li.appendChild(button);
