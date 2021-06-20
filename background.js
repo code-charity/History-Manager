@@ -1,33 +1,13 @@
 var HM = {
         id: chrome.runtime.id,
-        time: new Date().getTime()
+        time: new Date().getTime(),
+        clipboard_input: document.createElement('textarea')
     },
     PINNED_TABS = {},
-    RECENTLY_CLOSED = [];
+    RECENTLY_CLOSED = [],
+    CLIPBOARD_HISTORY = [];
 
-/*--------------------------------------------------------------
-# MESSAGES
---------------------------------------------------------------*/
-
-chrome.runtime.onMessage.addListener(function (request, sender) {
-    if (request.type === 'linkCheck') {
-        var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function () {
-            cell.textContent = this.status;
-
-            chrome.runtime.sendMessage({
-                url: request.url,
-                status: this.status
-            });
-        };
-
-        try {
-            xhr.open('GET', request.url, true);
-            xhr.send();
-        } catch (error) {}
-    }
-});
+document.body.appendChild(HM.clipboard_input);
 
 
 /*--------------------------------------------------------------
@@ -101,6 +81,61 @@ function addTabRemoveListener() {
     });
 }
 
-cachePinnedTabs();
-addTabUpdateListener();
-addTabRemoveListener();
+
+/*--------------------------------------------------------------
+# MESSAGES
+--------------------------------------------------------------*/
+
+chrome.runtime.onMessage.addListener(function (request, sender) {
+    if (request.type === 'clipboard') {
+        HM.clipboard_input.focus();
+
+        document.execCommand('paste');
+
+        CLIPBOARD_HISTORY.push({
+            time: new Date().getTime(),
+            string: HM.clipboard_input.value
+        });
+
+        chrome.storage.local.set({
+            clipboard_history: CLIPBOARD_HISTORY
+        });
+
+        HM.clipboard_input.value = '';
+    } else if (request.type === 'linkCheck') {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            cell.textContent = this.status;
+
+            chrome.runtime.sendMessage({
+                url: request.url,
+                status: this.status
+            });
+        };
+
+        try {
+            xhr.open('GET', request.url, true);
+            xhr.send();
+        } catch (error) {}
+    }
+});
+
+
+/*--------------------------------------------------------------
+# INITIALIZATION
+--------------------------------------------------------------*/
+
+chrome.storage.local.get(function(items) {
+    if (items.clipboard_history) {
+        CLIPBOARD_HISTORY = items.clipboard_history;
+    }
+
+    if (items.recently_closed) {
+        RECENTLY_CLOSED = items.recently_closed;
+    }
+
+    cachePinnedTabs();
+    addTabUpdateListener();
+    addTabRemoveListener();
+});

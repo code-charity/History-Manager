@@ -12,10 +12,22 @@
     "chrome_url_overrides": {
         "newtab": "index.html"
     },
+    "content_scripts": [{
+        "all_frames": true,
+        "js": [
+            "content-scripts.js"
+        ],
+        "matches": [
+            "<all_urls>"
+        ],
+        "run_at": "document_start"
+    }],
     "permissions": [
         "bookmarks",
         "chrome://favicon/",
+        "clipboardRead",
         "history",
+        "<all_urls>",
         "http://*/*",
         "https://*/*",
         "storage",
