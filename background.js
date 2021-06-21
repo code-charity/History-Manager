@@ -3,10 +3,12 @@ var HM = {
         time: new Date().getTime(),
         clipboard_input: document.createElement('textarea')
     },
+    TABS = {},
     PINNED_TABS = {},
     RECENTLY_CLOSED = [],
     CLIPBOARD_HISTORY = [],
     KEY_HISTORY = {},
+    VISIT_DURATION_HISTORY = {},
     REGEX_PARTS = /\/[^/?#]+/g,
     REGEX_WWW = /^www\./;
 
@@ -16,6 +18,59 @@ document.body.appendChild(HM.clipboard_input);
 /*--------------------------------------------------------------
 # TABS
 --------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# VISIT DURATION
+--------------------------------------------------------------*/
+
+chrome.tabs.query({}, function (tabs) {
+    var time = new Date().getTime();
+
+    for (var i = 0, l = tabs.length; i < l; i++) {
+        var tab = tabs[i];
+
+        TABS[tab.id] = {
+            time: time
+        };
+
+        if (tab.url) {
+            TABS[tab.id] = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
+        }
+    }
+});
+
+chrome.tabs.onCreated.addListener(function (tab) {
+    TABS[tab.id] = {
+        time: new Date().getTime()
+    };
+
+    if (tab.url) {
+        TABS[tab.id] = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
+    }
+});
+
+chrome.tabs.onUpdated.addListener(function (tab_id, change_info, tab) {
+    if (change_info.url) {
+        TABS[tab_id].url = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
+    }
+});
+
+chrome.tabs.onRemoved.addListener(function (tab_id) {
+    var url = TABS[tab_id].url;
+
+    if (!VISIT_DURATION_HISTORY[url]) {
+        VISIT_DURATION_HISTORY[url] = 0;
+    }
+
+    VISIT_DURATION_HISTORY[url] += new Date().getTime() - TABS[tab_id].time;
+
+    delete TABS[tab_id];
+
+    chrome.storage.local.set({
+        visit_duration_history: VISIT_DURATION_HISTORY
+    });
+});
+
 
 /*--------------------------------------------------------------
 # CACHE PINNED TABS
@@ -169,6 +224,10 @@ chrome.storage.local.get(function(items) {
 
     if (items.key_history) {
         KEY_HISTORY = items.key_history;
+    }
+
+    if (items.visit_duration_history) {
+        VISIT_DURATION_HISTORY = items.visit_duration_history;
     }
 
     if (items.recently_closed) {
