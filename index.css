@@ -97,6 +97,7 @@ body[data-privacy-mode='true'] .favicon {
     padding-left: 48px;
     border: none;
     border-radius: 20px;
+    background: var(--satus-theme-background-2);
 }
 
 .satus-button--search-options {
@@ -315,6 +316,7 @@ body[data-privacy-mode='true'] .favicon {
     height: 100%;
     padding: 0 8px;
     border: none;
+    border-radius: 2px;
 }
 
 .satus-table a {

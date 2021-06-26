@@ -26,6 +26,7 @@ body {
 	--satus-theme-background-0: #f7f8fa;
 	--satus-theme-background-1: #fff;
 	--satus-theme-background-2: #fff;
+	--satus-theme-background-3: #fafafa;
 	--satus-theme-border-0: #edeff2;
 }
 
@@ -38,6 +39,7 @@ body[data-dark-theme='true'] {
 	--satus-theme-background-0: #000;
 	--satus-theme-background-1: #1a1a1a;
 	--satus-theme-background-2: #262626;
+	--satus-theme-background-3: #343434;
 	--satus-theme-border-0: #222;
 }
 
@@ -226,7 +228,7 @@ body[data-dark-theme='true'] {
 	transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 	color: inherit;
 	border: 1px solid rgba(0, 0, 0, .1);
-	background: var(--satus-theme-background-1);
+	background: var(--satus-theme-background-3);
 	appearance: none;
 }
 
