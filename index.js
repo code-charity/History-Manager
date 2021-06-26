@@ -48,11 +48,11 @@ var HM = {
 
 var DB = {
     indexedDB: null,
-    open: function(callback) {
+    open: function (callback) {
         chrome.storage.local.get('database_version', function (items) {
             var request = indexedDB.open('history_manager', items.database_version);
 
-            request.onupgradeneeded = function() {
+            request.onupgradeneeded = function () {
                 console.log('DB: upgradeneeded 1', this.result.version);
 
                 DB.indexedDB = this.result;
@@ -98,31 +98,31 @@ var DB = {
                     }
                 }
 
-                DB.indexedDB.onversionchange = function() {
+                DB.indexedDB.onversionchange = function () {
                     console.log('DB: versionchange 1');
-                    
+
                     DB.indexedDB.close();
 
                     DB.open(callback);
                 };
             };
 
-            request.onsuccess = function() {
+            request.onsuccess = function () {
                 console.log('DB: success 1');
-                
+
                 DB.indexedDB = this.result;
 
                 callback();
             };
 
-            request.onblocked = function() {
+            request.onblocked = function () {
                 console.log('DB: blocked 1');
 
                 DB.open(callback);
             };
         });
     },
-    get: function(object_store_name, callback, options) {
+    get: function (object_store_name, callback, options) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name),
             limit = options.limit || 100,
@@ -133,7 +133,7 @@ var DB = {
             object_store = object_store.index(options.index_name);
         }
 
-        object_store.openCursor(null, options.direction).onsuccess = function(event) {
+        object_store.openCursor(null, options.direction).onsuccess = function (event) {
             var cursor = event.target.result;
 
             if (options.offset && offset === false) {
@@ -149,7 +149,7 @@ var DB = {
             }
         };
     },
-    getByKeys: function(keys, object_store_name, callback) {
+    getByKeys: function (keys, object_store_name, callback) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name),
             threads = 0,
@@ -160,7 +160,7 @@ var DB = {
 
             threads++;
 
-            object_store.get(key).onsuccess = function(event) {
+            object_store.get(key).onsuccess = function (event) {
                 threads--;
 
                 if (event.target.result) {
@@ -173,15 +173,15 @@ var DB = {
             };
         }
     },
-    count: function(object_store_name, callback) {
+    count: function (object_store_name, callback) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name);
 
-        object_store.count().onsuccess = function(event) {
+        object_store.count().onsuccess = function (event) {
             callback(event.target.result);
         };
     },
-    search: function(query, object_store_name, keys, callback) {
+    search: function (query, object_store_name, keys, callback) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
             object_store = transaction.objectStore(object_store_name),
             result = [],
@@ -191,7 +191,7 @@ var DB = {
             is_regex = true;
         }
 
-        object_store.openCursor().onsuccess = function(event) {
+        object_store.openCursor().onsuccess = function (event) {
             var cursor = event.target.result,
                 founded = false;
 
@@ -231,7 +231,7 @@ var DB = {
 # CACHE
 --------------------------------------------------------------*/
 
-HM.history.cache = function(items) {
+HM.history.cache = function (items) {
     var pages_object_store = DB.indexedDB.transaction('pages', 'readwrite').objectStore('pages');
 
     for (var i = 0, l = items.length; i < l; i++) {
@@ -254,7 +254,7 @@ HM.history.cache = function(items) {
 # GET
 --------------------------------------------------------------*/
 
-HM.history.get = function(callback) {
+HM.history.get = function (callback) {
     chrome.storage.local.get('history_start_time', function (items) {
         var end_time = new Date().getTime(),
             start_time = items.history_start_time || 0;
@@ -311,7 +311,7 @@ chrome.bookmarks.getTree(function (bookmarks) {
 
 HM.tabs = document.createElement('div');
 
-HM.tabs.removeEmptyWindows = function() {
+HM.tabs.removeEmptyWindows = function () {
     for (var i = 0, l = this.children.length; i < l; i++) {
         var list = this.children[i];
 
@@ -321,7 +321,7 @@ HM.tabs.removeEmptyWindows = function() {
     }
 };
 
-HM.tabs.returnWindow = function(id) {
+HM.tabs.returnWindow = function (id) {
     for (var i = 0, l = this.children.length; i < l; i++) {
         if (this.children[i].dataset.id == id) {
             return this.children[i];
@@ -336,7 +336,7 @@ HM.tabs.returnWindow = function(id) {
 
     button.className = 'satus-button tab-manager__window-button';
     button.textContent = this.children.length + 1;
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
         this.parentNode.classList.toggle('collapsed');
     });
 
@@ -347,7 +347,7 @@ HM.tabs.returnWindow = function(id) {
     return element;
 };
 
-HM.tabs.createTab = function(tab) {
+HM.tabs.createTab = function (tab) {
     var list = HM.tabs.returnWindow(tab.windowId),
         item = document.createElement('div'),
         pin_button = document.createElement('button'),
@@ -470,7 +470,7 @@ HM.tabs.createTab = function(tab) {
         item.dataset.pinned = false;
     }
 
-    pin_button.addEventListener('click', function(event) {
+    pin_button.addEventListener('click', function (event) {
         var item = this.parentNode,
             status = item.dataset.pinned != 'true';
 
@@ -495,7 +495,7 @@ HM.tabs.createTab = function(tab) {
     list.insertBefore(item, list.children[tab.index + 1]);
 };
 
-HM.tabs.returnTab = function(tab_id, window_id) {
+HM.tabs.returnTab = function (tab_id, window_id) {
     if (satus.isset(window_id)) {
         var list = HM.tabs.returnWindow(window_id);
 
@@ -1278,7 +1278,7 @@ var skeleton = {
                             onpage: function () {
                                 var table = this;
 
-                                DB.get('domains', function(items) {
+                                DB.get('domains', function (items) {
                                     table.data = items;
 
                                     table.update();
@@ -1291,7 +1291,7 @@ var skeleton = {
                             onsort: function () {
                                 var table = this;
 
-                                DB.get('domains', function(items) {
+                                DB.get('domains', function (items) {
                                     table.data = items;
 
                                     table.update();
@@ -1304,8 +1304,8 @@ var skeleton = {
                         }]
                     };
 
-                    DB.get('domains', function(items) {
-                        DB.count('domains', function(count) {
+                    DB.get('domains', function (items) {
+                        DB.count('domains', function (count) {
                             skeleton.items[0].data = items;
                             skeleton.items[0].count = count;
 
@@ -1527,7 +1527,6 @@ var skeleton = {
                                                         li.appendChild(a);
                                                         ul.appendChild(li);
                                                     } else {
-                                                        //console.log(object[key]);
                                                         parse(object[key], ul);
                                                     }
                                                 }
@@ -1537,7 +1536,6 @@ var skeleton = {
                                         }
 
                                         chrome.bookmarks.getTree(function (bookmarks) {
-                                            console.log(bookmarks[0].children);
                                             parse(bookmarks[0].children, self);
                                         });
                                     }
@@ -1754,7 +1752,7 @@ var skeleton = {
                 onpage: function () {
                     var table = this;
 
-                    DB.get('domains', function(items) {
+                    DB.get('domains', function (items) {
                         table.data = items;
 
                         table.update();
@@ -1767,7 +1765,7 @@ var skeleton = {
                 onsort: function () {
                     var table = this;
 
-                    DB.get('domains', function(items) {
+                    DB.get('domains', function (items) {
                         table.data = items;
 
                         table.update();
@@ -1780,7 +1778,7 @@ var skeleton = {
                 onsearch: function (query) {
                     var table = this;
 
-                    DB.search(query, 'domains', ['url'], function(items) {
+                    DB.search(query, 'domains', ['url'], function (items) {
                         table.data = items;
 
                         table.update();
@@ -1876,7 +1874,7 @@ var skeleton = {
                 onpage: function () {
                     var table = this;
 
-                    DB.get('pages', function(items) {
+                    DB.get('pages', function (items) {
                         table.data = items;
 
                         table.update();
@@ -1889,7 +1887,7 @@ var skeleton = {
                 onsort: function () {
                     var table = this;
 
-                    DB.get('pages', function(items) {
+                    DB.get('pages', function (items) {
                         table.data = items;
 
                         table.update();
@@ -1902,7 +1900,7 @@ var skeleton = {
                 onsearch: function (query) {
                     var table = this;
 
-                    DB.search(query, 'pages', ['url', 'title'], function(items) {
+                    DB.search(query, 'pages', ['url', 'title'], function (items) {
                         table.data = items;
 
                         table.update();
@@ -1960,7 +1958,7 @@ var skeleton = {
                 onpage: function () {
                     var table = this;
 
-                    DB.get('params', function(items) {
+                    DB.get('params', function (items) {
                         table.data = items;
 
                         table.update();
@@ -1973,7 +1971,7 @@ var skeleton = {
                 onsort: function () {
                     var table = this;
 
-                    DB.get('params', function(items) {
+                    DB.get('params', function (items) {
                         table.data = items;
 
                         table.update();
@@ -1986,7 +1984,7 @@ var skeleton = {
                 onsearch: function (query) {
                     var table = this;
 
-                    DB.search(query, 'params', ['url'], function(items) {
+                    DB.search(query, 'params', ['url'], function (items) {
                         table.data = items;
 
                         table.update();
@@ -1999,7 +1997,7 @@ var skeleton = {
                 {
                     element: 'div',
                     class: 'satus-tab-manager',
-                    onrender: function() {
+                    onrender: function () {
                         this.appendChild(HM.tabs);
                     }
                 },
@@ -2047,7 +2045,7 @@ function renderTables() {
 
     satus.render(tables, document.querySelector('.satus-main'));
 
-    DB.get('domains', function(items) {
+    DB.get('domains', function (items) {
         var categories = [];
 
         for (var key in CATEGORIES) {
@@ -2091,7 +2089,7 @@ function renderTables() {
 
         table_pages.update();
 
-        DB.count('domains', function(count) {
+        DB.count('domains', function (count) {
             var table_pages = document.querySelector('.satus-table--domains');
 
             table_pages.data = items;
@@ -2104,8 +2102,8 @@ function renderTables() {
         direction: 'prev'
     });
 
-    DB.get('pages', function(items) {
-        DB.count('pages', function(count) {
+    DB.get('pages', function (items) {
+        DB.count('pages', function (count) {
             var table_pages = document.querySelector('.satus-table--pages');
 
             table_pages.data = items;
@@ -2119,8 +2117,8 @@ function renderTables() {
     });
 
     //getDBData('params', 'visitCountIndex', 'desc', 0, function (data, count) {
-    DB.get('params', function(items) {
-        DB.count('params', function(count) {
+    DB.get('params', function (items) {
+        DB.count('params', function (count) {
             var table_pages = document.querySelector('.satus-table--params');
 
             table_pages.data = items;
@@ -2524,8 +2522,8 @@ satus.storage.load(function (items) {
             text: 'loadingBrowserHistory'
         }, main);
 
-        DB.open(function() {
-            HM.history.get(function(items) {
+        DB.open(function () {
+            HM.history.get(function (items) {
                 if (items.length > 0) {
                     satus.empty(main);
 
@@ -2535,7 +2533,7 @@ satus.storage.load(function (items) {
                         text: 'dataProcessing'
                     }, main);
 
-                    DB.get('transitions', function(transitions) {
+                    DB.get('transitions', function (transitions) {
                         var keys = [];
 
                         HM.transitions = transitions || [];
@@ -2547,9 +2545,8 @@ satus.storage.load(function (items) {
                             keys.push(link.replace(/^www\./, ''));
                         }
 
-                        DB.getByKeys(keys, 'domains', function(domains) {
-                            DB.getByKeys(keys, 'params', function(params) {
-                                console.log(keys, params);
+                        DB.getByKeys(keys, 'domains', function (domains) {
+                            DB.getByKeys(keys, 'params', function (params) {
                                 updateHistoryData(items, transitions, domains, params);
                             });
                         });

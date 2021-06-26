@@ -422,7 +422,7 @@ satus.elements.grid = function (skeleton) {
 
     grid.addColumn = function (options) {
         var column = document.createElement('div');
-        
+
         column.className = 'satus-grid__column';
 
         column.addItem = this.addItem;
@@ -837,7 +837,7 @@ satus.elements.table = function (skeleton) {
                     table.onsort();
                 } else {
                     table.data = satus.sort(table.order.key, table.order.by, table.data);
-                    
+
                     table.update();
                 }
             });

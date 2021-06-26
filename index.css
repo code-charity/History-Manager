@@ -40,8 +40,8 @@
 --------------------------------------------------------------*/
 
 body {
-    background: var(--satus-theme-background-0);
     overflow: hidden;
+    background: var(--satus-theme-background-0);
 }
 
 body[data-dark-theme='true'] {
@@ -226,17 +226,17 @@ body[data-privacy-mode='true'] .favicon {
 }
 
 .satus-main--status {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 28px;
     font-weight: 700;
-    opacity: .5;
     position: fixed;
-    left: 0;
     top: 0;
+    left: 0;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    opacity: .5;
+    align-items: center;
+    justify-content: center;
 }
 
 .satus-grid {
@@ -553,16 +553,16 @@ body[data-dark-theme='true'] .tab-manager__item .satus-button--pin {
 
 .tab-manager__item a {
     overflow: hidden;
+    padding: 0 24px;
     white-space: nowrap;
     text-decoration: none;
     text-overflow: ellipsis;
     color: #0075ff;
-    align-items: center;
-    flex: 1;
     background-repeat: no-repeat;
     background-position: left center;
     background-size: 16px;
-    padding: 0 24px;
+    align-items: center;
+    flex: 1;
 }
 
 
@@ -591,7 +591,7 @@ body[data-dark-theme='true'] .tab-manager__item .satus-button--pin {
     background: currentColor;
 }
 
-.satus-tree--item > .satus-button {
+.satus-tree--item>.satus-button {
     border: none;
     background: transparent;
     box-shadow: none;
