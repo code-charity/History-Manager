@@ -1645,7 +1645,7 @@ var skeleton = {
         dataset: {
             edit: true
         },
-        items: [
+        columns: [
             // CATEGORIES
             {
                 element: 'table',
@@ -1994,43 +1994,45 @@ var skeleton = {
                 }
             },
 
-            // PINNED TABS
-            {
-                element: 'div',
-                class: 'satus-tab-manager',
-                onrender: function() {
-                    this.appendChild(HM.tabs);
-                }
-            },
-
-            // RECENTLY CLOSED
-            {
-                element: 'table',
-                class: 'satus-table--recently-closed',
-                columns: [{
-                        label: 'timeAgo',
-                        key: '0'
-                    },
-                    {
-                        label: 'title',
-                        key: '1',
-                        intercept: function (cell, value, index, row) {
-                            var link = row.data[2],
-                                icon = document.createElement('div'),
-                                a = document.createElement('a');
-
-                            icon.className = 'favicon';
-                            icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-                            a.textContent = satus.locale.get(value);
-                            a.href = link;
-
-                            cell.appendChild(icon);
-                            cell.appendChild(a);
-                        }
+            [
+                // PINNED TABS
+                {
+                    element: 'div',
+                    class: 'satus-tab-manager',
+                    onrender: function() {
+                        this.appendChild(HM.tabs);
                     }
-                ]
-            }
+                },
+
+                // RECENTLY CLOSED
+                {
+                    element: 'table',
+                    class: 'satus-table--recently-closed',
+                    columns: [{
+                            label: 'timeAgo',
+                            key: '0'
+                        },
+                        {
+                            label: 'title',
+                            key: '1',
+                            intercept: function (cell, value, index, row) {
+                                var link = row.data[2],
+                                    icon = document.createElement('div'),
+                                    a = document.createElement('a');
+
+                                icon.className = 'favicon';
+                                icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+                                a.textContent = satus.locale.get(value);
+                                a.href = link;
+
+                                cell.appendChild(icon);
+                                cell.appendChild(a);
+                            }
+                        }
+                    ]
+                }
+            ]
         ]
     };
 
