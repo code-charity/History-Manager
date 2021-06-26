@@ -2388,11 +2388,11 @@ function updateHistoryData(items, transitions, domains, params) {
             var param = decoded_url.match(REGEX_PARAMS);
 
             if (param) {
-                var domain = parts[0];
+                var domain = parts[0].substr(1).replace(/^www\./, '');
 
                 if (!params[domain]) {
                     params[domain] = {
-                        domain: domain.substr(1),
+                        domain: domain,
                         url: item.url.match(REGEX_PROTOCOL)[0] + '://' + domain,
                         visitCount: 0,
                         path: {}
@@ -2549,6 +2549,7 @@ satus.storage.load(function (items) {
 
                         DB.getByKeys(keys, 'domains', function(domains) {
                             DB.getByKeys(keys, 'params', function(params) {
+                                console.log(keys, params);
                                 updateHistoryData(items, transitions, domains, params);
                             });
                         });
