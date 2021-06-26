@@ -420,6 +420,19 @@ satus.elements.grid = function (skeleton) {
     grid.className = 'satus-grid';
     grid.dataset.edit = false;
 
+    grid.addColumn = function (options) {
+        var column = document.createElement('div');
+        
+        column.className = 'satus-grid__column';
+
+        column.addItem = this.addItem;
+
+
+        this.appendChild(column);
+
+        return column;
+    };
+
     grid.addItem = function (options) {
         var item = document.createElement('div'),
             left = document.createElement('div'),
@@ -579,10 +592,16 @@ satus.elements.grid = function (skeleton) {
         return item;
     }
 
-    for (var i = 0, l = skeleton.items.length; i < l; i++) {
-        var item = grid.addItem();
+    for (var i = 0, l = skeleton.columns.length; i < l; i++) {
+        var column = grid.addColumn();
 
-        satus.render(skeleton.items[i], item);
+        if (skeleton.columns[i].length) {
+            for (var j = 0, k = skeleton.columns[i].length; j < k; j++) {
+                satus.render(skeleton.columns[i][j], column.addItem());
+            }
+        } else {
+            satus.render(skeleton.columns[i], column.addItem());
+        }
     }
 
     return grid;

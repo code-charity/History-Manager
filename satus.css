@@ -283,6 +283,14 @@ body[data-dark-theme='true'] {
 	display: flex;
 }
 
+.satus-grid__column {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    flex: 1;
+    flex-direction: column;
+}
+
 .satus-grid__item {
 	position: relative;
 	display: flex;
