@@ -384,7 +384,6 @@ body[data-dark-theme='true'] {
 	overflow: hidden;
 	margin: 8px;
 	cursor: pointer;
-	text-align: left;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	color: inherit;

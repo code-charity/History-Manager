@@ -339,19 +339,6 @@ body[data-dark-theme='true'] .satus-table--categories .favicon {
     background-image: url(icons-white.png);
 }
 
-.satus-table--categories .satus-table__head>*:first-child,
-.satus-table--categories .satus-table__body .satus-table__row>*:first-child,
-.satus-table--domains .satus-table__head>*:first-child,
-.satus-table--domains .satus-table__body .satus-table__row>*:first-child,
-.satus-table--pages .satus-table__head>*:first-child,
-.satus-table--pages .satus-table__body .satus-table__row>*:first-child,
-.satus-table--params .satus-table__head>*:first-child,
-.satus-table--params .satus-table__body .satus-table__row>*:first-child {
-    min-width: 64px;
-    max-width: 64px;
-    flex: 0;
-}
-
 .satus-table--categories .satus-table__head>*:nth-child(2),
 .satus-table--categories .satus-table__body .satus-table__row>*:nth-child(2),
 .satus-table--domains .satus-table__head>*:nth-child(2),
@@ -360,16 +347,23 @@ body[data-dark-theme='true'] .satus-table--categories .favicon {
 .satus-table--pages .satus-table__body .satus-table__row>*:nth-child(3),
 .satus-table--params .satus-table__head>*:nth-child(2),
 .satus-table--params .satus-table__body .satus-table__row>*:nth-child(2) {
-    min-width: 24px;
-    max-width: 24px;
-    flex: 0;
+    flex: 0 0 24px;
+}
+
+.satus-table--categories .satus-table__head>*:first-child,
+.satus-table--categories .satus-table__body .satus-table__row>*:first-child,
+.satus-table--domains .satus-table__head>*:first-child,
+.satus-table--domains .satus-table__body .satus-table__row>*:first-child,
+.satus-table--pages .satus-table__head>*:first-child,
+.satus-table--pages .satus-table__body .satus-table__row>*:first-child,
+.satus-table--params .satus-table__head>*:first-child,
+.satus-table--params .satus-table__body .satus-table__row>*:first-child {
+    flex: 0 0 64px;
 }
 
 .satus-table--recently-closed .satus-table__head>*:first-child,
 .satus-table--recently-closed .satus-table__body .satus-table__row>*:first-child {
-    min-width: 96px;
-    max-width: 96px;
-    flex: 0;
+    flex: 0 0 96px;
 }
 
 
