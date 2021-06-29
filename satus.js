@@ -1148,18 +1148,21 @@ satus.elements.verticalBars = function (skeleton) {
     for (var i = 0, l = skeleton.data.length; i < l; i++) {
         var column = document.createElement('div'),
             bar = document.createElement('div'),
+            value = document.createElement('div'),
             label = document.createElement('div');
 
         column.className = 'satus-vertical-bars__column';
         bar.className = 'satus-vertical-bars__bar';
+        value.className = 'satus-vertical-bars__value';
         label.className = 'satus-vertical-bars__label';
 
-        bar.dataset.value = skeleton.data[i];
-        bar.title = skeleton.data[i];
-        bar.style.height = skeleton.data[i] * 100 / max_value + '%';
+        value.dataset.value = skeleton.data[i];
+        value.title = skeleton.data[i];
+        value.style.height = skeleton.data[i] * 100 / max_value + '%';
 
         label.textContent = satus.locale.get(skeleton.labels[i]);
 
+        bar.appendChild(value);
         column.appendChild(bar);
         column.appendChild(label);
         chart.appendChild(column);

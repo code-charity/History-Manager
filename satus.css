@@ -562,20 +562,24 @@ body[data-dark-theme='true'] {
 .satus-vertical-bars {
     display: flex;
     box-sizing: border-box;
-    height: 320px;
+    min-height: 320px;
     padding: 16px;
 }
 
 .satus-vertical-bars__column {
-    display: flex;
-    flex-direction: column;
     margin: 2px;
     flex: 1;
-    align-items: center;
-    justify-content: flex-end;
+    overflow: hidden;
+    text-align: center;
 }
 
 .satus-vertical-bars__bar {
+    display: flex;
+    align-items: flex-end;
+    height: calc(100% - 20px);
+}
+
+.satus-vertical-bars__value {
     width: 100%;
     background: #ef9a9a;
     box-shadow: inset -5px -2px 1px rgb(0, 0, 0, .1), 2px 1px 2px rgb(0, 0, 0, .1);
@@ -583,9 +587,10 @@ body[data-dark-theme='true'] {
 
 .satus-vertical-bars__label {
     font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 4px 0 0;
 }
 
 

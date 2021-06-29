@@ -40,7 +40,6 @@
 --------------------------------------------------------------*/
 
 body {
-    overflow: hidden;
     background: var(--satus-theme-background-0);
 }
 
@@ -262,6 +261,7 @@ body[data-privacy-mode='true'] .favicon {
 .satus-grid--data .satus-grid__item {
     overflow: unset;
     flex-direction: column;
+    max-height: unset;
 }
 
 .satus-grid--data .satus-grid__item {

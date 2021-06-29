@@ -1041,7 +1041,8 @@ var skeleton = {
                             grid: {
                                 element: 'grid',
                                 class: 'satus-grid--charts',
-                                columns: [{
+                                columns: [
+                                    {
                                         title_hours: {
                                             element: 'h1',
                                             text: 'byHour'
@@ -1050,9 +1051,7 @@ var skeleton = {
                                             element: 'vertical-bars',
                                             labels: [],
                                             data: []
-                                        }
-                                    },
-                                    {
+                                        },
                                         title_days: {
                                             element: 'h1',
                                             text: 'byDay'
@@ -1061,9 +1060,7 @@ var skeleton = {
                                             element: 'vertical-bars',
                                             labels: [],
                                             data: []
-                                        }
-                                    },
-                                    {
+                                        },
                                         title_week: {
                                             element: 'h1',
                                             text: 'byWeek'
@@ -1072,9 +1069,7 @@ var skeleton = {
                                             element: 'vertical-bars',
                                             labels: [],
                                             data: []
-                                        }
-                                    },
-                                    {
+                                        },
                                         title_months: {
                                             element: 'h1',
                                             text: 'byMonth'
@@ -1083,9 +1078,7 @@ var skeleton = {
                                             element: 'vertical-bars',
                                             labels: [],
                                             data: []
-                                        }
-                                    },
-                                    {
+                                        },
                                         title_years: {
                                             element: 'h1',
                                             text: 'byYear'
@@ -1094,9 +1087,7 @@ var skeleton = {
                                             element: 'vertical-bars',
                                             labels: [],
                                             data: []
-                                        }
-                                    },
-                                    {
+                                        },
                                         title_transitions: {
                                             element: 'h1',
                                             text: 'transitions'
@@ -1134,16 +1125,16 @@ var skeleton = {
                                 }
 
                                 if (days_count < 30) {
-                                    skeleton.grid.columns[1].days.data.push(day_visits);
-                                    skeleton.grid.columns[1].days.labels.push(day);
+                                    skeleton.grid.columns[0].days.data.push(day_visits);
+                                    skeleton.grid.columns[0].days.labels.push(day);
                                 }
 
                                 days_count++;
                             }
                         }
 
-                        skeleton.grid.columns[4].years.data.push(year_visits);
-                        skeleton.grid.columns[4].years.labels.push(year);
+                        skeleton.grid.columns[0].years.data.push(year_visits);
+                        skeleton.grid.columns[0].years.labels.push(year);
                     }
 
                     var date = new Date(),
@@ -1163,12 +1154,12 @@ var skeleton = {
                                 }
                             }
 
-                            skeleton.grid.columns[3].months.data.push(visits);
+                            skeleton.grid.columns[0].months.data.push(visits);
                         } else {
-                            skeleton.grid.columns[3].months.data.push(0);
+                            skeleton.grid.columns[0].months.data.push(0);
                         }
 
-                        skeleton.grid.columns[3].months.labels.push(months[i]);
+                        skeleton.grid.columns[0].months.labels.push(months[i]);
                     }
 
                     for (var i = 0; i < 24; i++) {
@@ -1197,19 +1188,19 @@ var skeleton = {
                                 visits += items[year][month][day][hour];
                             }
 
-                            skeleton.grid.columns[2].week.data.push(visits);
+                            skeleton.grid.columns[0].week.data.push(visits);
                         } else {
-                            skeleton.grid.columns[2].week.data.push(0);
+                            skeleton.grid.columns[0].week.data.push(0);
                         }
 
-                        skeleton.grid.columns[2].week.labels.push(week_days[i]);
+                        skeleton.grid.columns[0].week.labels.push(week_days[i]);
                     }
 
                     for (var key in HM.transitions) {
                         var item = HM.transitions[key];
 
-                        skeleton.grid.columns[5].transitions.labels.push(item.transition);
-                        skeleton.grid.columns[5].transitions.data.push(item.visitCount);
+                        skeleton.grid.columns[0].transitions.labels.push(item.transition);
+                        skeleton.grid.columns[0].transitions.data.push(item.visitCount);
                     }
 
                     satus.render(skeleton, main);
@@ -1333,11 +1324,12 @@ var skeleton = {
                         element: 'grid',
                         class: 'satus-grid--data',
                         columns: [
-                            [{
+                            {
+                                0: {
                                     element: 'h1',
                                     text: 'browser.storage.local'
                                 },
-                                {
+                                1: {
                                     element: 'div',
                                     onrender: function () {
                                         function parse(object, parent) {
@@ -1381,12 +1373,13 @@ var skeleton = {
                                         parse(satus.storage.data, this);
                                     }
                                 }
-                            ],
-                            [{
+                            },
+                            {
+                                0: {
                                     element: 'h1',
                                     text: 'IndexedDB'
                                 },
-                                {
+                                1: {
                                     element: 'div',
                                     onrender: function () {
                                         function parse(object, parent) {
@@ -1446,7 +1439,7 @@ var skeleton = {
                                         }
                                     }
                                 }
-                            ]
+                            }
                         ]
                     };
 
@@ -1469,11 +1462,12 @@ var skeleton = {
                         element: 'grid',
                         class: 'satus-grid--data',
                         columns: [
-                            [{
+                            {
+                                0:{
                                     element: 'h1',
                                     text: 'bookmarks'
                                 },
-                                {
+                                1: {
                                     element: 'div',
                                     class: 'satus-div--bookmarks',
                                     onrender: function () {
@@ -1538,7 +1532,7 @@ var skeleton = {
                                         });
                                     }
                                 }
-                            ]
+                            }
                         ]
                     };
 
@@ -1904,93 +1898,93 @@ var skeleton = {
                         table.update();
                     });
                 }
-            },
-
-            // PARAMS
-            {
-                element: 'table',
-                class: 'satus-table--params',
-                db_object_name: 'params',
-                columns: [{
-                        label: 'visits',
-                        key: 'visitCount',
-                        sort: 'desc'
-                    },
-                    {
-                        label: '',
-                        key: 'path',
-                        sort: false,
-                        columns: [{
-                                label: 'visits',
-                                key: 'visitCount',
-                                sort: 'desc'
-                            },
-                            {
-                                key: 'path'
-                            },
-                            {
-                                label: 'domain',
-                                key: 'key'
-                            }
-                        ]
-                    },
-                    {
-                        label: 'domain',
-                        key: 'domain',
-                        intercept: function (cell, value, index, row) {
-                            var link = row.data.url,
-                                icon = document.createElement('div'),
-                                a = document.createElement('a');
-
-                            icon.className = 'favicon';
-                            icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-                            a.textContent = satus.locale.get(value);
-                            a.href = link;
-
-                            cell.appendChild(icon);
-                            cell.appendChild(a);
-                        }
-                    }
-                ],
-                onpage: function () {
-                    var table = this;
-
-                    DB.get('params', function (items) {
-                        table.data = items;
-
-                        table.update();
-                    }, {
-                        index_name: table.order.key + 'Index',
-                        direction: table.order.by === 'asc' ? 'next' : 'prev',
-                        offset: table.pageIndex * 100 - 100
-                    });
-                },
-                onsort: function () {
-                    var table = this;
-
-                    DB.get('params', function (items) {
-                        table.data = items;
-
-                        table.update();
-                    }, {
-                        index_name: table.order.key + 'Index',
-                        direction: table.order.by === 'asc' ? 'next' : 'prev',
-                        offset: table.pageIndex * 100 - 100
-                    });
-                },
-                onsearch: function (query) {
-                    var table = this;
-
-                    DB.search(query, 'params', ['url'], function (items) {
-                        table.data = items;
-
-                        table.update();
-                    });
-                }
-            },
+            }, 
 
             [
+                // PARAMS
+                {
+                    element: 'table',
+                    class: 'satus-table--params',
+                    db_object_name: 'params',
+                    columns: [{
+                            label: 'visits',
+                            key: 'visitCount',
+                            sort: 'desc'
+                        },
+                        {
+                            label: '',
+                            key: 'path',
+                            sort: false,
+                            columns: [{
+                                    label: 'visits',
+                                    key: 'visitCount',
+                                    sort: 'desc'
+                                },
+                                {
+                                    key: 'path'
+                                },
+                                {
+                                    label: 'domain',
+                                    key: 'key'
+                                }
+                            ]
+                        },
+                        {
+                            label: 'domain',
+                            key: 'domain',
+                            intercept: function (cell, value, index, row) {
+                                var link = row.data.url,
+                                    icon = document.createElement('div'),
+                                    a = document.createElement('a');
+
+                                icon.className = 'favicon';
+                                icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+                                a.textContent = satus.locale.get(value);
+                                a.href = link;
+
+                                cell.appendChild(icon);
+                                cell.appendChild(a);
+                            }
+                        }
+                    ],
+                    onpage: function () {
+                        var table = this;
+
+                        DB.get('params', function (items) {
+                            table.data = items;
+
+                            table.update();
+                        }, {
+                            index_name: table.order.key + 'Index',
+                            direction: table.order.by === 'asc' ? 'next' : 'prev',
+                            offset: table.pageIndex * 100 - 100
+                        });
+                    },
+                    onsort: function () {
+                        var table = this;
+
+                        DB.get('params', function (items) {
+                            table.data = items;
+
+                            table.update();
+                        }, {
+                            index_name: table.order.key + 'Index',
+                            direction: table.order.by === 'asc' ? 'next' : 'prev',
+                            offset: table.pageIndex * 100 - 100
+                        });
+                    },
+                    onsearch: function (query) {
+                        var table = this;
+
+                        DB.search(query, 'params', ['url'], function (items) {
+                            table.data = items;
+
+                            table.update();
+                        });
+                    }
+                },
+
                 // PINNED TABS
                 {
                     element: 'div',
@@ -2027,7 +2021,7 @@ var skeleton = {
                             }
                         }
                     ]
-                }
+                } 
             ]
         ]
     };
