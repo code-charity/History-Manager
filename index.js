@@ -49,78 +49,76 @@ var HM = {
 var DB = {
     indexedDB: null,
     open: function (callback) {
-        chrome.storage.local.get('database_version', function (items) {
-            var request = indexedDB.open('history_manager', items.database_version);
+        var request = indexedDB.open('history_manager');
 
-            request.onupgradeneeded = function () {
-                console.log('DB: upgradeneeded 1', this.result.version);
+        request.onupgradeneeded = function () {
+            console.log('DB: upgradeneeded 1', this.result.version);
 
-                DB.indexedDB = this.result;
+            DB.indexedDB = this.result;
 
-                if (DB.indexedDB.version === 1) {
-                    if (!DB.indexedDB.objectStoreNames.contains('domains')) {
-                        var object = DB.indexedDB.createObjectStore('domains', {
-                            keyPath: 'domain'
-                        });
+            if (DB.indexedDB.version === 1) {
+                if (!DB.indexedDB.objectStoreNames.contains('domains')) {
+                    var object = DB.indexedDB.createObjectStore('domains', {
+                        keyPath: 'domain'
+                    });
 
-                        object.createIndex('typedCountIndex', 'typedCount');
-                        object.createIndex('visitCountIndex', 'visitCount');
-                        object.createIndex('domainIndex', 'domain');
-                    }
-
-                    if (!DB.indexedDB.objectStoreNames.contains('pages')) {
-                        var object = DB.indexedDB.createObjectStore('pages', {
-                            keyPath: 'id'
-                        });
-
-                        object.createIndex('visitCountIndex', 'visitCount');
-                        object.createIndex('bookmarkedIndex', 'bookmarked');
-                        object.createIndex('tagsIndex', 'tags');
-                        object.createIndex('titleIndex', 'title');
-                    }
-
-                    if (!DB.indexedDB.objectStoreNames.contains('params')) {
-                        var object = DB.indexedDB.createObjectStore('params', {
-                            keyPath: 'domain'
-                        });
-
-                        object.createIndex('visitCountIndex', 'visitCount');
-                        object.createIndex('domainIndex', 'domain');
-                    }
-
-                    if (!DB.indexedDB.objectStoreNames.contains('transitions')) {
-                        var object = DB.indexedDB.createObjectStore('transitions', {
-                            keyPath: 'transition'
-                        });
-
-                        object.createIndex('countIndex', 'count');
-                        object.createIndex('transitionIndex', 'transition');
-                    }
+                    object.createIndex('typedCountIndex', 'typedCount');
+                    object.createIndex('visitCountIndex', 'visitCount');
+                    object.createIndex('domainIndex', 'domain');
                 }
 
-                DB.indexedDB.onversionchange = function () {
-                    console.log('DB: versionchange 1');
+                if (!DB.indexedDB.objectStoreNames.contains('pages')) {
+                    var object = DB.indexedDB.createObjectStore('pages', {
+                        keyPath: 'id'
+                    });
 
-                    DB.indexedDB.close();
+                    object.createIndex('visitCountIndex', 'visitCount');
+                    object.createIndex('bookmarkedIndex', 'bookmarked');
+                    object.createIndex('tagsIndex', 'tags');
+                    object.createIndex('titleIndex', 'title');
+                }
 
-                    DB.open(callback);
-                };
-            };
+                if (!DB.indexedDB.objectStoreNames.contains('params')) {
+                    var object = DB.indexedDB.createObjectStore('params', {
+                        keyPath: 'domain'
+                    });
 
-            request.onsuccess = function () {
-                console.log('DB: success 1');
+                    object.createIndex('visitCountIndex', 'visitCount');
+                    object.createIndex('domainIndex', 'domain');
+                }
 
-                DB.indexedDB = this.result;
+                if (!DB.indexedDB.objectStoreNames.contains('transitions')) {
+                    var object = DB.indexedDB.createObjectStore('transitions', {
+                        keyPath: 'transition'
+                    });
 
-                callback();
-            };
+                    object.createIndex('countIndex', 'count');
+                    object.createIndex('transitionIndex', 'transition');
+                }
+            }
 
-            request.onblocked = function () {
-                console.log('DB: blocked 1');
+            DB.indexedDB.onversionchange = function () {
+                console.log('DB: versionchange 1');
+
+                DB.indexedDB.close();
 
                 DB.open(callback);
             };
-        });
+        };
+
+        request.onsuccess = function () {
+            console.log('DB: success 1');
+
+            DB.indexedDB = this.result;
+
+            callback();
+        };
+
+        request.onblocked = function () {
+            console.log('DB: blocked 1');
+
+            DB.open(callback);
+        };
     },
     get: function (object_store_name, callback, options) {
         var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
@@ -1043,7 +1041,7 @@ var skeleton = {
                             grid: {
                                 element: 'grid',
                                 class: 'satus-grid--charts',
-                                items: [{
+                                columns: [{
                                         title_hours: {
                                             element: 'h1',
                                             text: 'byHour'
@@ -1136,16 +1134,16 @@ var skeleton = {
                                 }
 
                                 if (days_count < 30) {
-                                    skeleton.grid.items[1].days.data.push(day_visits);
-                                    skeleton.grid.items[1].days.labels.push(day);
+                                    skeleton.grid.columns[1].days.data.push(day_visits);
+                                    skeleton.grid.columns[1].days.labels.push(day);
                                 }
 
                                 days_count++;
                             }
                         }
 
-                        skeleton.grid.items[4].years.data.push(year_visits);
-                        skeleton.grid.items[4].years.labels.push(year);
+                        skeleton.grid.columns[4].years.data.push(year_visits);
+                        skeleton.grid.columns[4].years.labels.push(year);
                     }
 
                     var date = new Date(),
@@ -1165,22 +1163,22 @@ var skeleton = {
                                 }
                             }
 
-                            skeleton.grid.items[3].months.data.push(visits);
+                            skeleton.grid.columns[3].months.data.push(visits);
                         } else {
-                            skeleton.grid.items[3].months.data.push(0);
+                            skeleton.grid.columns[3].months.data.push(0);
                         }
 
-                        skeleton.grid.items[3].months.labels.push(months[i]);
+                        skeleton.grid.columns[3].months.labels.push(months[i]);
                     }
 
                     for (var i = 0; i < 24; i++) {
                         if (items[year] && items[year][month] && items[year][month][day] && items[year][month][day][i]) {
-                            skeleton.grid.items[0].hours.data.push(items[year][month][day][i]);
+                            skeleton.grid.columns[0].hours.data.push(items[year][month][day][i]);
                         } else {
-                            skeleton.grid.items[0].hours.data.push(0);
+                            skeleton.grid.columns[0].hours.data.push(0);
                         }
 
-                        skeleton.grid.items[0].hours.labels.push(i);
+                        skeleton.grid.columns[0].hours.labels.push(i);
                     }
 
                     var date = new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -7 : 0)));
@@ -1199,19 +1197,19 @@ var skeleton = {
                                 visits += items[year][month][day][hour];
                             }
 
-                            skeleton.grid.items[2].week.data.push(visits);
+                            skeleton.grid.columns[2].week.data.push(visits);
                         } else {
-                            skeleton.grid.items[2].week.data.push(0);
+                            skeleton.grid.columns[2].week.data.push(0);
                         }
 
-                        skeleton.grid.items[2].week.labels.push(week_days[i]);
+                        skeleton.grid.columns[2].week.labels.push(week_days[i]);
                     }
 
                     for (var key in HM.transitions) {
                         var item = HM.transitions[key];
 
-                        skeleton.grid.items[5].transitions.labels.push(item.transition);
-                        skeleton.grid.items[5].transitions.data.push(item.visitCount);
+                        skeleton.grid.columns[5].transitions.labels.push(item.transition);
+                        skeleton.grid.columns[5].transitions.data.push(item.visitCount);
                     }
 
                     satus.render(skeleton, main);
@@ -1227,7 +1225,7 @@ var skeleton = {
 
                     var skeleton = {
                         element: 'grid',
-                        items: [{
+                        columns: [{
                             element: 'table',
                             class: 'satus-table--broken-links',
                             columns: [{
@@ -1306,8 +1304,8 @@ var skeleton = {
 
                     DB.get('domains', function (items) {
                         DB.count('domains', function (count) {
-                            skeleton.items[0].data = items;
-                            skeleton.items[0].count = count;
+                            skeleton.columns[0].data = items;
+                            skeleton.columns[0].count = count;
 
                             satus.render(skeleton, main);
 
@@ -1323,7 +1321,7 @@ var skeleton = {
                     this.classList.add('satus-button--active');
                 }
             },
-            storagee: {
+            storages: {
                 element: 'button',
                 html: '<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
                 onclick: function () {
@@ -1334,7 +1332,7 @@ var skeleton = {
                     var skeleton = {
                         element: 'grid',
                         class: 'satus-grid--data',
-                        items: [
+                        columns: [
                             [{
                                     element: 'h1',
                                     text: 'browser.storage.local'
@@ -1470,7 +1468,7 @@ var skeleton = {
                     var skeleton = {
                         element: 'grid',
                         class: 'satus-grid--data',
-                        items: [
+                        columns: [
                             [{
                                     element: 'h1',
                                     text: 'bookmarks'
@@ -1563,7 +1561,7 @@ var skeleton = {
                         grid: {
                             element: 'grid',
                             class: 'satus-grid--data',
-                            items: [{
+                            columns: [{
                                 title: {
                                     element: 'h1',
                                     text: 'searchEngine'
@@ -1859,7 +1857,7 @@ var skeleton = {
                             input.value = value || '';
 
                             input.addEventListener('input', function () {
-                                var transaction = DB.transaction('pages', 'readwrite'),
+                                var transaction = DB.indexedDB.transaction('pages', 'readwrite'),
                                     pages_object = transaction.objectStore('pages');
 
                                 this.parentNode.parentNode.data.tags = this.value;
