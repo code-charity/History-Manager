@@ -2391,7 +2391,7 @@ function updateHistoryData(items, transitions, domains, params) {
                 if (!params[domain]) {
                     params[domain] = {
                         domain: domain,
-                        url: item.url.match(REGEX_PROTOCOL)[0] + '://' + domain,
+                        url: item.url,
                         visitCount: 0,
                         path: {}
                     };
