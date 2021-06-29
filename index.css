@@ -87,6 +87,13 @@ body[data-privacy-mode='true'] .favicon {
     position: relative;
 }
 
+section.satus-section.satus-section--search.focus {
+    background: var(--satus-theme-background-2);
+    box-shadow: 0 2px 4px rgb(0, 0, 0, .2);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
 
 /*--------------------------------------------------------------
 # SEARCH
@@ -97,6 +104,10 @@ body[data-privacy-mode='true'] .favicon {
     border: none;
     border-radius: 20px;
     background: var(--satus-theme-background-2);
+}
+
+.focus > .satus-input[type='text'].search-field {
+	box-shadow: none;
 }
 
 .satus-button--search-options {
@@ -132,9 +143,10 @@ body[data-privacy-mode='true'] .favicon {
     overflow: auto;
     width: 100%;
     max-height: 80vh;
-    border-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
     background: var(--satus-theme-background-1);
-    box-shadow: 0 2px 4px 2px rgba(0, 0, 0, .2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
 }
 
 .search-results:hover {
