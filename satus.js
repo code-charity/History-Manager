@@ -646,6 +646,8 @@ satus.elements.table = function (skeleton) {
     };
     table.pagination = pagination;
 
+    body.thisTable = table;
+
     table.createRows = function (data, parent, columns) {
         for (var i = 0, l = data.length; i < l; i++) {
             var row = document.createElement('div'),
@@ -654,6 +656,7 @@ satus.elements.table = function (skeleton) {
             row.className = 'satus-table__row';
             row.data = data[i];
             row.index = i;
+            row.thisTable = parent.thisTable;
 
             if (this.selection.rows[i] === data[i]) {
                 row.classList.add('selected');
@@ -672,12 +675,16 @@ satus.elements.table = function (skeleton) {
                     button.colIndex = j;
                     button.data = value;
                     button.table = this;
+                    button.thisTable = row.thisTable;
                     button.column = columns[j];
                     button.addEventListener('click', function () {
                         if (this.textContent === '+') {
                             var columns = this.column.columns,
                                 container = document.createElement('div'),
                                 rows = [];
+
+                            container.className = 'satus-table__inner-row';
+                            container.thisTable = this.thisTable;
 
                             for (var key in this.data) {
                                 var skip = false,
@@ -704,6 +711,14 @@ satus.elements.table = function (skeleton) {
                                     rows.push(row);
                                 }
                             }
+
+                            if (rows[0][this.thisTable.order.key] === undefined) {
+                                var order_key = 'key';
+                            } else {
+                                order_key = this.thisTable.order.key;
+                            }
+
+                            rows = satus.sort(order_key, this.thisTable.order.by, rows);
 
                             this.parentNode.parentNode.parentNode.insertBefore(container, this.parentNode.parentNode.nextElementSibling);
 

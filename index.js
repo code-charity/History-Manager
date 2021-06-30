@@ -1646,7 +1646,7 @@ var skeleton = {
 						key: 'path'
 					}, {
 						label: 'domain',
-						key: 'key',
+						key: 'name',
 						intercept: function(cell, value, index, row) {
 							var icon = document.createElement('div'),
 								a = document.createElement('a'),
@@ -2015,19 +2015,21 @@ function renderTables() {
 			}
 
 			for (var link in category) {
+				var visits = 0;
+				
 				for (var key2 in items) {
 					var domain = items[key2].domain;
 
 					if (domain.indexOf(link) !== -1) {
-						category[link] = items[key2].visitCount;
+						visits += items[key2].visitCount;
 
 						category.visitCount += items[key2].visitCount;
 					}
 				}
 
 				path[link] = {
-					key: link,
-					visitCount: category[link]
+					name: link,
+					visitCount: visits
 				};
 			}
 
@@ -2291,37 +2293,38 @@ function updateHistoryData(items, transitions, domains, params) {
 		if (!domains[domain]) {
 			domains[domain] = {
 				url: item.url.match(REGEX_PROTOCOL)[0] + '://' + link,
-				typedCount: 0,
-				visitCount: 0,
-				path: {}
+				//typedCount: 0,
+				visitCount: 0
 			};
 		}
 
-		var object = domains[domain].path;
-
-		for (var j = 1, k = parts.length; j < k; j++) {
-			var name = parts[j];
-
-			if (!object[name]) {
-				object[name] = {
-					visitCount: 0,
-					path: {}
-				};
+		if (parts && parts.length > 1) {
+			if (!domains[domain].path) {
+				domains[domain].path = {};
 			}
+			
+			var object = domains[domain].path;
 
-			object.visitCount += item.visitCount;
+			for (var j = 1, k = parts.length; j < k; j++) {
+				var name = parts[j];
 
-			object = object[name].path;
+				if (!object[name]) {
+					object[name] = {
+						visitCount: 0
+					};
+				}
 
-			if (j + 1 === k) {
-				object.lastVisitTime = item.lastVisitTime;
-				object.title = item.title;
-				object.typedCount = item.typedCount;
-				object.visitCount = item.visitCount;
+				object[name].visitCount += item.visitCount;
+
+				if (j + 1 < k && !object[name].path) {
+					object = object[name].path = {};
+				} else {
+					object = object[name].path;
+				}
 			}
 		}
 
-		domains[domain].typedCount += item.typedCount;
+		//domains[domain].typedCount += item.typedCount;
 		domains[domain].visitCount += item.visitCount;
 
 		pages_object_store.put({

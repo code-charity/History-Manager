@@ -28,6 +28,7 @@ body {
     --satus-theme-background-2: #fff;
     --satus-theme-background-3: #fafafa;
     --satus-theme-border-0: #edeff2;
+    --satus-theme-bg-inner-table: rgba(0,0,0,.03)
 }
 
 
@@ -41,6 +42,7 @@ body[data-dark-theme='true'] {
     --satus-theme-background-2: #262626;
     --satus-theme-background-3: #343434;
     --satus-theme-border-0: #222;
+    --satus-theme-bg-inner-table: rgba(255,255,255,.03)
 }
 
 
@@ -483,6 +485,9 @@ body[data-dark-theme='true'] {
     flex: 1;
 }
 
+.satus-table__inner-row {
+    background: var(--satus-theme-bg-inner-table);
+}
 
 /*--------------------------------------------------------------
 # FOOTER
