@@ -1,12 +1,3 @@
-/*------------------------------
-!!! IMPORTANT !!!
---------------------------------
-[ ] RE-READ THE ENTIRE SLEEPY
-		CODE AFTER SLEEP.
-------------------------------*/
-
-
-
 /*--------------------------------------------------------------
 >>> HISTORY MANAGER
 ----------------------------------------------------------------
@@ -1692,6 +1683,7 @@ var skeleton = {
 				element: 'table',
 				class: 'satus-table--domains',
 				db_object_name: 'domains',
+				key_path: 'domain',
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
@@ -1770,6 +1762,7 @@ var skeleton = {
 				element: 'table',
 				class: 'satus-table--pages',
 				db_object_name: 'pages',
+				key_path: 'id',
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
@@ -1889,6 +1882,7 @@ var skeleton = {
 					element: 'table',
 					class: 'satus-table--params',
 					db_object_name: 'params',
+					key_path: 'domain',
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',

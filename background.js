@@ -67,45 +67,48 @@ chrome.tabs.onUpdated.addListener(function (tab_id, change_info, tab) {
 });
 
 chrome.tabs.onRemoved.addListener(function (tab_id) {
-	var tab = TABS[tab_id],
-		url = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
+	var tab = TABS[tab_id];
 
-	if (!VISIT_DURATION_HISTORY[url]) {
-		VISIT_DURATION_HISTORY[url] = 0;
-	}
+	if (tab.url) {
+		var url = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
 
-	VISIT_DURATION_HISTORY[url] += new Date().getTime() - TABS[tab_id].time;
-
-	if (tab && tab.pinned === true) {
-		for (var i = 0, l = RECENTLY_CLOSED.length; i < l; i++) {
-			if (RECENTLY_CLOSED[i][1] === tab.url) {
-				RECENTLY_CLOSED.splice(i, 1);
-
-				i--;
-				l--;
-			}
+		if (!VISIT_DURATION_HISTORY[url]) {
+			VISIT_DURATION_HISTORY[url] = 0;
 		}
 
-		RECENTLY_CLOSED.push([
-			new Date().getTime(),
-			tab.title,
-			tab.url
-		]);
+		VISIT_DURATION_HISTORY[url] += new Date().getTime() - TABS[tab_id].time;
 
-		RECENTLY_CLOSED = RECENTLY_CLOSED.sort(function (a, b) {
-			return b[0] - a[0];
-		});
+		if (tab && tab.pinned === true) {
+			for (var i = 0, l = RECENTLY_CLOSED.length; i < l; i++) {
+				if (RECENTLY_CLOSED[i][1] === tab.url) {
+					RECENTLY_CLOSED.splice(i, 1);
+
+					i--;
+					l--;
+				}
+			}
+
+			RECENTLY_CLOSED.push([
+				new Date().getTime(),
+				tab.title,
+				tab.url
+			]);
+
+			RECENTLY_CLOSED = RECENTLY_CLOSED.sort(function (a, b) {
+				return b[0] - a[0];
+			});
+
+			chrome.storage.local.set({
+				recently_closed: RECENTLY_CLOSED.slice(0, 20)
+			});
+		}
+
+		delete TABS[tab_id];
 
 		chrome.storage.local.set({
-			recently_closed: RECENTLY_CLOSED.slice(0, 20)
+			visit_duration_history: VISIT_DURATION_HISTORY
 		});
 	}
-
-	delete TABS[tab_id];
-
-	chrome.storage.local.set({
-		visit_duration_history: VISIT_DURATION_HISTORY
-	});
 });
 
 

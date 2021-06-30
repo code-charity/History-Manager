@@ -638,6 +638,7 @@ satus.elements.table = function (skeleton) {
     table.body = body;
     table.onsort = skeleton.onsort;
     table.onpage = skeleton.onpage;
+    table.keyPath = skeleton.key_path;
     table.selection = {
         element: selection,
         rows: {
@@ -896,17 +897,14 @@ satus.elements.table = function (skeleton) {
                 elements[i].classList.remove('selected');
             }
 
-            removeSelectionBar(table);
-
-            table.data.selection = {
-                length: 0
-            };
+            removeSelectionBar(table); 
         });
 
         delete_button.addEventListener('click', function () {
             var table = this.parentNode.parentNode.parentNode,
                 rows = table.selection.rows,
-                elements = table.querySelectorAll('.selected');
+                elements = table.querySelectorAll('.selected'),
+                object_store = DB.indexedDB.transaction(table.skeleton.db_object_name, 'readwrite').objectStore(table.skeleton.db_object_name, 'readwrite');
 
             for (var i = elements.length - 1; i > 0; i--) {
                 elements[i - 1].remove();
@@ -916,35 +914,31 @@ satus.elements.table = function (skeleton) {
                 if (key !== 'length') {
                     var row = rows[key];
 
+                    object_store.delete(row[table.keyPath]);
+
                     delete table.data.splice(key, 1);
                     delete table.selection.rows[key];
                 }
             }
 
             removeSelectionBar(table);
-
-            table.selection = {
-                length: 0
-            };
         });
 
         bookmark_button.addEventListener('click', function () {
-            var table = this.parentNode.parentNode.parentNode;
+            var table = this.parentNode.parentNode.parentNode,
+                rows = table.selection.rows;
 
-            for (var key in table.data.selection) {
-                var element = elements[key];
-
-                delete table.data.table[element.data.index];
-                delete table.data.selection[element.data.index];
+            for (var key in rows) {
+                var row = rows[key];
 
                 chrome.bookmarks.create({
-                    title: this.parentNode.children[1].innerText,
-                    url: this.parentNode.children[2].children[0].href,
+                    title: row.url,
+                    url: row.url,
                     parentId: '1'
-                }, function (item) {
-                    self.bookmarkId = item.id;
                 });
             }
+
+            removeSelectionBar(table);
         });
 
         bar.appendChild(undo_button);
@@ -958,11 +952,16 @@ satus.elements.table = function (skeleton) {
         for (var i = elements.length; i > 0; i--) {
             elements[i - 1].remove();
         }
+
+        table.selection = {
+            length: 0
+        };
     }
 
     table.addEventListener('mousedown', function (event) {
         if (
-            event.button !== 0 || ['A', 'BUTTON', 'INPUT'].indexOf(event.target.nodeName) !== -1
+            event.button !== 0 || 
+            ['A', 'BUTTON', 'INPUT'].indexOf(event.target.nodeName) !== -1
         ) {
             return false;
         }
@@ -982,10 +981,10 @@ satus.elements.table = function (skeleton) {
 
             rows.splice(1, rows.length);
 
-            for (var i = 0, l = event.path.length; i < l; i++) {
+            for (var i = 0, l = event.path.length - 2; i < l; i++) {
                 var item = event.path[i];
 
-                if (item.className === 'satus-table__row') {
+                if (item.className.indexOf('satus-table__row') !== -1) {
                     end_row = item;
                 }
             }
@@ -1037,10 +1036,10 @@ satus.elements.table = function (skeleton) {
             window.removeEventListener('mouseup', mouseup);
         }
 
-        for (var i = 0, l = event.path.length; i < l; i++) {
+        for (var i = 0, l = event.path.length - 2; i < l; i++) {
             var item = event.path[i];
 
-            if (item.className === 'satus-table__row') {
+            if (item.className.indexOf('satus-table__row') !== -1) {
                 start_row = item;
 
                 rows.push(start_row);
