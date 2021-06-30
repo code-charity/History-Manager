@@ -976,7 +976,11 @@ satus.elements.table = function (skeleton) {
 
         function mousemove(event) {
             for (var i = 0, l = rows.length; i < l; i++) {
-                rows[i].classList.remove('selection');
+                var row = rows[i];
+                
+                if (row) {
+                    rows[i].classList.remove('selection');
+                }
             }
 
             rows.splice(1, rows.length);
@@ -984,7 +988,7 @@ satus.elements.table = function (skeleton) {
             for (var i = 0, l = event.path.length - 2; i < l; i++) {
                 var item = event.path[i];
 
-                if (item.className.indexOf('satus-table__row') !== -1) {
+                if (item.className && item.className.indexOf('satus-table__row') !== -1) {
                     end_row = item;
                 }
             }
@@ -992,7 +996,7 @@ satus.elements.table = function (skeleton) {
             if (end_row && start_row !== end_row) {
                 next_row = start_row;
 
-                while (next_row !== end_row) {
+                while (next_row && next_row !== end_row) {
                     if (start_mouse_y < event.clientY) {
                         next_row = next_row.nextElementSibling;
                     } else {
@@ -1004,7 +1008,11 @@ satus.elements.table = function (skeleton) {
             }
 
             for (var i = 0, l = rows.length; i < l; i++) {
-                rows[i].classList.add('selection');
+                var row = rows[i];
+                
+                if (row) {
+                    row.classList.add('selection');
+                }
             }
         }
 
@@ -1012,17 +1020,19 @@ satus.elements.table = function (skeleton) {
             for (var i = 0, l = rows.length; i < l; i++) {
                 var row = rows[i];
 
-                row.classList.remove('selection');
-                row.classList.toggle('selected');
+                if (row) {
+                    row.classList.remove('selection');
+                    row.classList.toggle('selected');
 
-                if (row.classList.contains('selected')) {
-                    table.selection.rows[row.index] = row.data;
+                    if (row.classList.contains('selected')) {
+                        table.selection.rows[row.index] = row.data;
 
-                    table.selection.rows.length++;
-                } else {
-                    delete table.selection.rows[row.index];
+                        table.selection.rows.length++;
+                    } else {
+                        delete table.selection.rows[row.index];
 
-                    table.selection.rows.length--;
+                        table.selection.rows.length--;
+                    }
                 }
             }
 
