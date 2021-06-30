@@ -1977,7 +1977,16 @@ var skeleton = {
 					class: 'satus-table--recently-closed',
 					columns: [{
 						label: 'timeAgo',
-						key: '0'
+						key: '0',
+						intercept: function (cell, value) {
+							var time_ago = (new Date().getTime() - Number(value)) * 2.77778e-7;
+
+							if (time_ago < 1) {
+								cell.textContent = Math.round(time_ago * 60) + ' min';
+							} else {
+								cell.textContent = time_ago.toFixed(2) + ' h';
+							}
+						}
 					}, {
 						label: 'title',
 						key: '1',
