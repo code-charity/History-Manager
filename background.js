@@ -17,7 +17,6 @@ var HM = {
 		clipboard_input: document.createElement('textarea')
 	},
 	TABS = {},
-	PINNED_TABS = {},
 	RECENTLY_CLOSED = [],
 	CLIPBOARD_HISTORY = [],
 	KEY_HISTORY = {},
@@ -41,16 +40,9 @@ chrome.tabs.query({}, function (tabs) {
 		TABS[tab.id] = {
 			time: time,
 			url: tab.url,
-			title: tab.title
+			title: tab.title,
+			pinned: tab.pinned
 		};
-
-		if (tab.url) {
-			var match = tab.url.match(REGEX_PARTS);
-
-			if (match) {
-				TABS[tab.id] = match[0].substr(1).replace(REGEX_WWW, '');
-			}
-		}
 	}
 });
 
@@ -58,25 +50,25 @@ chrome.tabs.onCreated.addListener(function (tab) {
 	TABS[tab.id] = {
 		time: new Date().getTime()
 	};
-
-	if (tab.url) {
-		TABS[tab.id] = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
-	}
 });
 
 chrome.tabs.onUpdated.addListener(function (tab_id, change_info, tab) {
 	if (change_info.url) {
-		TABS[tab_id].url = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
+		TABS[tab_id].url = tab.url;
 	}
 
-	if (tab.pinned === true) {
-		PINNED_TABS[tab_id] = tab;
+	if (change_info.title) {
+		TABS[tab_id].title = tab.title;
+	}
+
+	if (change_info.pinned) {
+		TABS[tab_id].pinned = tab.pinned;
 	}
 });
 
 chrome.tabs.onRemoved.addListener(function (tab_id) {
 	var tab = TABS[tab_id],
-		url = tab.url;
+		url = tab.url.match(REGEX_PARTS)[0].substr(1).replace(REGEX_WWW, '');
 
 	if (!VISIT_DURATION_HISTORY[url]) {
 		VISIT_DURATION_HISTORY[url] = 0;
@@ -84,7 +76,7 @@ chrome.tabs.onRemoved.addListener(function (tab_id) {
 
 	VISIT_DURATION_HISTORY[url] += new Date().getTime() - TABS[tab_id].time;
 
-	if (tab) {
+	if (tab && tab.pinned === true) {
 		for (var i = 0, l = RECENTLY_CLOSED.length; i < l; i++) {
 			if (RECENTLY_CLOSED[i][1] === tab.url) {
 				RECENTLY_CLOSED.splice(i, 1);
@@ -96,8 +88,8 @@ chrome.tabs.onRemoved.addListener(function (tab_id) {
 
 		RECENTLY_CLOSED.push([
 			new Date().getTime(),
-			tab.url,
-			tab.title
+			tab.title,
+			tab.url
 		]);
 
 		RECENTLY_CLOSED = RECENTLY_CLOSED.sort(function (a, b) {
