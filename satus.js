@@ -958,113 +958,115 @@ satus.elements.table = function (skeleton) {
         };
     }
 
-    table.addEventListener('mousedown', function (event) {
-        if (
-            event.button !== 0 || 
-            ['A', 'BUTTON', 'INPUT'].indexOf(event.target.nodeName) !== -1
-        ) {
-            return false;
-        }
+    if (skeleton.select === true) {
+        table.addEventListener('mousedown', function (event) {
+            if (
+                event.button !== 0 || 
+                ['A', 'BUTTON', 'INPUT'].indexOf(event.target.nodeName) !== -1
+            ) {
+                return false;
+            }
 
-        var table = this,
-            rows = [],
-            start_row,
-            next_row,
-            end_row,
-            start_mouse_y = 0,
-            end_mouse_y = 0;
+            var table = this,
+                rows = [],
+                start_row,
+                next_row,
+                end_row,
+                start_mouse_y = 0,
+                end_mouse_y = 0;
 
-        function mousemove(event) {
-            for (var i = 0, l = rows.length; i < l; i++) {
-                var row = rows[i];
-                
-                if (row) {
-                    rows[i].classList.remove('selection');
+            function mousemove(event) {
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+                    
+                    if (row) {
+                        rows[i].classList.remove('selection');
+                    }
+                }
+
+                rows.splice(1, rows.length);
+
+                for (var i = 0, l = event.path.length - 2; i < l; i++) {
+                    var item = event.path[i];
+
+                    if (item.className && item.className.indexOf('satus-table__row') !== -1) {
+                        end_row = item;
+                    }
+                }
+
+                if (end_row && start_row !== end_row) {
+                    next_row = start_row;
+
+                    while (next_row && next_row !== end_row) {
+                        if (start_mouse_y < event.clientY) {
+                            next_row = next_row.nextElementSibling;
+                        } else {
+                            next_row = next_row.previousElementSibling;
+                        }
+
+                        rows.push(next_row);
+                    }
+                }
+
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+                    
+                    if (row) {
+                        row.classList.add('selection');
+                    }
                 }
             }
 
-            rows.splice(1, rows.length);
+            function mouseup() {
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+
+                    if (row) {
+                        row.classList.remove('selection');
+                        row.classList.toggle('selected');
+
+                        if (row.classList.contains('selected')) {
+                            table.selection.rows[row.index] = row.data;
+
+                            table.selection.rows.length++;
+                        } else {
+                            delete table.selection.rows[row.index];
+
+                            table.selection.rows.length--;
+                        }
+                    }
+                }
+
+                if (table.selection.rows.length === 0) {
+                    removeSelectionBar(table);
+                } else {
+                    createSelectionBar(table);
+                }
+
+                window.removeEventListener('mousemove', mousemove);
+                window.removeEventListener('mouseup', mouseup);
+            }
 
             for (var i = 0, l = event.path.length - 2; i < l; i++) {
                 var item = event.path[i];
 
-                if (item.className && item.className.indexOf('satus-table__row') !== -1) {
-                    end_row = item;
+                if (item.className.indexOf('satus-table__row') !== -1) {
+                    start_row = item;
+
+                    rows.push(start_row);
+
+                    event.preventDefault();
                 }
             }
 
-            if (end_row && start_row !== end_row) {
-                next_row = start_row;
+            if (start_row) {
+                window.addEventListener('mousemove', mousemove);
+                window.addEventListener('mouseup', mouseup);
 
-                while (next_row && next_row !== end_row) {
-                    if (start_mouse_y < event.clientY) {
-                        next_row = next_row.nextElementSibling;
-                    } else {
-                        next_row = next_row.previousElementSibling;
-                    }
-
-                    rows.push(next_row);
-                }
+                start_mouse_y = event.clientY;
             }
-
-            for (var i = 0, l = rows.length; i < l; i++) {
-                var row = rows[i];
-                
-                if (row) {
-                    row.classList.add('selection');
-                }
-            }
-        }
-
-        function mouseup() {
-            for (var i = 0, l = rows.length; i < l; i++) {
-                var row = rows[i];
-
-                if (row) {
-                    row.classList.remove('selection');
-                    row.classList.toggle('selected');
-
-                    if (row.classList.contains('selected')) {
-                        table.selection.rows[row.index] = row.data;
-
-                        table.selection.rows.length++;
-                    } else {
-                        delete table.selection.rows[row.index];
-
-                        table.selection.rows.length--;
-                    }
-                }
-            }
-
-            if (table.selection.rows.length === 0) {
-                removeSelectionBar(table);
-            } else {
-                createSelectionBar(table);
-            }
-
-            window.removeEventListener('mousemove', mousemove);
-            window.removeEventListener('mouseup', mouseup);
-        }
-
-        for (var i = 0, l = event.path.length - 2; i < l; i++) {
-            var item = event.path[i];
-
-            if (item.className.indexOf('satus-table__row') !== -1) {
-                start_row = item;
-
-                rows.push(start_row);
-
-                event.preventDefault();
-            }
-        }
-
-        if (start_row) {
-            window.addEventListener('mousemove', mousemove);
-            window.addEventListener('mouseup', mouseup);
-
-            start_mouse_y = event.clientY;
-        }
-    });
+        });
+    }
 
     table.appendChild(head);
     table.appendChild(body);

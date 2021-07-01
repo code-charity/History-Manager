@@ -1684,6 +1684,7 @@ var skeleton = {
 				class: 'satus-table--domains',
 				db_object_name: 'domains',
 				key_path: 'domain',
+				select: true,
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
@@ -1763,6 +1764,7 @@ var skeleton = {
 				class: 'satus-table--pages',
 				db_object_name: 'pages',
 				key_path: 'id',
+				select: true,
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
@@ -1883,6 +1885,7 @@ var skeleton = {
 					class: 'satus-table--params',
 					db_object_name: 'params',
 					key_path: 'domain',
+					select: true,
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
