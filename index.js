@@ -11,7 +11,9 @@
 
 var HM = {
 		history: {},
-		transitions: []
+		transitions: [],
+		visits: 0,
+		params_visits: 0
 	},
 	BOOKMARKS = {},
 	LOADED = false,
@@ -1009,6 +1011,11 @@ var skeleton = {
 								text: 'searchAutofocusMode',
 								storage: 'search_autofocus',
 								value: true
+							},
+							convert_visits_to_percent: {
+								element: 'switch',
+								text: 'convertVisitsToPercentages',
+								storage: 'convert_visits_to_percent'
 							}
 						}
 					}
@@ -1633,7 +1640,14 @@ var skeleton = {
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
-					sort: 'desc'
+					sort: 'desc',
+					intercept: function (cell, value) {
+						if (satus.storage.data.convert_visits_to_percent === true) {
+							value = (Number(value) / (HM.visits / 100)).toFixed(2) + '%';
+						}
+
+						cell.textContent = value;
+					}
 				}, {
 					label: '',
 					key: 'path',
@@ -1641,7 +1655,16 @@ var skeleton = {
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
-						sort: 'desc'
+						sort: 'desc',
+						intercept: function(cell, value, index, row) {
+							setTimeout(function() {
+								if (satus.storage.data.convert_visits_to_percent === true) {
+									value = (Number(value) / (cell.parentNode.parentNode.previousElementSibling.data.visitCount / 100)).toFixed(2) + '%';
+								}
+
+								cell.textContent = value;
+							});
+						}
 					}, {
 						key: 'path'
 					}, {
@@ -1688,7 +1711,14 @@ var skeleton = {
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
-					sort: 'desc'
+					sort: 'desc',
+					intercept: function (cell, value) {
+						if (satus.storage.data.convert_visits_to_percent === true) {
+							value = (Number(value) / (HM.visits / 100)).toFixed(2) + '%';
+						}
+
+						cell.textContent = value;
+					}
 				}, {
 					label: '',
 					key: 'path',
@@ -1696,7 +1726,16 @@ var skeleton = {
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
-						sort: 'desc'
+						sort: 'desc',
+						intercept: function(cell, value, index, row) {
+							setTimeout(function() {
+								if (satus.storage.data.convert_visits_to_percent === true) {
+									value = (Number(value) / (cell.parentNode.parentNode.previousElementSibling.data.visitCount / 100)).toFixed(2) + '%';
+								}
+
+								cell.textContent = value;
+							});
+						}
 					}, {
 						key: 'path'
 					}, {
@@ -1769,6 +1808,13 @@ var skeleton = {
 					label: 'visits',
 					key: 'visitCount',
 					sort: 'desc',
+					intercept: function (cell, value) {
+						if (satus.storage.data.convert_visits_to_percent === true) {
+							value = (Number(value) / (HM.visits / 100)).toFixed(2) + '%';
+						}
+
+						cell.textContent = value;
+					}
 				}, {
 					label: 'title',
 					key: 'title',
@@ -1889,7 +1935,14 @@ var skeleton = {
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
-						sort: 'desc'
+						sort: 'desc',
+						intercept: function (cell, value) {
+							if (satus.storage.data.convert_visits_to_percent === true) {
+								value = (Number(value) / (HM.params_visits / 100)).toFixed(2) + '%';
+							}
+
+							cell.textContent = value;
+						}
 					}, {
 						label: '',
 						key: 'path',
@@ -1897,7 +1950,16 @@ var skeleton = {
 						columns: [{
 							label: 'visits',
 							key: 'visitCount',
-							sort: 'desc'
+							sort: 'desc',
+							intercept: function(cell, value, index, row) {
+								setTimeout(function() {
+									if (satus.storage.data.convert_visits_to_percent === true) {
+										value = (Number(value) / (cell.parentNode.parentNode.previousElementSibling.data.visitCount / 100)).toFixed(2) + '%';
+									}
+
+									cell.textContent = value;
+								});
+							}
 						}, {
 							key: 'path'
 						}, {
@@ -2374,6 +2436,7 @@ function updateHistoryData(items, transitions, domains, params) {
 				}
 
 				params[domain].visitCount += item.visitCount;
+				HM.params_visits += item.visitCount;
 
 				if (!params[domain].path[param[1]]) {
 					params[domain].path[param[1]] = {
@@ -2433,6 +2496,7 @@ function updateHistoryData(items, transitions, domains, params) {
 				}
 
 				HM.transitions[visitItem.transition].visitCount++;
+				HM.visits++;
 			}
 
 			threads--;
@@ -2471,7 +2535,9 @@ function saveHistoryData(domains, params, transitions, visits) {
 
 	chrome.storage.local.set({
 		database_cached: true,
-		visits: visits
+		visits: visits,
+		all_visits: HM.visits,
+		all_params_visits: HM.params_visits
 	});
 
 	renderTables();
@@ -2483,6 +2549,9 @@ satus.storage.load(function(items) {
 
 		return false;
 	}
+
+	HM.visits = items.all_visits || 0;
+	HM.params_visits = items.all_params_visits || 0;
 
 	satus.locale.load('_locales/en/messages.json', function() {
 		var main = document.querySelector('.satus-main');

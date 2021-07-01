@@ -38,6 +38,9 @@
     "computersElectronicsAndTechnology": {
         "message": "Computers electronics & technology"
     },
+    "convertVisitsToPercentages": {
+        "message": "Convert visits to percentages"
+    },
     "darkTheme": {
         "message": "Dark theme"
     },
