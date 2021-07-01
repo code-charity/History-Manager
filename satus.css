@@ -501,6 +501,18 @@ body[data-dark-theme='true'] {
     box-shadow: 0 -2px 2px #e6eff7;
 }
 
+.satus-table__selection {
+    display: flex;
+}
+
+.satus-table__selection > * {
+    flex: 1;
+    margin: 8px;
+    height: auto !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 
 /*--------------------------------------------------------------
 # PAGINATION

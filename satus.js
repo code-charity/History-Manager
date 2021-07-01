@@ -667,6 +667,8 @@ satus.elements.table = function (skeleton) {
                 var value = data[i][columns[j].key],
                     cell = document.createElement('div');
 
+                cell.dataset.keyPath = columns[j].key;
+
                 if (typeof value === 'object') {
                     var button = document.createElement('button');
 
@@ -883,11 +885,20 @@ satus.elements.table = function (skeleton) {
 
         var undo_button = document.createElement('button'),
             delete_button = document.createElement('button'),
-            bookmark_button = document.createElement('button');
+            bookmark_button = document.createElement('button'),
+            tag_input = document.createElement('input');
+
+        tag_input.type = 'text';
+
+        undo_button.className = 'satus-button';
+        delete_button.className = 'satus-button';
+        bookmark_button.className = 'satus-button';
+        tag_input.className = 'satus-input';
 
         undo_button.textContent = 'Undo selection';
         delete_button.textContent = 'Delete';
         bookmark_button.textContent = 'Bookmark';
+        tag_input.placeholder = 'Tags';
 
         undo_button.addEventListener('click', function () {
             var table = this.parentNode.parentNode.parentNode,
@@ -941,9 +952,35 @@ satus.elements.table = function (skeleton) {
             removeSelectionBar(table);
         });
 
+        tag_input.addEventListener('input', function() {
+            var table = this.parentNode.parentNode.parentNode,
+                rows = table.selection.rows,
+                elements = table.querySelectorAll('.selected'),
+                object_store = DB.indexedDB.transaction(table.skeleton.db_object_name, 'readwrite').objectStore(table.skeleton.db_object_name, 'readwrite');
+
+            for (var i = elements.length - 1; i > 0; i--) {
+                var element = elements[i - 1].querySelector('[data-key-path=tags] input')
+                    
+                if (element) {
+                    element.value = this.value;
+                }
+            }
+
+            for (var key in rows) {
+                if (key !== 'length') {
+                    var row = rows[key];
+
+                    row.tags = this.value;
+
+                    object_store.put(row);
+                }
+            }
+        });
+
         bar.appendChild(undo_button);
         bar.appendChild(delete_button);
         bar.appendChild(bookmark_button);
+        bar.appendChild(tag_input);
     }
 
     function removeSelectionBar(table) {
