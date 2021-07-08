@@ -51,10 +51,8 @@ satus.camelize = function (string) {
 --------------------------------------------------------------*/
 
 satus.empty = function (element) {
-    if (element) {
-        for (var i = element.children.length - 1; i > -1; i--) {
-            element.children[i].remove();
-        }
+    for (var i = element.children.length - 1; i > -1; i--) {
+        element.children[i].remove();
     }
 };
 

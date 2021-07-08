@@ -106,7 +106,7 @@ section.satus-section.satus-section--search.focus {
     background: var(--satus-theme-background-2);
 }
 
-.focus > .satus-input[type='text'].search-field {
+.satus-input[type='text'].search-field {
 	box-shadow: none;
 }
 
@@ -313,7 +313,7 @@ section.satus-section.satus-section--search.focus {
 }
 
 .satus-modal--more .satus-modal__container {
-    width: 320px;
+    width: 280px;
     transform-origin: right top;
 }
 

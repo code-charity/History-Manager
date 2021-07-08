@@ -12,8 +12,8 @@
 var HM = {
 		history: {},
 		transitions: [],
-		visits: 0,
-		params_visits: 0
+		tables: [],
+		search: {}
 	},
 	BOOKMARKS = {},
 	LOADED = false,
@@ -586,7 +586,46 @@ var skeleton = {
 
 				search_results: {
 					element: 'div',
-					class: 'search-results'
+					class: 'search-results',
+					onrender: function() {
+						HM.search.results = this;
+					},
+
+					search_engine: {
+						element: 'div',
+						onrender: function() {
+							HM.search.search_engine = this;
+						},
+						onclick: function() {
+							window.open(this.dataset.url, '_self');
+						}
+					},
+					tables: {
+						element: 'div',
+						onrender: function() {
+							HM.search.tables = this;
+						},
+						onclick: function() {
+							HM.search.target = this;
+						}
+					},
+					regex: {
+						element: 'div',
+						onrender: function() {
+							HM.search.regex = this;
+						},
+						onclick: function() {
+							var tables = document.querySelectorAll('.satus-table');
+
+							for (var i = 0, l = tables.length; i < l; i++) {
+								var table = tables[i];
+
+								if (table.onsearch) {
+									table.onsearch(new RegExp(this.dataset.value));
+								}
+							}
+						}
+					}
 				},
 				search: {
 					element: 'input',
@@ -598,15 +637,21 @@ var skeleton = {
 					onfocus: function() {
 						if (this.value.trim().length > 0) {
 							document.querySelector('.satus-section--search').classList.add('focus');
-							document.querySelector('.search-results').style.display = 'block';
+							HM.search.results.style.display = 'block';
 						}
 					},
 					onblur: function() {
 						document.querySelector('.satus-section--search').classList.remove('focus');
-						document.querySelector('.search-results').style.display = '';
+						HM.search.results.style.display = '';
 					},
 					oninput: function() {
-						var self = this;
+						var self = this,
+							query = this.value.trim();
+
+						for (var i = HM.search.results.children.length; i > 3; i--) {
+							HM.search.results.children[3].remove();
+						}
+
 						/*var search_results_element = document.querySelector('.search-results'),
 						    value = this.value,
 						    results = [],
@@ -696,8 +741,6 @@ var skeleton = {
 						    search_results_element.style.display = 'block';
 						}*/
 
-						var query = this.value.trim();
-
 						/*chrome.history.search({
 						    endTime: new Date().getTime(),
 						    maxResults: 0,
@@ -746,116 +789,82 @@ var skeleton = {
 						    }
 						});*/
 
-						DB.get('domains', function(items) {
-							var results = [];
+						if (HM.search.target === HM.search.tables) {
+							for (var i = 0, l = HM.tables.length; i < l; i++) {
+								var table = HM.tables[i];
 
-							for (var i = 0, l = items.length; i < l; i++) {
-								var item = items[i];
+								if (table.onsearch) {
+									table.onsearch(query);
+								}
+							}
+						} else {
+							DB.get('domains', function(items) {
+								var results = [];
 
-								if (item.domain.indexOf(query) !== -1) {
-									results.push({
-										startWith: item.domain.indexOf(query) === 0 ? 1 : 0,
-										url: item.url,
-										domain: item.domain,
-										typedCount: item.typedCount,
-										visitCount: item.visitCount
+								for (var i = 0, l = items.length; i < l; i++) {
+									var item = items[i];
+
+									if (item.domain.indexOf(query) !== -1) {
+										results.push({
+											startWith: item.domain.indexOf(query) === 0 ? 1 : 0,
+											url: item.url,
+											domain: item.domain,
+											typedCount: item.typedCount,
+											visitCount: item.visitCount
+										});
+									}
+								}
+
+								results = results.sort(function(a, b) {
+									return b.visitCount - a.visitCount;
+								}).slice(0, 10).sort(function(a, b) {
+									return a.domain.localeCompare(b.domain);
+								}).sort(function(a, b) {
+									return b.typedCount - a.typedCount || b.visitCount - a.visitCount;
+								}).sort(function(a, b) {
+									return b.startWith - a.startWith;
+								}).slice(0, 6);
+
+								HM.search.search_engine.innerHTML = self.value + ' - <span style="opacity: .4;">Search ' + ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).name || 'Google') + '</span>';
+								HM.search.search_engine.dataset.url = ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).url || 'https://www.google.com/search?q=') + self.value;
+
+								HM.search.tables.innerHTML = self.value + ' - <span style="opacity: .4;">Tables</span>';
+								HM.search.tables.dataset.value = self.value;
+
+								HM.search.regex.innerHTML = '/' + self.value + '/ - <span style="opacity: .4;">Regex</span>';
+								HM.search.regex.dataset.value = self.value;
+
+								for (var i = 0, l = results.length; i < l; i++) {
+									var result = results[i],
+										item = document.createElement('div');
+
+									item.innerText = result.domain;
+									item.dataset.url = result.url;
+									item.style.backgroundImage = 'url(chrome://favicon/' + result.url + ')';
+
+									item.addEventListener('click', function() {
+										window.open(this.dataset.url, '_self');
 									});
+
+									HM.search.results.appendChild(item);
 								}
-							}
 
-							results = results.sort(function(a, b) {
-								return b.visitCount - a.visitCount;
-							}).slice(0, 10).sort(function(a, b) {
-								return a.domain.localeCompare(b.domain);
-							}).sort(function(a, b) {
-								return b.typedCount - a.typedCount || b.visitCount - a.visitCount;
-							}).sort(function(a, b) {
-								return b.startWith - a.startWith;
-							}).slice(0, 6);
+								if (query.length === 0) {
+									HM.search.results.style.display = '';
+									document.querySelector('.satus-section--search').classList.remove('focus');
+								} else {
+									HM.search.results.style.display = 'block';
+									document.querySelector('.satus-section--search').classList.add('focus');
 
-							var container = document.querySelector('.search-results');
-
-							satus.empty(container);
-
-							var item = document.createElement('div');
-
-							item.innerHTML = self.value + ' - <span style="opacity: .4;">Search ' + ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).name || 'Google') + '</span>';
-							item.dataset.url = ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).url || 'https://www.google.com/search?q=') + self.value;
-
-							item.addEventListener('click', function() {
-								window.open(this.dataset.url, '_self');
-							});
-
-							container.appendChild(item);
-
-							var item = document.createElement('div');
-
-							item.innerHTML = self.value + ' - <span style="opacity: .4;">Tables</span>';
-							item.dataset.value = self.value;
-
-							item.addEventListener('click', function() {
-								var tables = document.querySelectorAll('.satus-table');
-
-								for (var i = 0, l = tables.length; i < l; i++) {
-									var table = tables[i];
-
-									if (table.onsearch) {
-										table.onsearch(this.dataset.value);
+									if (HM.search.results.children[0]) {
+										HM.search.results.children[0].classList.add('selected');
 									}
 								}
+							}, {
+								index_name: 'typedCountIndex',
+								direction: 'prev'
 							});
-
-							container.appendChild(item);
-
-							var item = document.createElement('div');
-
-							item.innerHTML = '/' + self.value + '/ - <span style="opacity: .4;">Regex</span>';
-							item.dataset.value = self.value;
-
-							item.addEventListener('click', function() {
-								var tables = document.querySelectorAll('.satus-table');
-
-								for (var i = 0, l = tables.length; i < l; i++) {
-									var table = tables[i];
-
-									if (table.onsearch) {
-										table.onsearch(new RegExp(this.dataset.value));
-									}
-								}
-							});
-
-							container.appendChild(item);
-
-							for (var i = 0, l = results.length; i < l; i++) {
-								var result = results[i],
-									item = document.createElement('div');
-
-								item.innerText = result.domain;
-								item.dataset.url = result.url;
-								item.style.backgroundImage = 'url(chrome://favicon/' + result.url + ')';
-
-								item.addEventListener('click', function() {
-									window.open(this.dataset.url, '_self');
-								});
-
-								container.appendChild(item);
-							}
-
-							if (query.length === 0) {
-								container.style.display = '';
-								document.querySelector('.satus-section--search').classList.remove('focus');
-							} else {
-								container.style.display = 'block';
-								document.querySelector('.satus-section--search').classList.add('focus');
-
-								if (container.children[0]) {
-									container.children[0].classList.add('selected');
-								}
-							}
-						}, {
-							index_name: 'typedCountIndex',
-							direction: 'prev'
-						});
+						}
 					},
 					onkeydown: function(event) {
 						var key = event.key,
@@ -1011,11 +1020,6 @@ var skeleton = {
 								text: 'searchAutofocusMode',
 								storage: 'search_autofocus',
 								value: true
-							},
-							convert_visits_to_percent: {
-								element: 'switch',
-								text: 'convertVisitsToPercentages',
-								storage: 'convert_visits_to_percent'
 							}
 						}
 					}
@@ -1637,17 +1641,13 @@ var skeleton = {
 			{
 				element: 'table',
 				class: 'satus-table--categories',
+				onrender: function() {
+					HM.tables.push(this);
+				},
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
-					sort: 'desc',
-					intercept: function (cell, value) {
-						if (satus.storage.data.convert_visits_to_percent === true) {
-							value = (Number(value) / (HM.visits / 100)).toFixed(2) + '%';
-						}
-
-						cell.textContent = value;
-					}
+					sort: 'desc'
 				}, {
 					label: '',
 					key: 'path',
@@ -1655,21 +1655,12 @@ var skeleton = {
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
-						sort: 'desc',
-						intercept: function(cell, value, index, row) {
-							setTimeout(function() {
-								if (satus.storage.data.convert_visits_to_percent === true) {
-									value = (Number(value) / (cell.parentNode.parentNode.previousElementSibling.data.visitCount / 100)).toFixed(2) + '%';
-								}
-
-								cell.textContent = value;
-							});
-						}
+						sort: 'desc'
 					}, {
 						key: 'path'
 					}, {
 						label: 'domain',
-						key: 'name',
+						key: 'key',
 						intercept: function(cell, value, index, row) {
 							var icon = document.createElement('div'),
 								a = document.createElement('a'),
@@ -1706,19 +1697,13 @@ var skeleton = {
 				element: 'table',
 				class: 'satus-table--domains',
 				db_object_name: 'domains',
-				key_path: 'domain',
-				select: true,
+				onrender: function() {
+					HM.tables.push(this);
+				},
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
-					sort: 'desc',
-					intercept: function (cell, value) {
-						if (satus.storage.data.convert_visits_to_percent === true) {
-							value = (Number(value) / (HM.visits / 100)).toFixed(2) + '%';
-						}
-
-						cell.textContent = value;
-					}
+					sort: 'desc'
 				}, {
 					label: '',
 					key: 'path',
@@ -1726,16 +1711,7 @@ var skeleton = {
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
-						sort: 'desc',
-						intercept: function(cell, value, index, row) {
-							setTimeout(function() {
-								if (satus.storage.data.convert_visits_to_percent === true) {
-									value = (Number(value) / (cell.parentNode.parentNode.previousElementSibling.data.visitCount / 100)).toFixed(2) + '%';
-								}
-
-								cell.textContent = value;
-							});
-						}
+						sort: 'desc'
 					}, {
 						key: 'path'
 					}, {
@@ -1802,19 +1778,13 @@ var skeleton = {
 				element: 'table',
 				class: 'satus-table--pages',
 				db_object_name: 'pages',
-				key_path: 'id',
-				select: true,
+				onrender: function() {
+					HM.tables.push(this);
+				},
 				columns: [{
 					label: 'visits',
 					key: 'visitCount',
 					sort: 'desc',
-					intercept: function (cell, value) {
-						if (satus.storage.data.convert_visits_to_percent === true) {
-							value = (Number(value) / (HM.visits / 100)).toFixed(2) + '%';
-						}
-
-						cell.textContent = value;
-					}
 				}, {
 					label: 'title',
 					key: 'title',
@@ -1930,19 +1900,13 @@ var skeleton = {
 					element: 'table',
 					class: 'satus-table--params',
 					db_object_name: 'params',
-					key_path: 'domain',
-					select: true,
+					onrender: function() {
+						HM.tables.push(this);
+					},
 					columns: [{
 						label: 'visits',
 						key: 'visitCount',
-						sort: 'desc',
-						intercept: function (cell, value) {
-							if (satus.storage.data.convert_visits_to_percent === true) {
-								value = (Number(value) / (HM.params_visits / 100)).toFixed(2) + '%';
-							}
-
-							cell.textContent = value;
-						}
+						sort: 'desc'
 					}, {
 						label: '',
 						key: 'path',
@@ -1950,16 +1914,7 @@ var skeleton = {
 						columns: [{
 							label: 'visits',
 							key: 'visitCount',
-							sort: 'desc',
-							intercept: function(cell, value, index, row) {
-								setTimeout(function() {
-									if (satus.storage.data.convert_visits_to_percent === true) {
-										value = (Number(value) / (cell.parentNode.parentNode.previousElementSibling.data.visitCount / 100)).toFixed(2) + '%';
-									}
-
-									cell.textContent = value;
-								});
-							}
+							sort: 'desc'
 						}, {
 							key: 'path'
 						}, {
@@ -2034,18 +1989,12 @@ var skeleton = {
 				{
 					element: 'table',
 					class: 'satus-table--recently-closed',
+					onrender: function() {
+						HM.tables.push(this);
+					},
 					columns: [{
 						label: 'timeAgo',
-						key: '0',
-						intercept: function (cell, value) {
-							var time_ago = (new Date().getTime() - Number(value)) * 2.77778e-7;
-
-							if (time_ago < 1) {
-								cell.textContent = Math.round(time_ago * 60) + ' min';
-							} else {
-								cell.textContent = time_ago.toFixed(2) + ' h';
-							}
-						}
+						key: '0'
 					}, {
 						label: 'title',
 						key: '1',
@@ -2092,21 +2041,19 @@ function renderTables() {
 			}
 
 			for (var link in category) {
-				var visits = 0;
-				
 				for (var key2 in items) {
 					var domain = items[key2].domain;
 
 					if (domain.indexOf(link) !== -1) {
-						visits += items[key2].visitCount;
+						category[link] = items[key2].visitCount;
 
 						category.visitCount += items[key2].visitCount;
 					}
 				}
 
 				path[link] = {
-					name: link,
-					visitCount: visits
+					key: link,
+					visitCount: category[link]
 				};
 			}
 
@@ -2370,38 +2317,37 @@ function updateHistoryData(items, transitions, domains, params) {
 		if (!domains[domain]) {
 			domains[domain] = {
 				url: item.url.match(REGEX_PROTOCOL)[0] + '://' + link,
-				//typedCount: 0,
-				visitCount: 0
+				typedCount: 0,
+				visitCount: 0,
+				path: {}
 			};
 		}
 
-		if (parts && parts.length > 1) {
-			if (!domains[domain].path) {
-				domains[domain].path = {};
+		var object = domains[domain].path;
+
+		for (var j = 1, k = parts.length; j < k; j++) {
+			var name = parts[j];
+
+			if (!object[name]) {
+				object[name] = {
+					visitCount: 0,
+					path: {}
+				};
 			}
-			
-			var object = domains[domain].path;
 
-			for (var j = 1, k = parts.length; j < k; j++) {
-				var name = parts[j];
+			object.visitCount += item.visitCount;
 
-				if (!object[name]) {
-					object[name] = {
-						visitCount: 0
-					};
-				}
+			object = object[name].path;
 
-				object[name].visitCount += item.visitCount;
-
-				if (j + 1 < k && !object[name].path) {
-					object = object[name].path = {};
-				} else {
-					object = object[name].path;
-				}
+			if (j + 1 === k) {
+				object.lastVisitTime = item.lastVisitTime;
+				object.title = item.title;
+				object.typedCount = item.typedCount;
+				object.visitCount = item.visitCount;
 			}
 		}
 
-		//domains[domain].typedCount += item.typedCount;
+		domains[domain].typedCount += item.typedCount;
 		domains[domain].visitCount += item.visitCount;
 
 		pages_object_store.put({
@@ -2436,7 +2382,6 @@ function updateHistoryData(items, transitions, domains, params) {
 				}
 
 				params[domain].visitCount += item.visitCount;
-				HM.params_visits += item.visitCount;
 
 				if (!params[domain].path[param[1]]) {
 					params[domain].path[param[1]] = {
@@ -2496,7 +2441,6 @@ function updateHistoryData(items, transitions, domains, params) {
 				}
 
 				HM.transitions[visitItem.transition].visitCount++;
-				HM.visits++;
 			}
 
 			threads--;
@@ -2535,9 +2479,7 @@ function saveHistoryData(domains, params, transitions, visits) {
 
 	chrome.storage.local.set({
 		database_cached: true,
-		visits: visits,
-		all_visits: HM.visits,
-		all_params_visits: HM.params_visits
+		visits: visits
 	});
 
 	renderTables();
@@ -2549,9 +2491,6 @@ satus.storage.load(function(items) {
 
 		return false;
 	}
-
-	HM.visits = items.all_visits || 0;
-	HM.params_visits = items.all_params_visits || 0;
 
 	satus.locale.load('_locales/en/messages.json', function() {
 		var main = document.querySelector('.satus-main');
