@@ -26,6 +26,11 @@ var HM = {
 			url: 'https://www.google.com/search?q=',
 			favicon: 'https://www.google.com/favicon.ico'
 		},
+		youtube: {
+			name: 'YouTube',
+			url: 'https://youtube.com/?q=',
+			favicon: 'https://youtube.com/favicon.ico'
+		},
 		duckduckgo: {
 			name: 'DuckDuckGo',
 			url: 'https://duckduckgo.com/?q=',
@@ -36,10 +41,18 @@ var HM = {
 			url: 'https://www.bing.com/search?q=',
 			favicon: 'https://www.bing.com/favicon.ico'
 		},
+		yahoo: {
+			name: 'Bing',
+			url: 'https://search.yahoo.com/',
+			favicon: 'https://search.yahoo.com/favicon.ico'
+		},
 		ecosia: {
 			name: 'Ecosia',
 			url: 'https://www.ecosia.org/search?q=',
-			favicon: 'https://www.ecosia.org/favicon.ico'
+			favicon: 'https://cdn-static.ecosia.org/assets/images/ico/favicon.ico'
+		},
+		tables: {
+			name: 'Tables'
 		}
 	};
 
@@ -919,7 +932,7 @@ var skeleton = {
 					style: {
 						backgroundImage: 'url(https://www.google.com/favicon.ico)'
 					},
-					/*click: {
+					click: {
 					    element: 'modal',
 					    class: 'satus-modal--search-engine',
 					    scrollbar: false,
@@ -938,56 +951,146 @@ var skeleton = {
 					            element: 'button',
 					            text: 'Google',
 					            dataset: {
-					                icon: 'https://www.google.com/',
 					                url: 'https://www.google.com/search?q='
+					            },
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE['google'].favicon + ')';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['google'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'google');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	style: {
+					            		backgroundImage: 'url(https://www.google.com/favicon.ico)'
+					            	}
 					            }
 					        },
 					        youtube: {
 					            element: 'button',
 					            text: 'YouTube',
 					            dataset: {
-					                icon: 'https://www.youtube.com/',
 					                url: 'https://www.youtube.com/results?search_query='
+					            },
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE['youtube'].favicon + ')';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['youtube'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'youtube');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	style: {
+					            		backgroundImage: 'url(https://www.youtube.com/favicon.ico)'
+					            	}
 					            }
 					        },
 					        duckduckgo: {
 					            element: 'button',
 					            text: 'DuckDuckGo',
 					            dataset: {
-					                icon: 'https://duckduckgo.com/',
 					                url: 'https://duckduckgo.com/?q='
+					            },
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE['duckduckgo'].favicon + ')';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['duckduckgo'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'duckduckgo');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	style: {
+					            		backgroundImage: 'url(https://duckduckgo.com/favicon.ico)'
+					            	}
 					            }
 					        },
 					        bing: {
 					            element: 'button',
 					            text: 'Bing',
 					            dataset: {
-					                icon: 'https://bing.com/',
 					                url: 'https://bing.com/search?q='
+					            },
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE['bing'].favicon + ')';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['bing'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'bing');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	style: {
+					            		backgroundImage: 'url(https://bing.com/favicon.ico)'
+					            	}
 					            }
 					        },
 					        yahoo: {
 					            element: 'button',
 					            text: 'Yahoo!',
 					            dataset: {
-					                icon: 'https://search.yahoo.com/',
 					                url: 'https://search.yahoo.com/search?p='
+					            },
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE['yahoo'].favicon + ')';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['yahoo'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'yahoo');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	style: {
+					            		backgroundImage: 'url(https://search.yahoo.com/favicon.ico)'
+					            	}
 					            }
 					        },
 					        ecosia: {
 					            element: 'button',
 					            text: 'Ecosia',
 					            dataset: {
-					                icon: 'https://www.ecosia.org/',
 					                url: 'https://www.ecosia.org/search?q='
+					            },
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE['ecosia'].favicon + ')';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['ecosia'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'ecosia');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	style: {
+					            		backgroundImage: 'url(https://cdn-static.ecosia.org/assets/images/ico/favicon.ico)'
+					            	}
 					            }
 					        },
-					        history: {
+					        tables: {
 					            element: 'button',
-					            text: 'History'
+					            text: 'Tables',
+					            onclick: function() {
+					            	document.querySelector('.satus-button--search-options').style.backgroundImage = '';
+									document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE['tables'].name + ' or type a URL';
+									document.querySelector('.satus-modal').click();
+
+									satus.storage.set('search-engine', 'tables');
+					            },
+
+					            span: {
+					            	element: 'span',
+					            	text: 'T'
+					            }
 					        }
 					    }
-					}*/
+					}
 				}
 			},
 			section_right: {
@@ -1592,16 +1695,7 @@ var skeleton = {
 										dataset: {
 											url: 'https://www.ecosia.org/search?q=%s'
 										}
-									}],
-									onchange: function() {
-										var favic = document.querySelector('.satus-button--search-options');
-
-										if (favic && this.value) {
-											favic.style.backgroundImage = 'url(' + SEARCH_ENGINE[this.value].favicon + ')';
-
-											document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE[this.value].name + ' or type a URL';
-										}
-									}
+									}]
 								}
 							}]
 						}
@@ -2544,6 +2638,13 @@ satus.storage.load(function(items) {
 				}
 			});
 		});
+
+		var value = satus.storage.get('search-engine');
+
+		if (value) {
+			document.querySelector('.satus-button--search-options').style.backgroundImage = 'url(' + SEARCH_ENGINE[value].favicon + ')';
+			document.querySelector('.search-field').placeholder = 'Search ' + SEARCH_ENGINE[value].name + ' or type a URL';
+		}
 	});
 });
 

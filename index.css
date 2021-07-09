@@ -123,15 +123,32 @@ section.satus-section.satus-section--search.focus {
     background-size: contain;
 }
 
-.satus-modal--search-engine {
-    backdrop-filter: none;
-}
-
 .satus-modal--search-engine .satus-modal__container {
     position: absolute;
     width: auto;
     margin: 0;
     transform-origin: left top;
+}
+
+.satus-modal--search-engine .satus-button {
+    text-align: left;
+    background: transparent;
+    border-color: transparent;
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.satus-modal--search-engine .satus-button span {
+    background-size: contain;
+    width: 16px;
+    height: 16px;
+    background-position: center;
+    margin: 0 6px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-results {
