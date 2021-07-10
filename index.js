@@ -158,7 +158,9 @@ var DB = {
 
 				cursor.continue();
 			} else {
-				callback(result, object_store_name);
+				object_store.count().onsuccess = function(event) {
+					callback(result, object_store_name, event.target.result);
+				};
 			}
 		};
 	},
@@ -181,7 +183,9 @@ var DB = {
 				}
 
 				if (threads === 0) {
-					callback(result);
+					object_store.count().onsuccess = function(event) {
+						callback(result, event.target.result);
+					};
 				}
 			};
 		}
@@ -194,32 +198,45 @@ var DB = {
 			callback(event.target.result);
 		};
 	},
-	search: function(query, object_store_name, keys, callback) {
+	search: function(query, object_store_name, keys, callback, index_name, direction) {
 		var transaction = DB.indexedDB.transaction(object_store_name, 'readonly'),
 			object_store = transaction.objectStore(object_store_name),
 			result = [],
-			is_regex = false;
+			is_regex = false,
+			count = 0;
 
 		if (typeof query === 'object' && query.test) {
 			is_regex = true;
 		}
 
-		object_store.openCursor().onsuccess = function(event) {
+		if (index_name) {
+			object_store = object_store.index(index_name);
+		}
+
+		object_store.openCursor(null, direction).onsuccess = function(event) {
 			var cursor = event.target.result,
 				founded = false;
 
-			if (cursor && result.length < 100) {
+			if (cursor) {
 				for (var i = 0, l = keys.length; i < l; i++) {
 					if (founded === false) {
 						if (is_regex === false) {
 							if (cursor.value[keys[i]].indexOf(query) !== -1) {
-								result.push(cursor.value);
+								if (result.length < 100) {
+									result.push(cursor.value);
+								}
+
+								count++;
 
 								founded = true;
 							}
 						} else {
 							if (query.test(cursor.value[keys[i]]) === true) {
-								result.push(cursor.value);
+								if (result.length < 100) {
+									result.push(cursor.value);
+								}
+
+								count++;
 
 								founded = true;
 							}
@@ -229,7 +246,7 @@ var DB = {
 
 				cursor.continue();
 			} else {
-				callback(result, object_store_name);
+				callback(result, object_store_name, count);
 			}
 		};
 	}
@@ -612,16 +629,7 @@ var skeleton = {
 						onclick: function() {
 							window.open(this.dataset.url, '_self');
 						}
-					},
-					tables: {
-						element: 'div',
-						onrender: function() {
-							HM.search.tables = this;
-						},
-						onclick: function() {
-							HM.search.target = this;
-						}
-					},
+					}/*,
 					regex: {
 						element: 'div',
 						onrender: function() {
@@ -638,7 +646,7 @@ var skeleton = {
 								}
 							}
 						}
-					}
+					}*/
 				},
 				search: {
 					element: 'input',
@@ -802,9 +810,13 @@ var skeleton = {
 						    }
 						});*/
 
-						if (HM.search.target === HM.search.tables) {
+						if (satus.storage.get('search-engine') === 'tables') {
 							for (var i = 0, l = HM.tables.length; i < l; i++) {
 								var table = HM.tables[i];
+
+								if (query.length === 0) {
+									table.search_query = null;
+								}
 
 								if (table.onsearch) {
 									table.onsearch(query);
@@ -840,12 +852,6 @@ var skeleton = {
 
 								HM.search.search_engine.innerHTML = self.value + ' - <span style="opacity: .4;">Search ' + ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).name || 'Google') + '</span>';
 								HM.search.search_engine.dataset.url = ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).url || 'https://www.google.com/search?q=') + self.value;
-
-								HM.search.tables.innerHTML = self.value + ' - <span style="opacity: .4;">Tables</span>';
-								HM.search.tables.dataset.value = self.value;
-
-								HM.search.regex.innerHTML = '/' + self.value + '/ - <span style="opacity: .4;">Regex</span>';
-								HM.search.regex.dataset.value = self.value;
 
 								for (var i = 0, l = results.length; i < l; i++) {
 									var result = results[i],
@@ -1833,37 +1839,60 @@ var skeleton = {
 				onpage: function() {
 					var table = this;
 
-					DB.get('domains', function(items) {
-						table.data = items;
+					if (table.search_query) {
+						DB.search(table.search_query, 'domains', ['url'], function(items, name, count) {
+							table.data = items;
+							table.count = count;
 
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
+							table.update();
+						}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+					} else {
+						DB.get('domains', function(items, name, count) {
+							table.data = items;
+							table.count = count;
+
+							table.update();
+						}, {
+							index_name: table.order.key + 'Index',
+							direction: table.order.by === 'asc' ? 'next' : 'prev',
+							offset: table.pageIndex * 100 - 100
+						});
+					}
 				},
 				onsort: function() {
 					var table = this;
 
-					DB.get('domains', function(items) {
-						table.data = items;
+					if (table.search_query) {
+						DB.search(table.search_query, 'domains', ['url'], function(items, name, count) {
+							table.data = items;
+							table.count = count;
 
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
+							table.update();
+						}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+					} else {
+						DB.get('domains', function(items, name, count) {
+							table.data = items;
+							table.count = count;
+
+							table.update();
+						}, {
+							index_name: table.order.key + 'Index',
+							direction: table.order.by === 'asc' ? 'next' : 'prev',
+							offset: table.pageIndex * 100 - 100
+						});
+					}
 				},
 				onsearch: function(query) {
 					var table = this;
 
-					DB.search(query, 'domains', ['url'], function(items) {
+					table.search_query = query;
+
+					DB.search(query, 'domains', ['url'], function(items, name, count) {
 						table.data = items;
+						table.count = count;
 
 						table.update();
-					});
+					}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
 				}
 			},
 
@@ -1954,37 +1983,60 @@ var skeleton = {
 				onpage: function() {
 					var table = this;
 
-					DB.get('pages', function(items) {
-						table.data = items;
+					if (table.search_query) {
+						DB.search(table.search_query, 'pages', ['url'], function(items, name, count) {
+							table.data = items;
+							table.count = count;
 
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
+							table.update();
+						}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+					} else {
+						DB.get('pages', function(items, name, count) {
+							table.data = items;
+							table.count = count;
+
+							table.update();
+						}, {
+							index_name: table.order.key + 'Index',
+							direction: table.order.by === 'asc' ? 'next' : 'prev',
+							offset: table.pageIndex * 100 - 100
+						});
+					}
 				},
 				onsort: function() {
 					var table = this;
 
-					DB.get('pages', function(items) {
-						table.data = items;
+					if (table.search_query) {
+						DB.search(table.search_query, 'pages', ['url'], function(items, name, count) {
+							table.data = items;
+							table.count = count;
 
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
+							table.update();
+						}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+					} else {
+						DB.get('pages', function(items, name, count) {
+							table.data = items;
+							table.count = count;
+
+							table.update();
+						}, {
+							index_name: table.order.key + 'Index',
+							direction: table.order.by === 'asc' ? 'next' : 'prev',
+							offset: table.pageIndex * 100 - 100
+						});
+					}
 				},
 				onsearch: function(query) {
 					var table = this;
 
-					DB.search(query, 'pages', ['url', 'title'], function(items) {
+					table.search_query = query;
+
+					DB.search(query, 'pages', ['url'], function(items, name, count) {
 						table.data = items;
+						table.count = count;
 
 						table.update();
-					});
+					}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
 				}
 			},
 
@@ -2036,37 +2088,60 @@ var skeleton = {
 					onpage: function() {
 						var table = this;
 
-						DB.get('params', function(items) {
-							table.data = items;
+						if (table.search_query) {
+							DB.search(table.search_query, 'params', ['url'], function(items, name, count) {
+								table.data = items;
+								table.count = count;
 
-							table.update();
-						}, {
-							index_name: table.order.key + 'Index',
-							direction: table.order.by === 'asc' ? 'next' : 'prev',
-							offset: table.pageIndex * 100 - 100
-						});
+								table.update();
+							}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+						} else {
+							DB.get('params', function(items, name, count) {
+								table.data = items;
+								table.count = count;
+
+								table.update();
+							}, {
+								index_name: table.order.key + 'Index',
+								direction: table.order.by === 'asc' ? 'next' : 'prev',
+								offset: table.pageIndex * 100 - 100
+							});
+						}
 					},
 					onsort: function() {
 						var table = this;
 
-						DB.get('params', function(items) {
-							table.data = items;
+						if (table.search_query) {
+							DB.search(table.search_query, 'params', ['url'], function(items, name, count) {
+								table.data = items;
+								table.count = count;
 
-							table.update();
-						}, {
-							index_name: table.order.key + 'Index',
-							direction: table.order.by === 'asc' ? 'next' : 'prev',
-							offset: table.pageIndex * 100 - 100
-						});
+								table.update();
+							}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+						} else {
+							DB.get('params', function(items, name, count) {
+								table.data = items;
+								table.count = count;
+
+								table.update();
+							}, {
+								index_name: table.order.key + 'Index',
+								direction: table.order.by === 'asc' ? 'next' : 'prev',
+								offset: table.pageIndex * 100 - 100
+							});
+						}
 					},
 					onsearch: function(query) {
 						var table = this;
 
-						DB.search(query, 'params', ['url'], function(items) {
+						table.search_query = query;
+
+						DB.search(query, 'params', ['url'], function(items, name, count) {
 							table.data = items;
+							table.count = count;
 
 							table.update();
-						});
+						}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
 					}
 				},
 
