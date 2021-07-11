@@ -20,6 +20,7 @@ var HM = {
 	REGEX_PROTOCOL = /[^:]+/g,
 	REGEX_DOMAIN = /[^/]+[/]+[^/]+/g,
 	REGEX_PARTS = /\/[^/?#]+/g,
+	REGEX_IS_REGEX = /^\/.+\/[a-z]*$/,
 	SEARCH_ENGINE = {
 		google: {
 			name: 'Google',
@@ -205,8 +206,10 @@ var DB = {
 			is_regex = false,
 			count = 0;
 
-		if (typeof query === 'object' && query.test) {
+		if (query.match(REGEX_IS_REGEX)) {
 			is_regex = true;
+
+			query = new RegExp(query);
 		}
 
 		if (index_name) {
