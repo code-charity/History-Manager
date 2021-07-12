@@ -251,6 +251,8 @@ section.satus-section.satus-section--search.focus {
     width: 100%;
     margin: 0 0 32px;
     padding: 64px 0 0 64px;
+    height: calc(100vh - 32px);
+    overflow: hidden;
 }
 
 .satus-main--status {
@@ -270,6 +272,7 @@ section.satus-section.satus-section--search.focus {
 .satus-grid {
     box-sizing: border-box;
     padding: 8px;
+    height: 100%;
 }
 
 .satus-grid__item {
