@@ -253,6 +253,7 @@ section.satus-section.satus-section--search.focus {
     padding: 64px 0 0 64px;
     height: calc(100vh - 32px);
     overflow: hidden;
+    overflow-y: auto;
 }
 
 .satus-main--status {
