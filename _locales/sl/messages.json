@@ -53,6 +53,9 @@
     "domain": {
         "message": "Domain"
     },
+    "duration": {
+        "message": "Duration"
+    },
     "eCommerceAndShopping": {
         "message": "E-commerce & shopping"
     },
