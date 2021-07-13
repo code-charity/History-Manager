@@ -79,6 +79,7 @@ var DB = {
 					});
 
 					object.createIndex('typedCountIndex', 'typedCount');
+					object.createIndex('visitDurationIndex', 'visitDuration');
 					object.createIndex('visitCountIndex', 'visitCount');
 					object.createIndex('domainIndex', 'domain');
 				}
@@ -1838,6 +1839,13 @@ var skeleton = {
 						cell.appendChild(icon);
 						cell.appendChild(a);
 					}
+				},
+				{
+					label: 'duration',
+					key: 'visitDuration',
+					intercept: function(cell, value, index, row) {
+						cell.textContent = Math.floor(Number(value) * 1.66667e-5) + ' min';
+					}
 				}],
 				onpage: function() {
 					var table = this;
@@ -2491,6 +2499,7 @@ function updateHistoryData(items, transitions, domains, params) {
 				url: item.url.match(REGEX_PROTOCOL)[0] + '://' + link,
 				typedCount: 0,
 				visitCount: 0,
+				visitDuration: 0,
 				path: {}
 			};
 		}
@@ -2629,10 +2638,18 @@ function updateHistoryData(items, transitions, domains, params) {
 function saveHistoryData(domains, params, transitions, visits) {
 	var domains_object_store = DB.indexedDB.transaction('domains', 'readwrite').objectStore('domains'),
 		params_object_store = DB.indexedDB.transaction('params', 'readwrite').objectStore('params'),
-		transitions_object_store = DB.indexedDB.transaction('transitions', 'readwrite').objectStore('transitions');
+		transitions_object_store = DB.indexedDB.transaction('transitions', 'readwrite').objectStore('transitions'),
+		visit_duration_history = satus.storage.data.visit_duration_history || {};
 
 	for (var key in domains) {
 		domains[key].domain = key;
+
+		if (visit_duration_history[key]) {
+			console.log(key, visit_duration_history[key], domains[key]);
+			domains[key].visitDuration += visit_duration_history[key];
+
+			delete visit_duration_history[key];
+		}
 
 		domains_object_store.put(domains[key]);
 	}
@@ -2651,6 +2668,7 @@ function saveHistoryData(domains, params, transitions, visits) {
 
 	chrome.storage.local.set({
 		database_cached: true,
+		visit_duration_history: visit_duration_history,
 		visits: visits
 	});
 
