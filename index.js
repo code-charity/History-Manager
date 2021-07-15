@@ -90,6 +90,7 @@ var DB = {
 					});
 
 					object.createIndex('visitCountIndex', 'visitCount');
+					object.createIndex('typedCountIndex', 'typedCount');
 					object.createIndex('bookmarkedIndex', 'bookmarked');
 					object.createIndex('tagsIndex', 'tags');
 					object.createIndex('titleIndex', 'title');
@@ -633,24 +634,7 @@ var skeleton = {
 						onclick: function() {
 							window.open(this.dataset.url, '_self');
 						}
-					}/*,
-					regex: {
-						element: 'div',
-						onrender: function() {
-							HM.search.regex = this;
-						},
-						onclick: function() {
-							var tables = document.querySelectorAll('.satus-table');
-
-							for (var i = 0, l = tables.length; i < l; i++) {
-								var table = tables[i];
-
-								if (table.onsearch) {
-									table.onsearch(new RegExp(this.dataset.value));
-								}
-							}
-						}
-					}*/
+					}
 				},
 				search: {
 					element: 'input',
@@ -677,143 +661,6 @@ var skeleton = {
 							HM.search.results.children[3].remove();
 						}
 
-						/*var search_results_element = document.querySelector('.search-results'),
-						    value = this.value,
-						    results = [],
-						    pre_results = {},
-						    first = null,
-						    cursor_position = this.selectionStart,
-						    SEARCH = [],
-						    r = new RegExp('[^\w]' + value);
-
-						search_results_element.innerHTML = '';
-
-						if (value.length > 0 && event.inputType !== 'deleteContentBackward') {
-						    for (var i = 0, l = SEARCH.length; i < l; i++) {
-						        var item = SEARCH[i];
-
-						        if (item[0].indexOf(value) === 0 && !pre_results[key]) {
-						            pre_results[item[0]] = item;
-						        }
-						    }
-
-						    for (var key in BOOKMARKS) {
-						        if (key.indexOf(value) === 0) {
-						            var start_with = key.match(/[^/]+\/\/(www\.)?/)[1],
-						                url = key.replace(start_with, '');
-
-						            if (!pre_results[key]) {
-						                pre_results[url] = [
-						                    url,
-						                    0,
-						                    start_with
-						                ];
-						            }
-						        }
-						    }
-
-						    for (var i = 0; i < Object.keys(TOP_SITES).length; i++) {
-						        var key = TOP_SITES[i];
-
-						        if (key.indexOf(value) === 0 && !pre_results[key]) {
-						            pre_results[key] = [
-						                key,
-						                0,
-						                'https://'
-						            ];
-						        }
-						    }
-
-						    for (var key in pre_results) {
-						        results.push(pre_results[key]);
-						    }
-
-						    if (results[0]) {
-						        results = satus.sort(1, 'desc', results);
-
-						        results = results.slice(0, 6);
-
-						        for (var i = 0, l = results.length; i < l; i++) {
-						            var item = document.createElement('div');
-
-						            item.innerText = results[i][0];
-						            item.dataset.url = results[i][2] + results[i][0];
-						            item.style.backgroundImage = 'url(chrome://favicon/' + results[i][2] + results[i][0] + ')';
-
-						            item.addEventListener('click', function () {
-						                search_results_element.style.display = 'none';
-
-						                window.open(this.dataset.url, '_self');
-						            });
-
-						            search_results_element.appendChild(item);
-						        }
-						    }
-						}
-
-						if (results[0] && results[0][0]) {
-						    search_results_element.children[0].className = 'selected';
-
-						    this.value = results[0][0];
-
-						    //this.textContent = first;
-						    //this.setSelectionRange(cursor_position, this.value.length);
-						}
-
-						if (value.length === 0 || results.length === 0) {
-						    search_results_element.style.display = '';
-						} else {
-						    search_results_element.style.display = 'block';
-						}*/
-
-						/*chrome.history.search({
-						    endTime: new Date().getTime(),
-						    maxResults: 0,
-						    startTime: 0,
-						    text: query
-						}, function (items) {
-						    var results = items.sort(function(a, b) {
-						            var c = b.typedCount - a.typedCount;
-
-						            if (c !== 0) {
-						                return c;
-						            }
-
-						            var d = b.visitCount - a.visitCount;
-
-						            if (d !== 0) {
-						                return d;
-						            }
-
-						            return b.lastVisitTime - a.lastVisitTime;
-						        });
-
-						    var container = document.querySelector('.search-results');
-
-						    satus.empty(container);
-
-						    for (var i = 0, l = results.length; i < l; i++) {
-						        var result = results[i],
-						            item = document.createElement('div');
-
-						        item.innerText = result.url;
-						        item.dataset.url = result.url;
-						        item.style.backgroundImage = 'url(chrome://favicon/' + result.url + ')';
-
-						        item.addEventListener('click', function () {
-						            window.open(this.dataset.url, '_self');
-						        });
-
-						        container.appendChild(item);
-						    }
-
-						    if (query.length === 0 || result.length === 0) {
-						        container.style.display = '';
-						    } else {
-						        container.style.display = 'block';
-						    }
-						});*/
-
 						if (satus.storage.get('search-engine') === 'tables') {
 							for (var i = 0, l = HM.tables.length; i < l; i++) {
 								var table = HM.tables[i];
@@ -827,32 +674,26 @@ var skeleton = {
 								}
 							}
 						} else {
-							DB.get('domains', function(items) {
+							DB.search(query, 'domains', ['domain'], function(items) {
 								var results = [];
 
 								for (var i = 0, l = items.length; i < l; i++) {
 									var item = items[i];
 
-									if (item.domain.indexOf(query) !== -1) {
-										results.push({
-											startWith: item.domain.indexOf(query) === 0 ? 1 : 0,
-											url: item.url,
-											domain: item.domain,
-											typedCount: item.typedCount,
-											visitCount: item.visitCount
-										});
-									}
+									results.push({
+										startWith: item.domain.indexOf(query) === 0 ? 1 : 0,
+										url: item.url,
+										domain: item.domain,
+										typedCount: item.typedCount,
+										visitCount: item.visitCount
+									});
 								}
 
 								results = results.sort(function(a, b) {
-									return b.visitCount - a.visitCount;
-								}).slice(0, 10).sort(function(a, b) {
-									return a.domain.localeCompare(b.domain);
-								}).sort(function(a, b) {
-									return b.typedCount - a.typedCount || b.visitCount - a.visitCount;
-								}).sort(function(a, b) {
-									return b.startWith - a.startWith;
+									return b.startWith - a.startWith || b.typedCount - a.typedCount;
 								}).slice(0, 6);
+
+								console.log(results);
 
 								HM.search.search_engine.innerHTML = self.value + ' - <span style="opacity: .4;">Search ' + ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).name || 'Google') + '</span>';
 								HM.search.search_engine.dataset.url = ((SEARCH_ENGINE[satus.storage.data['search-engine']] || {}).url || 'https://www.google.com/search?q=') + self.value;
@@ -883,10 +724,7 @@ var skeleton = {
 										HM.search.results.children[0].classList.add('selected');
 									}
 								}
-							}, {
-								index_name: 'typedCountIndex',
-								direction: 'prev'
-							});
+							}, 'typedCountIndex', 'prev');
 						}
 					},
 					onkeydown: function(event) {
