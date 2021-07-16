@@ -1682,7 +1682,26 @@ var skeleton = {
 					label: 'duration',
 					key: 'visitDuration',
 					intercept: function(cell, value, index, row) {
-						cell.textContent = Math.floor(Number(value) * 1.66667e-5) + ' min';
+						var seconds = parseInt(Number(value) / 1000),
+							hours = parseInt(seconds / 3600);
+
+						if (hours > 0) {
+							cell.textContent += hours + 'h ';
+
+							seconds = seconds % 3600;
+						}
+
+						var minutes = parseInt(seconds / 60);
+
+						if (minutes > 0) {
+							cell.textContent += minutes + 'm ';
+
+							seconds = seconds % 60;
+						}
+
+						if (seconds > 0) {
+							cell.textContent += seconds + 's ';
+						}
 					}
 				}],
 				onpage: function() {
@@ -2582,11 +2601,8 @@ satus.storage.load(function(items) {
 	});
 });
 
-
-/*--------------------------------------------------------------
-# MESSAGES
---------------------------------------------------------------*/
-
-chrome.runtime.onMessage.addListener(function(request, sender) {
-
+chrome.storage.onChanged.addListener(function (changes) {
+    for (var key in changes) {
+        var value = changes[key].newValue;
+    }
 });
