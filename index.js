@@ -64,6 +64,7 @@ var HM = {
 
 var DB = {
 	indexedDB: null,
+	process_id: false,
 	open: function(callback) {
 		var request = indexedDB.open('history_manager');
 
@@ -206,12 +207,17 @@ var DB = {
 			object_store = transaction.objectStore(object_store_name),
 			result = [],
 			is_regex = false,
-			count = 0;
+			count = 0,
+			time = new Date().getTime();
+
+		DB.process_id = time;
 
 		if (query.match(REGEX_IS_REGEX)) {
 			is_regex = true;
 
 			query = new RegExp(query);
+		} else {
+			query = query.toLowerCase();
 		}
 
 		if (index_name) {
@@ -222,11 +228,15 @@ var DB = {
 			var cursor = event.target.result,
 				founded = false;
 
+			if (DB.process_id !== time) {
+				return false;
+			}
+
 			if (cursor) {
 				for (var i = 0, l = keys.length; i < l; i++) {
 					if (founded === false) {
 						if (is_regex === false) {
-							if (cursor.value[keys[i]].indexOf(query) !== -1) {
+							if (cursor.value[keys[i]].toLowerCase().indexOf(query) !== -1) {
 								if (result.length < 100) {
 									result.push(cursor.value);
 								}
@@ -1708,7 +1718,7 @@ var skeleton = {
 					var table = this;
 
 					if (table.search_query) {
-						DB.search(table.search_query, 'domains', ['url'], function(items, name, count) {
+						DB.search(table.search_query, 'domains', ['url', 'title'], function(items, name, count) {
 							table.data = items;
 							table.count = count;
 
@@ -1731,7 +1741,7 @@ var skeleton = {
 					var table = this;
 
 					if (table.search_query) {
-						DB.search(table.search_query, 'domains', ['url'], function(items, name, count) {
+						DB.search(table.search_query, 'domains', ['url', 'title'], function(items, name, count) {
 							table.data = items;
 							table.count = count;
 
@@ -1755,7 +1765,7 @@ var skeleton = {
 
 					table.search_query = query;
 
-					DB.search(query, 'domains', ['url'], function(items, name, count) {
+					DB.search(query, 'domains', ['url', 'title'], function(items, name, count) {
 						table.data = items;
 						table.count = count;
 
@@ -2354,6 +2364,7 @@ function updateHistoryData(items, transitions, domains, params) {
 		if (!domains[domain]) {
 			domains[domain] = {
 				url: item.url.match(REGEX_PROTOCOL)[0] + '://' + link,
+				title: item.title,
 				typedCount: 0,
 				visitCount: 0,
 				visitDuration: 0,
