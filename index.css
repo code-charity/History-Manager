@@ -276,7 +276,7 @@ section.satus-section.satus-section--search.focus {
     height: 100%;
 }
 
-.satus-grid__item {
+.satus-grid__item-container {
     overflow: auto;
     max-height: calc(100vh - 128px);
     margin: 8px;

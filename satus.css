@@ -31,7 +31,9 @@ body {
     --satus-theme-background-2: #fff;
     --satus-theme-background-3: #fafafa;
     --satus-theme-border-0: #edeff2;
-    --satus-theme-bg-inner-table: rgba(0,0,0,.03)
+    --satus-theme-bg-inner-table: rgba(0,0,0,.03);
+
+    --satus-theme-grid-ghost: #000;
 }
 
 
@@ -45,7 +47,9 @@ body[data-dark-theme='true'] {
     --satus-theme-background-2: #262626;
     --satus-theme-background-3: #343434;
     --satus-theme-border-0: #222;
-    --satus-theme-bg-inner-table: rgba(255,255,255,.03)
+    --satus-theme-bg-inner-table: rgba(255,255,255,.03);
+
+    --satus-theme-grid-ghost: #fff;
 }
 
 
@@ -301,57 +305,85 @@ body[data-dark-theme='true'] {
 .satus-grid__item {
     display: flex;
     flex: 1;
+    padding: 0;
+    transition: padding .2s;
+    overflow: hidden;
+    will-change: margin;
 }
 
-.satus-grid-item__left {
+.satus-grid__item.satus-grid__item--hover-before {
+    padding-top: 64px;
+}
+
+.satus-grid__item.satus-grid__item--hover-after {
+    padding-bottom: 64px;
+}
+
+.satus-grid--dragging .satus-grid__item {
+    overflow: hidden;
+    position: relative;
+}
+
+.satus-grid-item__before {
     position: absolute;
     top: 0;
     left: 0;
     display: none;
-    width: 25%;
-    height: 100%;
+    width: 100%;
+    height: 50%;
 }
 
-.satus-grid-item__center {
+.satus-grid-item__after {
     position: absolute;
-    top: 0;
-    left: 25%;
+    top: 50%;
+    left: 0;
     display: none;
-    width: 50%;
-    height: 100%;
+    width: 100%;
+    height: 50%;
 }
 
-.satus-grid-item__right {
-    position: absolute;
-    top: 0;
-    left: 75%;
-    display: none;
-    width: 25%;
-    height: 100%;
-}
-
-.satus-grid--drag .satus-grid-item__left,
-.satus-grid--drag .satus-grid-item__center,
-.satus-grid--drag .satus-grid-item__right {
+.satus-grid--dragging .satus-grid-item__before,
+.satus-grid--dragging .satus-grid-item__after {
     display: block;
 }
 
-.satus-grid__item--drag>*:not(.satus-grid-item__left):not(.satus-grid-item__center):not(.satus-grid-item__right) {
+.satus-grid__item--drag>*:not(.satus-grid-item__before):not(.satus-grid-item__after):not(.satus-grid__item-container) {
     display: none;
 }
 
-.satus-grid[data-edit='true'] *:not(.satus-grid):not(.satus-grid__item):not(.satus-grid-item__left):not(.satus-grid-item__center):not(.satus-grid-item__right) {
+.satus-grid[data-edit='true'] .satus-grid__item-container > * {
     overflow: hidden;
     pointer-events: none;
-    opacity: .7;
+    opacity: .8;
 }
 
-.satus-grid__item[data-drag-over='left']>.satus-grid-item__left {
-    background: #e1bee7;
+.satus-grid[data-edit='true'] .satus-grid__item {
+    will-change: opacity;
+    opacity: .8;
 }
 
-.satus-grid__item[data-drag-over='right']>.satus-grid-item__right {
-    background: #e1bee7;
+.satus-grid[data-edit='true'] .satus-grid__item:not(.satus-grid__item--dragging):hover {
+    opacity: 1;
+}
+
+.satus-grid[data-edit='true'] .satus-grid__item--dragging {
+    opacity: .2;
+}
+
+.satus-grid__item-container {
+    flex: 1;
+}
+
+.satus-grid__ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: var(--satus-theme-grid-ghost);
+    opacity: .1;
+    pointer-events: none;
+    z-index: 999;
+    will-change: transform;
+    transform: translate(-100%, -100%);
 }
 
 

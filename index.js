@@ -982,1216 +982,6 @@ function updateTabManager() {
 # USER INTERFACE
 --------------------------------------------------------------*/
 
-/*--------------------------------------------------------------
-# TABLES
---------------------------------------------------------------*/
-
-function getTableCategories(container) {
-	var skeleton = {
-			element: 'table',
-			class: 'satus-table--categories',
-			onrender: function() {
-				HM.tables.push(this);
-			},
-			columns: [{
-				label: 'visits',
-				key: 'visitCount',
-				sort: 'desc'
-			}, {
-				label: '',
-				key: 'path',
-				sort: false,
-				columns: [{
-					label: 'visits',
-					key: 'visitCount',
-					sort: 'desc'
-				}, {
-					key: 'path'
-				}, {
-					label: 'domain',
-					key: 'key',
-					intercept: function(cell, value, index, row) {
-						var icon = document.createElement('div'),
-							a = document.createElement('a'),
-							link = 'https://' + value;
-
-						icon.className = 'favicon';
-						icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-						a.textContent = satus.locale.get(value);
-						a.href = link;
-
-						cell.appendChild(icon);
-						cell.appendChild(a);
-					}
-				}]
-			}, {
-				label: 'category',
-				key: 'name',
-				intercept: function(cell, value, index) {
-					var icon = document.createElement('div'),
-						text = document.createTextNode(satus.locale.get(value));
-
-					icon.className = 'favicon';
-					icon.style.backgroundPosition = ((-24 * index + Math.floor(index / 4) * 96) - 1) + 'px ' + (Math.floor(index / 4) * -24 - 1) + 'px';
-
-					cell.appendChild(icon);
-					cell.appendChild(text);
-				}
-			}]
-		};
-
-	satus.render(skeleton, container);
-}
-
-function getTableDomains(container) {
-	var skeleton = {
-			element: 'table',
-			class: 'satus-table--domains',
-			db_object_name: 'domains',
-			onrender: function() {
-				HM.tables.push(this);
-			},
-			columns: [{
-				label: 'visits',
-				key: 'visitCount',
-				sort: 'desc'
-			}, {
-				label: '',
-				key: 'path',
-				sort: false,
-				columns: [{
-					label: 'visits',
-					key: 'visitCount',
-					sort: 'desc'
-				}, {
-					key: 'path'
-				}, {
-					label: 'domain',
-					key: 'key'
-				}]
-			}, {
-				label: 'domain',
-				key: 'domain',
-				intercept: function(cell, value, index, row) {
-					var icon = document.createElement('div'),
-						a = document.createElement('a'),
-						link = row.data.url;
-
-					icon.className = 'favicon';
-					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-					a.textContent = satus.locale.get(value);
-					a.href = link;
-
-					cell.appendChild(icon);
-					cell.appendChild(a);
-				}
-			},
-			{
-				label: 'duration',
-				key: 'visitDuration',
-				intercept: function(cell, value, index, row) {
-					var seconds = parseInt(Number(value) / 1000),
-						hours = parseInt(seconds / 3600);
-
-					if (hours > 0) {
-						cell.textContent += hours + 'h ';
-
-						seconds = seconds % 3600;
-					}
-
-					var minutes = parseInt(seconds / 60);
-
-					if (minutes > 0) {
-						cell.textContent += minutes + 'm ';
-
-						seconds = seconds % 60;
-					}
-
-					if (seconds > 0) {
-						cell.textContent += seconds + 's ';
-					}
-				}
-			}],
-			onpage: function() {
-				var table = this;
-
-				if (table.search_query) {
-					DB.search(table.search_query, 'domains', ['url', 'title'], function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
-				} else {
-					DB.get('domains', function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
-				}
-			},
-			onsort: function() {
-				var table = this;
-
-				if (table.search_query) {
-					DB.search(table.search_query, 'domains', ['url', 'title'], function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
-				} else {
-					DB.get('domains', function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
-				}
-			},
-			onsearch: function(query) {
-				var table = this;
-
-				table.search_query = query;
-
-				DB.search(query, 'domains', ['url', 'title'], function(items, name, count) {
-					table.data = items;
-					table.count = count;
-
-					table.update();
-				}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
-			}
-		};
-
-	satus.render(skeleton, container);
-}
-
-function getTablePages(container) {
-	var skeleton = {
-			element: 'table',
-			class: 'satus-table--pages',
-			db_object_name: 'pages',
-			onrender: function() {
-				HM.tables.push(this);
-			},
-			columns: [{
-				label: 'visits',
-				key: 'visitCount',
-				sort: 'desc',
-			}, {
-				label: 'title',
-				key: 'title',
-				intercept: function(cell, value, index, row) {
-					var icon = document.createElement('div'),
-						a = document.createElement('a'),
-						link = row.data.url,
-						domain = link.match(REGEX_DOMAIN);
-
-					icon.className = 'favicon';
-					icon.style.background = 'url(chrome://favicon/' + domain[0] + ') no-repeat center';
-
-					a.textContent = value;
-					a.href = link;
-
-					cell.appendChild(icon);
-					cell.appendChild(a);
-				}
-			}, {
-				label: '★',
-				key: 'visitCount',
-				sort: false,
-				intercept: function(cell, value, index, row) {
-					var button = document.createElement('button');
-
-					button.className = 'satus-button';
-					button.textContent = BOOKMARKS.hasOwnProperty(row.data.url) ? '★' : '☆';
-
-					button.addEventListener('click', function() {
-						if (this.textContent === '★') {
-							this.textContent = '☆';
-
-							chrome.bookmarks.remove(BOOKMARKS[this.parentNode.parentNode.data.url]);
-						} else {
-							var self = this;
-
-							this.textContent = '★';
-
-							chrome.bookmarks.create({
-								title: this.parentNode.parentNode.data.title,
-								url: this.parentNode.parentNode.data.url,
-								parentId: '1'
-							}, function(item) {
-								BOOKMARKS[self.parentNode.parentNode.data.url] = item.id;
-							});
-						}
-					});
-
-					cell.appendChild(button);
-				}
-			}, {
-				label: 'tags',
-				key: 'tags',
-				intercept: function(cell, value, index) {
-					var input = document.createElement('input');
-
-					input.type = 'text';
-					input.className = 'satus-input';
-					input.value = value || '';
-
-					input.addEventListener('input', function() {
-						var transaction = DB.indexedDB.transaction('pages', 'readwrite'),
-							pages_object = transaction.objectStore('pages');
-
-						this.parentNode.parentNode.data.tags = this.value;
-
-						pages_object.put(this.parentNode.parentNode.data);
-					});
-
-					cell.appendChild(input);
-				}
-			}],
-			onpage: function() {
-				var table = this;
-
-				if (table.search_query) {
-					DB.search(table.search_query, 'pages', ['url'], function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
-				} else {
-					DB.get('pages', function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
-				}
-			},
-			onsort: function() {
-				var table = this;
-
-				if (table.search_query) {
-					DB.search(table.search_query, 'pages', ['url'], function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
-				} else {
-					DB.get('pages', function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
-				}
-			},
-			onsearch: function(query) {
-				var table = this;
-
-				table.search_query = query;
-
-				DB.search(query, 'pages', ['url'], function(items, name, count) {
-					table.data = items;
-					table.count = count;
-
-					table.update();
-				}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
-			}
-		};
-
-	satus.render(skeleton, container);
-}
-
-function getTableParams(container) {
-	var skeleton = {
-			element: 'table',
-			class: 'satus-table--params',
-			db_object_name: 'params',
-			onrender: function() {
-				HM.tables.push(this);
-			},
-			columns: [{
-				label: 'visits',
-				key: 'visitCount',
-				sort: 'desc'
-			}, {
-				label: '',
-				key: 'path',
-				sort: false,
-				columns: [{
-					label: 'visits',
-					key: 'visitCount',
-					sort: 'desc'
-				}, {
-					key: 'path'
-				}, {
-					label: 'domain',
-					key: 'key'
-				}]
-			}, {
-				label: 'domain',
-				key: 'domain',
-				intercept: function(cell, value, index, row) {
-					var link = row.data.url,
-						icon = document.createElement('div'),
-						a = document.createElement('a');
-
-					icon.className = 'favicon';
-					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-					a.textContent = satus.locale.get(value);
-					a.href = link;
-
-					cell.appendChild(icon);
-					cell.appendChild(a);
-				}
-			}],
-			onpage: function() {
-				var table = this;
-
-				if (table.search_query) {
-					DB.search(table.search_query, 'params', ['url'], function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
-				} else {
-					DB.get('params', function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
-				}
-			},
-			onsort: function() {
-				var table = this;
-
-				if (table.search_query) {
-					DB.search(table.search_query, 'params', ['url'], function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
-				} else {
-					DB.get('params', function(items, name, count) {
-						table.data = items;
-						table.count = count;
-
-						table.update();
-					}, {
-						index_name: table.order.key + 'Index',
-						direction: table.order.by === 'asc' ? 'next' : 'prev',
-						offset: table.pageIndex * 100 - 100
-					});
-				}
-			},
-			onsearch: function(query) {
-				var table = this;
-
-				table.search_query = query;
-
-				DB.search(query, 'params', ['url'], function(items, name, count) {
-					table.data = items;
-					table.count = count;
-
-					table.update();
-				}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
-			}
-		};
-
-	satus.render(skeleton, container);
-}
-
-function getTabsManager(container) {
-	var skeleton = {
-			element: 'div',
-			class: 'satus-tab-manager',
-			onrender: function() {
-				this.appendChild(HM.tabs);
-			}
-		};
-
-	satus.render(skeleton, container);
-}
-
-function getRecentlyClosed(container) {
-	var skeleton = {
-			element: 'table',
-			class: 'satus-table--recently-closed',
-			onrender: function() {
-				HM.tables.push(this);
-			},
-			columns: [{
-				label: 'timeAgo',
-				key: '0'
-			}, {
-				label: 'title',
-				key: '1',
-				intercept: function(cell, value, index, row) {
-					var link = row.data[2],
-						icon = document.createElement('div'),
-						a = document.createElement('a');
-
-					icon.className = 'favicon';
-					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-					a.textContent = satus.locale.get(value);
-					a.href = link;
-
-					cell.appendChild(icon);
-					cell.appendChild(a);
-				}
-			}]
-		};
-
-	satus.render(skeleton, container);
-}
-
-function renderTables() {
-	var skeleton = {
-			element: 'grid',
-			dataset: {
-				edit: true
-			},
-			columns: [
-				// CATEGORIES
-				{
-					element: 'div',
-					onrender: function() {
-						getTableCategories(this);
-					}
-				},
-
-				// DOMAINS
-				{
-					element: 'div',
-					onrender: function() {
-						getTableDomains(this);
-					}
-				},
-
-				// PAGES
-				{
-					element: 'div',
-					onrender: function() {
-						getTablePages(this);
-					}
-				},
-
-				[
-					// PARAMS
-					{
-						element: 'div',
-						onrender: function() {
-							getTableParams(this);
-						}
-					},
-
-					// TABS
-					{
-						element: 'div',
-						onrender: function() {
-							getTabsManager(this);
-						}
-					},
-
-					// RECENTLY CLOSED
-					{
-						element: 'div',
-						onrender: function() {
-							getRecentlyClosed(this);
-						}
-					}
-				]
-			]
-		};
-	
-	satus.empty(document.querySelector('main'));
-
-	satus.render(skeleton, document.querySelector('.satus-main'));
-
-	DB.get('domains', function(items) {
-		var categories = [];
-
-		for (var key in CATEGORIES) {
-			var category = CATEGORIES[key],
-				path = {};
-
-			if (!category.visitCount) {
-				category.visitCount = 0;
-			}
-
-			for (var link in category) {
-				for (var key2 in items) {
-					var domain = items[key2].domain;
-
-					if (domain.indexOf(link) !== -1) {
-						category[link] = items[key2].visitCount;
-
-						category.visitCount += items[key2].visitCount;
-					}
-				}
-
-				path[link] = {
-					key: link,
-					visitCount: category[link]
-				};
-			}
-
-			categories.push({
-				name: key,
-				path: path,
-				visitCount: category.visitCount
-			});
-		}
-
-		var table_pages = document.querySelector('.satus-table--categories');
-
-		table_pages.data = categories.sort(function(a, b) {
-			return b.visitCount - a.visitCount;
-		});
-		table_pages.count = categories.length;
-
-		table_pages.update();
-
-		DB.count('domains', function(count) {
-			var table_pages = document.querySelector('.satus-table--domains');
-
-			table_pages.data = items;
-			table_pages.count = count;
-
-			table_pages.update();
-		});
-	}, {
-		index_name: 'visitCountIndex',
-		direction: 'prev'
-	});
-
-	DB.get('pages', function(items) {
-		DB.count('pages', function(count) {
-			var table_pages = document.querySelector('.satus-table--pages');
-
-			table_pages.data = items;
-			table_pages.count = count;
-
-			table_pages.update();
-		});
-	}, {
-		index_name: 'visitCountIndex',
-		direction: 'prev'
-	});
-
-	//getDBData('params', 'visitCountIndex', 'desc', 0, function (data, count) {
-	DB.get('params', function(items) {
-		DB.count('params', function(count) {
-			var table_pages = document.querySelector('.satus-table--params');
-
-			table_pages.data = items;
-			table_pages.count = count;
-
-			table_pages.update();
-		});
-	}, {
-		index_name: 'visitCountIndex',
-		direction: 'prev'
-	});
-
-	var table_recently_closed = document.querySelector('.satus-table--recently-closed');
-
-	table_recently_closed.data = satus.storage.data.recently_closed || [];
-	table_recently_closed.count = table_recently_closed.data.length;
-
-	table_recently_closed.update();
-}
-
-
-/*--------------------------------------------------------------
-# CHARTS
---------------------------------------------------------------*/
-
-function renderCharts(container) {
-	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
-
-	container.classList.add('satus-button--active');
-
-	var main = document.querySelector('main'),
-		months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'],
-		week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-		skeleton = {
-			grid: {
-				element: 'grid',
-				class: 'satus-grid--charts',
-				columns: [{
-					title_hours: {
-						element: 'h1',
-						text: 'byHour'
-					},
-					hours: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_days: {
-						element: 'h1',
-						text: 'byDay'
-					},
-					days: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_week: {
-						element: 'h1',
-						text: 'byWeek'
-					},
-					week: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_months: {
-						element: 'h1',
-						text: 'byMonth'
-					},
-					months: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_years: {
-						element: 'h1',
-						text: 'byYear'
-					},
-					years: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_transitions: {
-						element: 'h1',
-						text: 'transitions'
-					},
-					transitions: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					}
-				}]
-			}
-		};
-
-	var items = satus.storage.data.visits || {};
-
-	satus.empty(main);
-
-	var days_count = 0;
-
-	for (var year in items) {
-		var year_visits = 0;
-
-		for (var month in items[year]) {
-			var month_visits = 0;
-
-			for (var day in items[year][month]) {
-				var day_visits = 0;
-
-				for (var hour in items[year][month][day]) {
-					var value = items[year][month][day][hour];
-
-					year_visits += value;
-					day_visits += value;
-				}
-
-				if (days_count < 30) {
-					skeleton.grid.columns[0].days.data.push(day_visits);
-					skeleton.grid.columns[0].days.labels.push(day);
-				}
-
-				days_count++;
-			}
-		}
-
-		skeleton.grid.columns[0].years.data.push(year_visits);
-		skeleton.grid.columns[0].years.labels.push(year);
-	}
-
-	var date = new Date(),
-		year = date.getFullYear(),
-		month = date.getMonth(),
-		week_day = date.getDay(),
-		day = date.getDate(),
-		hour = date.getHours();
-
-	for (var i = 0; i < 12; i++) {
-		if (items[year] && items[year][i]) {
-			var visits = 0;
-
-			for (var j in items[year][i]) {
-				for (var k in items[year][i][j]) {
-					visits += items[year][i][j][k];
-				}
-			}
-
-			skeleton.grid.columns[0].months.data.push(visits);
-		} else {
-			skeleton.grid.columns[0].months.data.push(0);
-		}
-
-		skeleton.grid.columns[0].months.labels.push(months[i]);
-	}
-
-	for (var i = 0; i < 24; i++) {
-		if (items[year] && items[year][month] && items[year][month][day] && items[year][month][day][i]) {
-			skeleton.grid.columns[0].hours.data.push(items[year][month][day][i]);
-		} else {
-			skeleton.grid.columns[0].hours.data.push(0);
-		}
-
-		skeleton.grid.columns[0].hours.labels.push(i);
-	}
-
-	var date = new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -7 : 0)));
-
-	for (var i = 0; i < 7; i++) {
-		date.setDate(date.getDate() + 1);
-
-		var year = date.getFullYear(),
-			month = date.getMonth(),
-			day = date.getDate();
-
-		if (items[year] && items[year][month] && items[year][month][day]) {
-			var visits = 0;
-
-			for (var hour in items[year][month][day]) {
-				visits += items[year][month][day][hour];
-			}
-
-			skeleton.grid.columns[0].week.data.push(visits);
-		} else {
-			skeleton.grid.columns[0].week.data.push(0);
-		}
-
-		skeleton.grid.columns[0].week.labels.push(week_days[i]);
-	}
-
-	for (var key in HM.transitions) {
-		var item = HM.transitions[key];
-
-		skeleton.grid.columns[0].transitions.labels.push(item.transition);
-		skeleton.grid.columns[0].transitions.data.push(item.visitCount);
-	}
-
-	satus.render(skeleton, main);
-}
-
-function renderWebsitesStatus(container) {
-	var main = document.querySelector('main');
-
-	satus.empty(main);
-
-	var skeleton = {
-		element: 'grid',
-		columns: [{
-			element: 'table',
-			class: 'satus-table--broken-links',
-			columns: [{
-				label: 'visits',
-				key: 'visitCount'
-			}, {
-				label: 'domain',
-				key: 'domain',
-				intercept: function(cell, value, index, row) {
-					var icon = document.createElement('div'),
-						a = document.createElement('a'),
-						link = row.data.url;
-
-					icon.className = 'favicon';
-					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
-
-					a.textContent = satus.locale.get(value);
-					a.href = link;
-
-					cell.appendChild(icon);
-					cell.appendChild(a);
-				}
-			}, {
-				label: 'status',
-				key: 'url',
-				intercept: function(cell, value, index, row) {
-					var xhr = new XMLHttpRequest();
-
-					xhr.onreadystatechange = function() {
-						cell.textContent = this.status;
-
-						if (this.status === 200) {
-							cell.style.color = '#0f0';
-						} else if (this.status !== 0) {
-							cell.style.color = '#f00';
-						}
-					};
-
-					try {
-						xhr.open('GET', row.data.url, true);
-						xhr.send();
-					} catch (error) {}
-				}
-			}],
-			onpage: function() {
-				var table = this;
-
-				DB.get('domains', function(items) {
-					table.data = items;
-
-					table.update();
-				}, {
-					index_name: table.order.key + 'Index',
-					direction: table.order.by === 'asc' ? 'next' : 'prev',
-					offset: table.pageIndex * 100 - 100
-				});
-			},
-			onsort: function() {
-				var table = this;
-
-				DB.get('domains', function(items) {
-					table.data = items;
-
-					table.update();
-				}, {
-					index_name: table.order.key + 'Index',
-					direction: table.order.by === 'asc' ? 'next' : 'prev',
-					offset: table.pageIndex * 100 - 100
-				});
-			}
-		}]
-	};
-
-	DB.get('domains', function(items) {
-		DB.count('domains', function(count) {
-			skeleton.columns[0].data = items;
-			skeleton.columns[0].count = count;
-
-			satus.render(skeleton, main);
-
-			document.querySelector('.satus-table--broken-links').update();
-		});
-	}, {
-		index_name: 'visitCountIndex',
-		direction: 'prev'
-	});
-
-	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
-
-	container.classList.add('satus-button--active');
-}
-
-function renderStorages(container) {
-	var main = document.querySelector('main');
-
-	satus.empty(main);
-
-	var skeleton = {
-		element: 'grid',
-		class: 'satus-grid--data',
-		columns: [{
-			0: {
-				element: 'h1',
-				text: 'browser.storage.local'
-			},
-			1: {
-				element: 'div',
-				onrender: function() {
-					function parse(object, parent) {
-						var ul = document.createElement('ul');
-
-						ul.className = 'satus-tree';
-
-						for (var key in object) {
-							var li = document.createElement('li'),
-								button = document.createElement('button');
-
-							li.className = 'satus-tree--item';
-
-							button.className = 'satus-button';
-							button.innerHTML = '<b>' + key + '</b>';
-							button.object = object[key];
-
-							if (typeof object[key] === 'object') {
-								button.className += ' satus-button--object';
-
-								button.addEventListener('click', function() {
-									this.classList.toggle('active');
-
-									if (this.classList.contains('active')) {
-										parse(this.object, this.parentNode);
-									} else {
-										this.nextElementSibling.remove();
-									}
-								});
-							} else {
-								button.innerHTML += ': ' + object[key];
-							}
-
-							li.appendChild(button);
-							ul.appendChild(li);
-						}
-
-						parent.appendChild(ul);
-					}
-
-					parse(satus.storage.data, this);
-				}
-			}
-		}, {
-			0: {
-				element: 'h1',
-				text: 'IndexedDB'
-			},
-			1: {
-				element: 'div',
-				onrender: function() {
-					function parse(object, parent) {
-						var ul = document.createElement('ul');
-
-						ul.className = 'satus-tree';
-
-						for (var key in object) {
-							var li = document.createElement('li'),
-								button = document.createElement('button');
-
-							li.className = 'satus-tree--item';
-
-							button.className = 'satus-button';
-							button.innerHTML = '<b>' + key + '</b>';
-							button.object = object[key];
-
-							if (typeof object[key] === 'object') {
-								button.className += ' satus-button--object';
-
-								button.addEventListener('click', function() {
-									this.classList.toggle('active');
-
-									if (this.classList.contains('active')) {
-										parse(this.object, this.parentNode);
-									} else {
-										this.nextElementSibling.remove();
-									}
-								});
-							} else {
-								button.innerHTML += ': ' + object[key];
-							}
-
-							li.appendChild(button);
-							ul.appendChild(li);
-						}
-
-						parent.appendChild(ul);
-					}
-
-					var self = this,
-						data = {},
-						threads = 0;
-
-					for (var i = 0, l = DB.indexedDB.objectStoreNames.length; i < l; i++) {
-						DB.get(DB.indexedDB.objectStoreNames[i], function(items, object_store_name) {
-							data[object_store_name] = items;
-
-							threads--;
-
-							if (threads === 0) {
-								parse(data, self);
-							}
-						}, {});
-
-						threads++;
-					}
-				}
-			}
-		}]
-	};
-
-	satus.render(skeleton, main);
-
-	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
-
-	container.classList.add('satus-button--active');
-}
-
-function renderBookmarks(container) {
-	var main = document.querySelector('main');
-
-	satus.empty(main);
-
-	var skeleton = {
-		element: 'grid',
-		class: 'satus-grid--data',
-		columns: [{
-			0: {
-				element: 'h1',
-				text: 'bookmarks'
-			},
-			1: {
-				element: 'div',
-				class: 'satus-div--bookmarks',
-				onrender: function() {
-					var self = this;
-
-					function parse(object, parent) {
-						var ul = document.createElement('ul');
-
-						ul.className = 'satus-tree';
-
-						for (var key in object) {
-							if (typeof object[key] === 'object') {
-								if (object[key].children) {
-									var li = document.createElement('li');
-
-									li.className = 'satus-tree--item';
-
-									var button = document.createElement('button');
-
-									button.className = 'satus-button satus-button--object';
-									button.object = object[key];
-									button.textContent = object[key].title;
-
-									button.addEventListener('click', function() {
-										this.classList.toggle('active');
-
-										if (this.classList.contains('active')) {
-											parse(this.object, this.parentNode);
-										} else {
-											this.nextElementSibling.remove();
-										}
-									});
-
-									li.appendChild(button);
-									ul.appendChild(li);
-								} else if (object[key].url) {
-									var li = document.createElement('li');
-
-									li.className = 'satus-tree--item';
-									var a = document.createElement('a'),
-										img = document.createElement('img');
-
-									img.src = 'chrome://favicon/' + object[key].url;
-
-									a.href = object[key].url;
-									a.textContent = object[key].title || object[key].url;
-
-									li.appendChild(img);
-									li.appendChild(a);
-									ul.appendChild(li);
-								} else {
-									parse(object[key], ul);
-								}
-							}
-						}
-
-						parent.appendChild(ul);
-					}
-
-					chrome.bookmarks.getTree(function(bookmarks) {
-						parse(bookmarks[0].children, self);
-					});
-				}
-			}
-		}]
-	};
-
-	satus.render(skeleton, main);
-
-	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
-
-	container.classList.add('satus-button--active');
-}
-
-function renderSettings(container) {
-	var main = document.querySelector('main');
-
-	satus.empty(main);
-
-	var skeleton = {
-		grid: {
-			element: 'grid',
-			class: 'satus-grid--data',
-			columns: [{
-				title: {
-					element: 'h1',
-					text: 'searchEngine'
-				},
-				search_engine: {
-					element: 'select',
-					storage: 'search-engine',
-					options: [{
-						text: 'Google',
-						value: 'google',
-						dataset: {
-							url: 'https://www.google.com/search?q=%s'
-						}
-					}, {
-						text: 'DuckDuckGo',
-						value: 'duckduckgo',
-						dataset: {
-							url: 'https://duckduckgo.com/?q=%s'
-						}
-					}, {
-						text: 'Bing',
-						value: 'bing',
-						dataset: {
-							url: 'https://www.bing.com/search?q=%s'
-						}
-					}, {
-						text: 'Ecosia',
-						value: 'ecosia',
-						dataset: {
-							url: 'https://www.ecosia.org/search?q=%s'
-						}
-					}]
-				}
-			}]
-		}
-	};
-
-	satus.render(skeleton, main);
-
-	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
-
-	container.classList.add('satus-button--active');
-}
-
-
-/*--------------------------------------------------------------
-# SKELETON
---------------------------------------------------------------*/
-
 var skeleton = {
 		header: {
 			element: 'header',
@@ -2628,6 +1418,1232 @@ var skeleton = {
 	};
 
 satus.render(skeleton);
+
+
+/*--------------------------------------------------------------
+# TABLES
+--------------------------------------------------------------*/
+
+function getTableCategories(container) {
+	var skeleton = {
+			element: 'table',
+			class: 'satus-table--categories',
+			onrender: function() {
+				HM.tables.push(this);
+			},
+			columns: [{
+				label: 'visits',
+				key: 'visitCount',
+				sort: 'desc'
+			}, {
+				label: '',
+				key: 'path',
+				sort: false,
+				columns: [{
+					label: 'visits',
+					key: 'visitCount',
+					sort: 'desc'
+				}, {
+					key: 'path'
+				}, {
+					label: 'domain',
+					key: 'key',
+					intercept: function(cell, value, index, row) {
+						var icon = document.createElement('div'),
+							a = document.createElement('a'),
+							link = 'https://' + value;
+
+						icon.className = 'favicon';
+						icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+						a.textContent = satus.locale.get(value);
+						a.href = link;
+
+						cell.appendChild(icon);
+						cell.appendChild(a);
+					}
+				}]
+			}, {
+				label: 'category',
+				key: 'name',
+				intercept: function(cell, value, index) {
+					var icon = document.createElement('div'),
+						text = document.createTextNode(satus.locale.get(value));
+
+					icon.className = 'favicon';
+					icon.style.backgroundPosition = ((-24 * index + Math.floor(index / 4) * 96) - 1) + 'px ' + (Math.floor(index / 4) * -24 - 1) + 'px';
+
+					cell.appendChild(icon);
+					cell.appendChild(text);
+				}
+			}]
+		};
+
+	satus.render(skeleton, container.parentNode);
+}
+
+function getTableDomains(container) {
+	var skeleton = {
+			element: 'table',
+			class: 'satus-table--domains',
+			db_object_name: 'domains',
+			onrender: function() {
+				HM.tables.push(this);
+			},
+			columns: [{
+				label: 'visits',
+				key: 'visitCount',
+				sort: 'desc'
+			}, {
+				label: '',
+				key: 'path',
+				sort: false,
+				columns: [{
+					label: 'visits',
+					key: 'visitCount',
+					sort: 'desc'
+				}, {
+					key: 'path'
+				}, {
+					label: 'domain',
+					key: 'key'
+				}]
+			}, {
+				label: 'domain',
+				key: 'domain',
+				intercept: function(cell, value, index, row) {
+					var icon = document.createElement('div'),
+						a = document.createElement('a'),
+						link = row.data.url;
+
+					icon.className = 'favicon';
+					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+					a.textContent = satus.locale.get(value);
+					a.href = link;
+
+					cell.appendChild(icon);
+					cell.appendChild(a);
+				}
+			},
+			{
+				label: 'duration',
+				key: 'visitDuration',
+				intercept: function(cell, value, index, row) {
+					var seconds = parseInt(Number(value) / 1000),
+						hours = parseInt(seconds / 3600);
+
+					if (hours > 0) {
+						cell.textContent += hours + 'h ';
+
+						seconds = seconds % 3600;
+					}
+
+					var minutes = parseInt(seconds / 60);
+
+					if (minutes > 0) {
+						cell.textContent += minutes + 'm ';
+
+						seconds = seconds % 60;
+					}
+
+					if (seconds > 0) {
+						cell.textContent += seconds + 's ';
+					}
+				}
+			}],
+			onpage: function() {
+				var table = this;
+
+				if (table.search_query) {
+					DB.search(table.search_query, 'domains', ['url', 'title'], function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+				} else {
+					DB.get('domains', function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, {
+						index_name: table.order.key + 'Index',
+						direction: table.order.by === 'asc' ? 'next' : 'prev',
+						offset: table.pageIndex * 100 - 100
+					});
+				}
+			},
+			onsort: function() {
+				var table = this;
+
+				if (table.search_query) {
+					DB.search(table.search_query, 'domains', ['url', 'title'], function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+				} else {
+					DB.get('domains', function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, {
+						index_name: table.order.key + 'Index',
+						direction: table.order.by === 'asc' ? 'next' : 'prev',
+						offset: table.pageIndex * 100 - 100
+					});
+				}
+			},
+			onsearch: function(query) {
+				var table = this;
+
+				table.search_query = query;
+
+				DB.search(query, 'domains', ['url', 'title'], function(items, name, count) {
+					table.data = items;
+					table.count = count;
+
+					table.update();
+				}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
+			}
+		};
+
+	satus.render(skeleton, container.parentNode);
+}
+
+function getTablePages(container) {
+	var skeleton = {
+			element: 'table',
+			class: 'satus-table--pages',
+			db_object_name: 'pages',
+			onrender: function() {
+				HM.tables.push(this);
+			},
+			columns: [{
+				label: 'visits',
+				key: 'visitCount',
+				sort: 'desc',
+			}, {
+				label: 'title',
+				key: 'title',
+				intercept: function(cell, value, index, row) {
+					var icon = document.createElement('div'),
+						a = document.createElement('a'),
+						link = row.data.url,
+						domain = link.match(REGEX_DOMAIN);
+
+					icon.className = 'favicon';
+					icon.style.background = 'url(chrome://favicon/' + domain[0] + ') no-repeat center';
+
+					a.textContent = value;
+					a.href = link;
+
+					cell.appendChild(icon);
+					cell.appendChild(a);
+				}
+			}, {
+				label: '★',
+				key: 'visitCount',
+				sort: false,
+				intercept: function(cell, value, index, row) {
+					var button = document.createElement('button');
+
+					button.className = 'satus-button';
+					button.textContent = BOOKMARKS.hasOwnProperty(row.data.url) ? '★' : '☆';
+
+					button.addEventListener('click', function() {
+						if (this.textContent === '★') {
+							this.textContent = '☆';
+
+							chrome.bookmarks.remove(BOOKMARKS[this.parentNode.parentNode.data.url]);
+						} else {
+							var self = this;
+
+							this.textContent = '★';
+
+							chrome.bookmarks.create({
+								title: this.parentNode.parentNode.data.title,
+								url: this.parentNode.parentNode.data.url,
+								parentId: '1'
+							}, function(item) {
+								BOOKMARKS[self.parentNode.parentNode.data.url] = item.id;
+							});
+						}
+					});
+
+					cell.appendChild(button);
+				}
+			}, {
+				label: 'tags',
+				key: 'tags',
+				intercept: function(cell, value, index) {
+					var input = document.createElement('input');
+
+					input.type = 'text';
+					input.className = 'satus-input';
+					input.value = value || '';
+
+					input.addEventListener('input', function() {
+						var transaction = DB.indexedDB.transaction('pages', 'readwrite'),
+							pages_object = transaction.objectStore('pages');
+
+						this.parentNode.parentNode.data.tags = this.value;
+
+						pages_object.put(this.parentNode.parentNode.data);
+					});
+
+					cell.appendChild(input);
+				}
+			}],
+			onpage: function() {
+				var table = this;
+
+				if (table.search_query) {
+					DB.search(table.search_query, 'pages', ['url'], function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+				} else {
+					DB.get('pages', function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, {
+						index_name: table.order.key + 'Index',
+						direction: table.order.by === 'asc' ? 'next' : 'prev',
+						offset: table.pageIndex * 100 - 100
+					});
+				}
+			},
+			onsort: function() {
+				var table = this;
+
+				if (table.search_query) {
+					DB.search(table.search_query, 'pages', ['url'], function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+				} else {
+					DB.get('pages', function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, {
+						index_name: table.order.key + 'Index',
+						direction: table.order.by === 'asc' ? 'next' : 'prev',
+						offset: table.pageIndex * 100 - 100
+					});
+				}
+			},
+			onsearch: function(query) {
+				var table = this;
+
+				table.search_query = query;
+
+				DB.search(query, 'pages', ['url'], function(items, name, count) {
+					table.data = items;
+					table.count = count;
+
+					table.update();
+				}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
+			}
+		};
+
+	satus.render(skeleton, container.parentNode);
+}
+
+function getTableParams(container) {
+	var skeleton = {
+			element: 'table',
+			class: 'satus-table--params',
+			db_object_name: 'params',
+			onrender: function() {
+				HM.tables.push(this);
+			},
+			columns: [{
+				label: 'visits',
+				key: 'visitCount',
+				sort: 'desc'
+			}, {
+				label: '',
+				key: 'path',
+				sort: false,
+				columns: [{
+					label: 'visits',
+					key: 'visitCount',
+					sort: 'desc'
+				}, {
+					key: 'path'
+				}, {
+					label: 'domain',
+					key: 'key'
+				}]
+			}, {
+				label: 'domain',
+				key: 'domain',
+				intercept: function(cell, value, index, row) {
+					var link = row.data.url,
+						icon = document.createElement('div'),
+						a = document.createElement('a');
+
+					icon.className = 'favicon';
+					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+					a.textContent = satus.locale.get(value);
+					a.href = link;
+
+					cell.appendChild(icon);
+					cell.appendChild(a);
+				}
+			}],
+			onpage: function() {
+				var table = this;
+
+				if (table.search_query) {
+					DB.search(table.search_query, 'params', ['url'], function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+				} else {
+					DB.get('params', function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, {
+						index_name: table.order.key + 'Index',
+						direction: table.order.by === 'asc' ? 'next' : 'prev',
+						offset: table.pageIndex * 100 - 100
+					});
+				}
+			},
+			onsort: function() {
+				var table = this;
+
+				if (table.search_query) {
+					DB.search(table.search_query, 'params', ['url'], function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, table.order.key + 'Index', table.order.by === 'asc' ? 'next' : 'prev');
+				} else {
+					DB.get('params', function(items, name, count) {
+						table.data = items;
+						table.count = count;
+
+						table.update();
+					}, {
+						index_name: table.order.key + 'Index',
+						direction: table.order.by === 'asc' ? 'next' : 'prev',
+						offset: table.pageIndex * 100 - 100
+					});
+				}
+			},
+			onsearch: function(query) {
+				var table = this;
+
+				table.search_query = query;
+
+				DB.search(query, 'params', ['url'], function(items, name, count) {
+					table.data = items;
+					table.count = count;
+
+					table.update();
+				}, table.order.key + 'Index', table.order.key === 'asc' ? 'next' : 'prev');
+			}
+		};
+
+	satus.render(skeleton, container.parentNode);
+}
+
+function getTabsManager(container) {
+	var skeleton = {
+			element: 'div',
+			class: 'satus-tab-manager',
+			onrender: function() {
+				this.appendChild(HM.tabs);
+			}
+		};
+
+	satus.render(skeleton, container.parentNode);
+}
+
+function getRecentlyClosed(container) {
+	var skeleton = {
+			element: 'table',
+			class: 'satus-table--recently-closed',
+			onrender: function() {
+				HM.tables.push(this);
+			},
+			columns: [{
+				label: 'timeAgo',
+				key: '0'
+			}, {
+				label: 'title',
+				key: '1',
+				intercept: function(cell, value, index, row) {
+					var link = row.data[2],
+						icon = document.createElement('div'),
+						a = document.createElement('a');
+
+					icon.className = 'favicon';
+					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+					a.textContent = satus.locale.get(value);
+					a.href = link;
+
+					cell.appendChild(icon);
+					cell.appendChild(a);
+				}
+			}]
+		};
+
+	satus.render(skeleton, container.parentNode);
+}
+
+function renderTables() {
+	var skeleton = {
+			element: 'grid',
+			dataset: {
+				edit: true
+			},
+			columns: [
+				// CATEGORIES
+				{
+					element: 'div',
+					onrender: function() {
+						getTableCategories(this);
+					}
+				},
+
+				// DOMAINS
+				{
+					element: 'div',
+					onrender: function() {
+						getTableDomains(this);
+					}
+				},
+
+				// PAGES
+				{
+					element: 'div',
+					onrender: function() {
+						getTablePages(this);
+					}
+				},
+
+				[
+					// PARAMS
+					{
+						element: 'div',
+						onrender: function() {
+							getTableParams(this);
+						}
+					},
+
+					// TABS
+					{
+						element: 'div',
+						onrender: function() {
+							getTabsManager(this);
+						}
+					},
+
+					// RECENTLY CLOSED
+					{
+						element: 'div',
+						onrender: function() {
+							getRecentlyClosed(this);
+						}
+					}
+				]
+			]
+		};
+	
+	satus.empty(document.querySelector('main'));
+
+	satus.render(skeleton, document.querySelector('.satus-main'));
+
+	DB.get('domains', function(items) {
+		var categories = [];
+
+		for (var key in CATEGORIES) {
+			var category = CATEGORIES[key],
+				path = {};
+
+			if (!category.visitCount) {
+				category.visitCount = 0;
+			}
+
+			for (var link in category) {
+				for (var key2 in items) {
+					var domain = items[key2].domain;
+
+					if (domain.indexOf(link) !== -1) {
+						category[link] = items[key2].visitCount;
+
+						category.visitCount += items[key2].visitCount;
+					}
+				}
+
+				path[link] = {
+					key: link,
+					visitCount: category[link]
+				};
+			}
+
+			categories.push({
+				name: key,
+				path: path,
+				visitCount: category.visitCount
+			});
+		}
+
+		var table_pages = document.querySelector('.satus-table--categories');
+
+		table_pages.data = categories.sort(function(a, b) {
+			return b.visitCount - a.visitCount;
+		});
+		table_pages.count = categories.length;
+
+		table_pages.update();
+
+		DB.count('domains', function(count) {
+			var table_pages = document.querySelector('.satus-table--domains');
+
+			table_pages.data = items;
+			table_pages.count = count;
+
+			table_pages.update();
+		});
+	}, {
+		index_name: 'visitCountIndex',
+		direction: 'prev'
+	});
+
+	DB.get('pages', function(items) {
+		DB.count('pages', function(count) {
+			var table_pages = document.querySelector('.satus-table--pages');
+
+			table_pages.data = items;
+			table_pages.count = count;
+
+			table_pages.update();
+		});
+	}, {
+		index_name: 'visitCountIndex',
+		direction: 'prev'
+	});
+
+	//getDBData('params', 'visitCountIndex', 'desc', 0, function (data, count) {
+	DB.get('params', function(items) {
+		DB.count('params', function(count) {
+			var table_pages = document.querySelector('.satus-table--params');
+
+			table_pages.data = items;
+			table_pages.count = count;
+
+			table_pages.update();
+		});
+	}, {
+		index_name: 'visitCountIndex',
+		direction: 'prev'
+	});
+
+	var table_recently_closed = document.querySelector('.satus-table--recently-closed');
+
+	table_recently_closed.data = satus.storage.data.recently_closed || [];
+	table_recently_closed.count = table_recently_closed.data.length;
+
+	table_recently_closed.update();
+}
+
+
+/*--------------------------------------------------------------
+# CHARTS
+--------------------------------------------------------------*/
+
+function renderCharts(container) {
+	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
+
+	container.classList.add('satus-button--active');
+
+	var main = document.querySelector('main'),
+		months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'],
+		week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+		skeleton = {
+			grid: {
+				element: 'grid',
+				class: 'satus-grid--charts',
+				columns: [{
+					title_hours: {
+						element: 'h1',
+						text: 'byHour'
+					},
+					hours: {
+						element: 'vertical-bars',
+						labels: [],
+						data: []
+					},
+					title_days: {
+						element: 'h1',
+						text: 'byDay'
+					},
+					days: {
+						element: 'vertical-bars',
+						labels: [],
+						data: []
+					},
+					title_week: {
+						element: 'h1',
+						text: 'byWeek'
+					},
+					week: {
+						element: 'vertical-bars',
+						labels: [],
+						data: []
+					},
+					title_months: {
+						element: 'h1',
+						text: 'byMonth'
+					},
+					months: {
+						element: 'vertical-bars',
+						labels: [],
+						data: []
+					},
+					title_years: {
+						element: 'h1',
+						text: 'byYear'
+					},
+					years: {
+						element: 'vertical-bars',
+						labels: [],
+						data: []
+					},
+					title_transitions: {
+						element: 'h1',
+						text: 'transitions'
+					},
+					transitions: {
+						element: 'vertical-bars',
+						labels: [],
+						data: []
+					}
+				}]
+			}
+		};
+
+	var items = satus.storage.data.visits || {};
+
+	satus.empty(main);
+
+	var days_count = 0;
+
+	for (var year in items) {
+		var year_visits = 0;
+
+		for (var month in items[year]) {
+			var month_visits = 0;
+
+			for (var day in items[year][month]) {
+				var day_visits = 0;
+
+				for (var hour in items[year][month][day]) {
+					var value = items[year][month][day][hour];
+
+					year_visits += value;
+					day_visits += value;
+				}
+
+				if (days_count < 30) {
+					skeleton.grid.columns[0].days.data.push(day_visits);
+					skeleton.grid.columns[0].days.labels.push(day);
+				}
+
+				days_count++;
+			}
+		}
+
+		skeleton.grid.columns[0].years.data.push(year_visits);
+		skeleton.grid.columns[0].years.labels.push(year);
+	}
+
+	var date = new Date(),
+		year = date.getFullYear(),
+		month = date.getMonth(),
+		week_day = date.getDay(),
+		day = date.getDate(),
+		hour = date.getHours();
+
+	for (var i = 0; i < 12; i++) {
+		if (items[year] && items[year][i]) {
+			var visits = 0;
+
+			for (var j in items[year][i]) {
+				for (var k in items[year][i][j]) {
+					visits += items[year][i][j][k];
+				}
+			}
+
+			skeleton.grid.columns[0].months.data.push(visits);
+		} else {
+			skeleton.grid.columns[0].months.data.push(0);
+		}
+
+		skeleton.grid.columns[0].months.labels.push(months[i]);
+	}
+
+	for (var i = 0; i < 24; i++) {
+		if (items[year] && items[year][month] && items[year][month][day] && items[year][month][day][i]) {
+			skeleton.grid.columns[0].hours.data.push(items[year][month][day][i]);
+		} else {
+			skeleton.grid.columns[0].hours.data.push(0);
+		}
+
+		skeleton.grid.columns[0].hours.labels.push(i);
+	}
+
+	var date = new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -7 : 0)));
+
+	for (var i = 0; i < 7; i++) {
+		date.setDate(date.getDate() + 1);
+
+		var year = date.getFullYear(),
+			month = date.getMonth(),
+			day = date.getDate();
+
+		if (items[year] && items[year][month] && items[year][month][day]) {
+			var visits = 0;
+
+			for (var hour in items[year][month][day]) {
+				visits += items[year][month][day][hour];
+			}
+
+			skeleton.grid.columns[0].week.data.push(visits);
+		} else {
+			skeleton.grid.columns[0].week.data.push(0);
+		}
+
+		skeleton.grid.columns[0].week.labels.push(week_days[i]);
+	}
+
+	for (var key in HM.transitions) {
+		var item = HM.transitions[key];
+
+		skeleton.grid.columns[0].transitions.labels.push(item.transition);
+		skeleton.grid.columns[0].transitions.data.push(item.visitCount);
+	}
+
+	satus.render(skeleton, main);
+}
+
+
+/*--------------------------------------------------------------
+# WEBSITES STATUS
+--------------------------------------------------------------*/
+
+function renderWebsitesStatus(container) {
+	var main = document.querySelector('main');
+
+	satus.empty(main);
+
+	var skeleton = {
+		element: 'grid',
+		columns: [{
+			element: 'table',
+			class: 'satus-table--broken-links',
+			columns: [{
+				label: 'visits',
+				key: 'visitCount'
+			}, {
+				label: 'domain',
+				key: 'domain',
+				intercept: function(cell, value, index, row) {
+					var icon = document.createElement('div'),
+						a = document.createElement('a'),
+						link = row.data.url;
+
+					icon.className = 'favicon';
+					icon.style.background = 'url(chrome://favicon/' + link + ') no-repeat center';
+
+					a.textContent = satus.locale.get(value);
+					a.href = link;
+
+					cell.appendChild(icon);
+					cell.appendChild(a);
+				}
+			}, {
+				label: 'status',
+				key: 'url',
+				intercept: function(cell, value, index, row) {
+					var xhr = new XMLHttpRequest();
+
+					xhr.onreadystatechange = function() {
+						cell.textContent = this.status;
+
+						if (this.status === 200) {
+							cell.style.color = '#0f0';
+						} else if (this.status !== 0) {
+							cell.style.color = '#f00';
+						}
+					};
+
+					try {
+						xhr.open('GET', row.data.url, true);
+						xhr.send();
+					} catch (error) {}
+				}
+			}],
+			onpage: function() {
+				var table = this;
+
+				DB.get('domains', function(items) {
+					table.data = items;
+
+					table.update();
+				}, {
+					index_name: table.order.key + 'Index',
+					direction: table.order.by === 'asc' ? 'next' : 'prev',
+					offset: table.pageIndex * 100 - 100
+				});
+			},
+			onsort: function() {
+				var table = this;
+
+				DB.get('domains', function(items) {
+					table.data = items;
+
+					table.update();
+				}, {
+					index_name: table.order.key + 'Index',
+					direction: table.order.by === 'asc' ? 'next' : 'prev',
+					offset: table.pageIndex * 100 - 100
+				});
+			}
+		}]
+	};
+
+	DB.get('domains', function(items) {
+		DB.count('domains', function(count) {
+			skeleton.columns[0].data = items;
+			skeleton.columns[0].count = count;
+
+			satus.render(skeleton, main);
+
+			document.querySelector('.satus-table--broken-links').update();
+		});
+	}, {
+		index_name: 'visitCountIndex',
+		direction: 'prev'
+	});
+
+	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
+
+	container.classList.add('satus-button--active');
+}
+
+
+/*--------------------------------------------------------------
+# STORAGES
+--------------------------------------------------------------*/
+
+function renderStorages(container) {
+	var main = document.querySelector('main');
+
+	satus.empty(main);
+
+	var skeleton = {
+		element: 'grid',
+		class: 'satus-grid--data',
+		columns: [{
+			0: {
+				element: 'h1',
+				text: 'browser.storage.local'
+			},
+			1: {
+				element: 'div',
+				onrender: function() {
+					function parse(object, parent) {
+						var ul = document.createElement('ul');
+
+						ul.className = 'satus-tree';
+
+						for (var key in object) {
+							var li = document.createElement('li'),
+								button = document.createElement('button');
+
+							li.className = 'satus-tree--item';
+
+							button.className = 'satus-button';
+							button.innerHTML = '<b>' + key + '</b>';
+							button.object = object[key];
+
+							if (typeof object[key] === 'object') {
+								button.className += ' satus-button--object';
+
+								button.addEventListener('click', function() {
+									this.classList.toggle('active');
+
+									if (this.classList.contains('active')) {
+										parse(this.object, this.parentNode);
+									} else {
+										this.nextElementSibling.remove();
+									}
+								});
+							} else {
+								button.innerHTML += ': ' + object[key];
+							}
+
+							li.appendChild(button);
+							ul.appendChild(li);
+						}
+
+						parent.appendChild(ul);
+					}
+
+					parse(satus.storage.data, this);
+				}
+			}
+		}, {
+			0: {
+				element: 'h1',
+				text: 'IndexedDB'
+			},
+			1: {
+				element: 'div',
+				onrender: function() {
+					function parse(object, parent) {
+						var ul = document.createElement('ul');
+
+						ul.className = 'satus-tree';
+
+						for (var key in object) {
+							var li = document.createElement('li'),
+								button = document.createElement('button');
+
+							li.className = 'satus-tree--item';
+
+							button.className = 'satus-button';
+							button.innerHTML = '<b>' + key + '</b>';
+							button.object = object[key];
+
+							if (typeof object[key] === 'object') {
+								button.className += ' satus-button--object';
+
+								button.addEventListener('click', function() {
+									this.classList.toggle('active');
+
+									if (this.classList.contains('active')) {
+										parse(this.object, this.parentNode);
+									} else {
+										this.nextElementSibling.remove();
+									}
+								});
+							} else {
+								button.innerHTML += ': ' + object[key];
+							}
+
+							li.appendChild(button);
+							ul.appendChild(li);
+						}
+
+						parent.appendChild(ul);
+					}
+
+					var self = this,
+						data = {},
+						threads = 0;
+
+					for (var i = 0, l = DB.indexedDB.objectStoreNames.length; i < l; i++) {
+						DB.get(DB.indexedDB.objectStoreNames[i], function(items, object_store_name) {
+							data[object_store_name] = items;
+
+							threads--;
+
+							if (threads === 0) {
+								parse(data, self);
+							}
+						}, {});
+
+						threads++;
+					}
+				}
+			}
+		}]
+	};
+
+	satus.render(skeleton, main);
+
+	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
+
+	container.classList.add('satus-button--active');
+}
+
+
+/*--------------------------------------------------------------
+# BOOKMARKS
+--------------------------------------------------------------*/
+
+function renderBookmarks(container) {
+	var main = document.querySelector('main');
+
+	satus.empty(main);
+
+	var skeleton = {
+		element: 'grid',
+		class: 'satus-grid--data',
+		columns: [{
+			0: {
+				element: 'h1',
+				text: 'bookmarks'
+			},
+			1: {
+				element: 'div',
+				class: 'satus-div--bookmarks',
+				onrender: function() {
+					var self = this;
+
+					function parse(object, parent) {
+						var ul = document.createElement('ul');
+
+						ul.className = 'satus-tree';
+
+						for (var key in object) {
+							if (typeof object[key] === 'object') {
+								if (object[key].children) {
+									var li = document.createElement('li');
+
+									li.className = 'satus-tree--item';
+
+									var button = document.createElement('button');
+
+									button.className = 'satus-button satus-button--object';
+									button.object = object[key];
+									button.textContent = object[key].title;
+
+									button.addEventListener('click', function() {
+										this.classList.toggle('active');
+
+										if (this.classList.contains('active')) {
+											parse(this.object, this.parentNode);
+										} else {
+											this.nextElementSibling.remove();
+										}
+									});
+
+									li.appendChild(button);
+									ul.appendChild(li);
+								} else if (object[key].url) {
+									var li = document.createElement('li');
+
+									li.className = 'satus-tree--item';
+									var a = document.createElement('a'),
+										img = document.createElement('img');
+
+									img.src = 'chrome://favicon/' + object[key].url;
+
+									a.href = object[key].url;
+									a.textContent = object[key].title || object[key].url;
+
+									li.appendChild(img);
+									li.appendChild(a);
+									ul.appendChild(li);
+								} else {
+									parse(object[key], ul);
+								}
+							}
+						}
+
+						parent.appendChild(ul);
+					}
+
+					chrome.bookmarks.getTree(function(bookmarks) {
+						parse(bookmarks[0].children, self);
+					});
+				}
+			}
+		}]
+	};
+
+	satus.render(skeleton, main);
+
+	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
+
+	container.classList.add('satus-button--active');
+}
+
+
+/*--------------------------------------------------------------
+# CHARTS
+--------------------------------------------------------------*/
+
+function renderSettings(container) {
+	var main = document.querySelector('main');
+
+	satus.empty(main);
+
+	var skeleton = {
+		grid: {
+			element: 'grid',
+			class: 'satus-grid--data',
+			columns: [{
+				title: {
+					element: 'h1',
+					text: 'searchEngine'
+				},
+				search_engine: {
+					element: 'select',
+					storage: 'search-engine',
+					options: [{
+						text: 'Google',
+						value: 'google',
+						dataset: {
+							url: 'https://www.google.com/search?q=%s'
+						}
+					}, {
+						text: 'DuckDuckGo',
+						value: 'duckduckgo',
+						dataset: {
+							url: 'https://duckduckgo.com/?q=%s'
+						}
+					}, {
+						text: 'Bing',
+						value: 'bing',
+						dataset: {
+							url: 'https://www.bing.com/search?q=%s'
+						}
+					}, {
+						text: 'Ecosia',
+						value: 'ecosia',
+						dataset: {
+							url: 'https://www.ecosia.org/search?q=%s'
+						}
+					}]
+				}
+			}]
+		}
+	};
+
+	satus.render(skeleton, main);
+
+	document.querySelector('.satus-sidebar .satus-button--active').classList.toggle('satus-button--active');
+
+	container.classList.add('satus-button--active');
+}
 
 
 /*--------------------------------------------------------------

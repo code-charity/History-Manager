@@ -416,7 +416,7 @@ satus.elements.grid = function (skeleton) {
     var grid = document.createElement('div');
 
     grid.className = 'satus-grid';
-    grid.dataset.edit = false;
+    grid.dataset.edit = 'true';
 
     grid.addColumn = function (options) {
         var column = document.createElement('div');
@@ -424,6 +424,7 @@ satus.elements.grid = function (skeleton) {
         column.className = 'satus-grid__column';
 
         column.addItem = this.addItem;
+        column.grid = this.grid || this;
 
 
         this.appendChild(column);
@@ -433,161 +434,133 @@ satus.elements.grid = function (skeleton) {
 
     grid.addItem = function (options) {
         var item = document.createElement('div'),
-            left = document.createElement('div'),
-            right = document.createElement('div'),
-            center = document.createElement('div');
+            container = document.createElement('div'),
+            before = document.createElement('div'),
+            after = document.createElement('div');
 
         item.className = 'satus-grid__item';
-        left.className = 'satus-grid-item__left';
-        right.className = 'satus-grid-item__right';
-        center.className = 'satus-grid-item__center';
+        container.className = 'satus-grid__item-container';
+        before.className = 'satus-grid-item__before';
+        after.className = 'satus-grid-item__after';
 
         if (typeof options !== 'object') {
             options = {};
         }
 
-        //item.draggable = true;
-
         item.options = options;
         item.parent = this.parent || this;
         item.addItem = this.addItem;
+        item.grid = this.grid || this;
 
-        left.parent = item;
-        right.parent = item;
-        center.parent = item;
+        before.parent = item;
+        after.parent = item;
 
-
-        /*// MOUSE OVER
-        item.addEventListener('mouseover', function(event) {
-            if (event.path[0] === this && this.parent.editing === true) {
-                this.classList.add('grid__item--hover');
+        item.addEventListener('mousedown', function(event) {
+            if (grid.dataset.edit !== 'true' || event.button !== 0) {
+                return false;
             }
-        });
 
-        item.addEventListener('mouseout', function(event) {
-            if (event.path[0] === this && this.parent.editing === true) {
-                this.classList.remove('grid__item--hover');
+            var target = this,
+                rect = this.getBoundingClientRect(),
+                offset_x = event.clientX - rect.left,
+                offset_y = event.clientY - rect.top,
+                ghost = document.createElement('div');
+            
+            ghost.className = 'satus-grid__ghost';
+
+            ghost.style.width = target.offsetWidth + 'px';
+            ghost.style.height = target.offsetHeight + 'px';
+
+            document.body.appendChild(ghost);
+
+            this.classList.add('satus-grid__item--dragging');
+
+            this.grid.target = this;
+            this.grid.classList.add('satus-grid--dragging');
+
+            function mousemove(event) {
+                ghost.style.transform = 'translate(' + (event.clientX - offset_x) + 'px, ' + (event.clientY - offset_y) + 'px)';
             }
+            
+            function mouseup() {
+                ghost.remove();
+
+                target.classList.remove('satus-grid__item--dragging');
+
+                target.grid.target = undefined;
+                target.grid.classList.remove('satus-grid--dragging');
+
+                target.grid.hover.classList.remove('satus-grid__item--hover-before');
+                target.grid.hover.classList.remove('satus-grid__item--hover-after');
+
+                window.removeEventListener('mousemove', mousemove);
+                window.removeEventListener('mouseup', mouseup);
+            }
+
+            window.addEventListener('mousemove', mousemove, {passive: true});
+            window.addEventListener('mouseup', mouseup, {passive: true});
+            
+            event.stopPropagation();
+            event.preventDefault();
+
+            return false;
         });
 
+        before.addEventListener('mouseover', function(event) {
+            var item = this.parentNode;
 
-        // DRAG & DROP (CHILD)
-        item.addEventListener('dragstart', function(event) {
-            event.target.parent.dragChild = event.target;
+            if (item.grid.target && item.grid.target !== item) {
+                var column = item.grid.target.parentNode;
 
-            event.target.parent.classList.add('grid--drag');
+                item.classList.add('satus-grid__item--hover-before');
+                item.grid.hover = item;
+                
+                item.parentNode.insertBefore(item.grid.target, item);
 
-            event.target.classList.add('grid__item--drag');
-        });
-
-        item.addEventListener('dragend', function(event) {
-            var parent = this.parent.dragParent,
-                child = this.parent.dragChild;
-
-            if (parent && child) {
-                if (parent.type === 'left') {
-                    var target = parent.target;
-
-                    target.parentNode.insertBefore(target.parent.dragChild, target);
-                } else if (parent.type === 'center') {
-                    var target = parent.target;
-
-                    target.appendChild(target.parent.dragChild);
-                } else if (parent.type === 'right') {
-                    var target = parent.target;
-
-                    target.parentNode.insertBefore(target.parent.dragChild, target.nextElementSibling);
+                if (column.children.length === 0) {
+                    column.remove();
                 }
             }
+        });
 
-            event.target.parent.classList.remove('grid--drag');
+        before.addEventListener('mouseout', function(event) {
+            var item = this.parentNode;
 
-            delete this.parent.dragParent;
-            delete this.parent.dragChild;
+            item.classList.remove('satus-grid__item--hover-before');
+            item.grid.hover = undefined;
+        });
+
+        after.addEventListener('mouseover', function(event) {
+            var item = this.parentNode;
             
-            event.target.classList.remove('grid__item--drag');
-        });
+            if (item.grid.target && item.grid.target !== item) {
+                var column = item.grid.target.parentNode;
 
+                item.grid.hover = item;
+                item.classList.add('satus-grid__item--hover-after');
 
-        // DRAG & DROP (INSERT BEFORE PARENT)
-        left.addEventListener('dragover', function(event) {
-            var target = event.target.parentNode;
+                item.parentNode.insertBefore(item.grid.target, item.nextElementSibling);
 
-            if (target.classList.contains('grid__item--drag') === false) {
-                target.classList.add('grid__item--dragover');
-
-                target.dataset.dragOver = 'left';
-
-                target.parent.dragParent = {
-                    type: 'left',
-                    target: target
-                };
+                if (column.children.length === 0) {
+                    column.remove();
+                }
             }
         });
 
-        left.addEventListener('dragleave', function(event) {
-            var target = event.target.parentNode;
+        after.addEventListener('mouseout', function(event) {
+            var item = this.parentNode;
 
-            delete target.dataset.dragOver;
-
-            target.classList.remove('grid__item--dragover');
+            item.classList.remove('satus-grid__item--hover-after');
+            item.grid.hover = undefined;
         });
 
-        // DRAG & DROP (INSERT TO PARENT)
-        center.addEventListener('dragover', function(event) {
-            var target = event.target.parentNode;
-
-            if (target.classList.contains('grid__item--drag') === false) {
-                target.classList.add('grid__item--dragover');
-
-                target.dataset.dragOver = 'center';
-
-                target.parent.dragParent = {
-                    type: 'center',
-                    target: target
-                };
-            }
-        });
-
-        center.addEventListener('dragleave', function(event) {
-            var target = event.target.parentNode;
-
-            delete target.dataset.dragOver;
-
-            target.classList.remove('grid__item--dragover');
-        });
-
-        // DRAG & DROP (INSERT AFTER PARENT)
-        right.addEventListener('dragover', function(event) {
-            var target = event.target.parentNode;
-
-            if (target.classList.contains('grid__item--drag') === false) {
-                target.classList.add('grid__item--dragover');
-
-                target.dataset.dragOver = 'right';
-
-                target.parent.dragParent = {
-                    type: 'right',
-                    target: target
-                };
-            }
-        });
-
-        right.addEventListener('dragleave', function(event) {
-            var target = event.target.parentNode;
-
-            delete target.dataset.dragOver;
-
-            target.classList.remove('grid__item--dragover');
-        });*/
-
-        item.appendChild(left);
-        item.appendChild(center);
-        item.appendChild(right);
+        item.appendChild(before);
+        item.appendChild(after);
+        item.appendChild(container);
 
         this.appendChild(item);
 
-        return item;
+        return container;
     }
 
     for (var i = 0, l = skeleton.columns.length; i < l; i++) {
