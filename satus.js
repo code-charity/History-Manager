@@ -419,15 +419,75 @@ satus.elements.grid = function (skeleton) {
     grid.dataset.edit = 'true';
 
     grid.addColumn = function (options) {
-        var column = document.createElement('div');
+        var column = document.createElement('div'),
+            before = document.createElement('div'),
+            after = document.createElement('div');
 
         column.className = 'satus-grid__column';
+        before.className = 'satus-grid-column__before';
+        after.className = 'satus-grid-column__after';
 
         column.addItem = this.addItem;
         column.grid = this.grid || this;
 
+        before.addEventListener('mouseover', function(event) {
+            var item = this.parentNode;
 
-        this.appendChild(column);
+            item.classList.add('satus-grid__column--hover-before');
+        });
+
+        before.addEventListener('mouseout', function(event) {
+            var item = this.parentNode;
+
+            item.classList.remove('satus-grid__column--hover-before');
+        });
+
+        before.addEventListener('mouseup', function(event) {
+            var item = this.parentNode,
+                column = item.grid.addColumn(),
+                prev_column = item.grid.target.parentNode;
+
+            item.classList.remove('satus-grid__column--hover-before');
+
+            column.appendChild(item.grid.target);
+
+            item.grid.insertBefore(column, item);
+
+            if (prev_column.children.length === 2) {
+                prev_column.remove();
+            }
+        });
+
+        after.addEventListener('mouseover', function(event) {
+            var item = this.parentNode;
+
+            item.classList.add('satus-grid__column--hover-after');
+        });
+
+        after.addEventListener('mouseout', function(event) {
+            var item = this.parentNode;
+
+            item.classList.remove('satus-grid__column--hover-after');
+        });
+
+        after.addEventListener('mouseup', function(event) {
+            var item = this.parentNode,
+                column = item.grid.addColumn(),
+                prev_column = item.grid.target.parentNode;
+
+            item.classList.remove('satus-grid__column--hover-before');
+
+            column.appendChild(item.grid.target);
+
+            item.grid.insertBefore(column, item.nextElementSibling);
+
+            if (prev_column.children.length === 2) {
+                prev_column.remove();
+            }
+        });
+
+        column.appendChild(before);
+        column.appendChild(after);
 
         return column;
     };
@@ -490,9 +550,6 @@ satus.elements.grid = function (skeleton) {
                 target.grid.target = undefined;
                 target.grid.classList.remove('satus-grid--dragging');
 
-                target.grid.hover.classList.remove('satus-grid__item--hover-before');
-                target.grid.hover.classList.remove('satus-grid__item--hover-after');
-
                 window.removeEventListener('mousemove', mousemove);
                 window.removeEventListener('mouseup', mouseup);
             }
@@ -508,18 +565,9 @@ satus.elements.grid = function (skeleton) {
 
         before.addEventListener('mouseover', function(event) {
             var item = this.parentNode;
-
+            
             if (item.grid.target && item.grid.target !== item) {
-                var column = item.grid.target.parentNode;
-
                 item.classList.add('satus-grid__item--hover-before');
-                item.grid.hover = item;
-                
-                item.parentNode.insertBefore(item.grid.target, item);
-
-                if (column.children.length === 0) {
-                    column.remove();
-                }
             }
         });
 
@@ -527,23 +575,26 @@ satus.elements.grid = function (skeleton) {
             var item = this.parentNode;
 
             item.classList.remove('satus-grid__item--hover-before');
-            item.grid.hover = undefined;
+        });
+
+        before.addEventListener('mouseup', function(event) {
+            var item = this.parentNode,
+                column = item.grid.target.parentNode;
+
+            item.classList.remove('satus-grid__item--hover-before');
+
+            item.parentNode.insertBefore(item.grid.target, item);
+
+            if (column.children.length === 2) {
+                column.remove();
+            }
         });
 
         after.addEventListener('mouseover', function(event) {
             var item = this.parentNode;
             
             if (item.grid.target && item.grid.target !== item) {
-                var column = item.grid.target.parentNode;
-
-                item.grid.hover = item;
                 item.classList.add('satus-grid__item--hover-after');
-
-                item.parentNode.insertBefore(item.grid.target, item.nextElementSibling);
-
-                if (column.children.length === 0) {
-                    column.remove();
-                }
             }
         });
 
@@ -551,7 +602,19 @@ satus.elements.grid = function (skeleton) {
             var item = this.parentNode;
 
             item.classList.remove('satus-grid__item--hover-after');
-            item.grid.hover = undefined;
+        });
+
+        after.addEventListener('mouseup', function(event) {
+            var item = this.parentNode,
+                column = item.grid.target.parentNode;
+
+            item.classList.remove('satus-grid__item--hover-after');
+
+            item.parentNode.insertBefore(item.grid.target, item.nextElementSibling);
+
+            if (column.children.length === 2) {
+                column.remove();
+            }
         });
 
         item.appendChild(before);
@@ -573,6 +636,8 @@ satus.elements.grid = function (skeleton) {
         } else {
             satus.render(skeleton.columns[i], column.addItem());
         }
+
+        grid.appendChild(column);
     }
 
     return grid;
