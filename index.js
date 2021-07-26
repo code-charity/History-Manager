@@ -1343,6 +1343,11 @@ var skeleton = {
 								text: 'searchAutofocusMode',
 								storage: 'search_autofocus',
 								value: true
+							},
+							editor_mode: {
+								element: 'switch',
+								text: 'editorMode',
+								storage: 'editor-mode'
 							}
 						}
 					}
@@ -2088,62 +2093,81 @@ function renderCharts(container) {
 			grid: {
 				element: 'grid',
 				class: 'satus-grid--charts',
-				columns: [{
-					title_hours: {
-						element: 'h1',
-						text: 'byHour'
+				columns: [
+				[
+					{
+						title_hours: {
+							element: 'h1',
+							text: 'byHour'
+						},
+						hours: {
+							element: 'vertical-bars',
+							labels: [],
+							data: []
+						}
 					},
-					hours: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_days: {
-						element: 'h1',
-						text: 'byDay'
-					},
-					days: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_week: {
-						element: 'h1',
-						text: 'byWeek'
-					},
-					week: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_months: {
-						element: 'h1',
-						text: 'byMonth'
-					},
-					months: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_years: {
-						element: 'h1',
-						text: 'byYear'
-					},
-					years: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
-					},
-					title_transitions: {
-						element: 'h1',
-						text: 'transitions'
-					},
-					transitions: {
-						element: 'vertical-bars',
-						labels: [],
-						data: []
+					{
+						title_week: {
+							element: 'h1',
+							text: 'byWeek'
+						},
+						week: {
+							element: 'vertical-bars',
+							labels: [],
+							data: []
+						}
 					}
-				}]
+				],
+				[
+					{
+						title_days: {
+							element: 'h1',
+							text: 'byDay'
+						},
+						days: {
+							element: 'vertical-bars',
+							labels: [],
+							data: []
+						}
+					},
+					{
+						title_months: {
+							element: 'h1',
+							text: 'byMonth'
+						},
+						months: {
+							element: 'vertical-bars',
+							labels: [],
+							data: []
+						}
+					}
+				],
+				[
+
+					{
+						title_transitions: {
+							element: 'h1',
+							text: 'transitions'
+						},
+						transitions: {
+							element: 'vertical-bars',
+							labels: [],
+							data: []
+						}
+					},
+					{
+						title_years: {
+							element: 'h1',
+							text: 'byYear'
+						},
+						years: {
+							element: 'vertical-bars',
+							labels: [],
+							data: []
+						}
+					}
+				]
+				]
 			}
 		};
 
@@ -2170,16 +2194,16 @@ function renderCharts(container) {
 				}
 
 				if (days_count < 30) {
-					skeleton.grid.columns[0].days.data.push(day_visits);
-					skeleton.grid.columns[0].days.labels.push(day);
+					skeleton.grid.columns[1][0].days.data.push(day_visits);
+					skeleton.grid.columns[1][0].days.labels.push(day);
 				}
 
 				days_count++;
 			}
 		}
 
-		skeleton.grid.columns[0].years.data.push(year_visits);
-		skeleton.grid.columns[0].years.labels.push(year);
+		skeleton.grid.columns[2][1].years.data.push(year_visits);
+		skeleton.grid.columns[2][1].years.labels.push(year);
 	}
 
 	var date = new Date(),
@@ -2199,22 +2223,22 @@ function renderCharts(container) {
 				}
 			}
 
-			skeleton.grid.columns[0].months.data.push(visits);
+			skeleton.grid.columns[1][1].months.data.push(visits);
 		} else {
-			skeleton.grid.columns[0].months.data.push(0);
+			skeleton.grid.columns[1][1].months.data.push(0);
 		}
 
-		skeleton.grid.columns[0].months.labels.push(months[i]);
+		skeleton.grid.columns[1][1].months.labels.push(months[i]);
 	}
 
 	for (var i = 0; i < 24; i++) {
 		if (items[year] && items[year][month] && items[year][month][day] && items[year][month][day][i]) {
-			skeleton.grid.columns[0].hours.data.push(items[year][month][day][i]);
+			skeleton.grid.columns[0][0].hours.data.push(items[year][month][day][i]);
 		} else {
-			skeleton.grid.columns[0].hours.data.push(0);
+			skeleton.grid.columns[0][0].hours.data.push(0);
 		}
 
-		skeleton.grid.columns[0].hours.labels.push(i);
+		skeleton.grid.columns[0][0].hours.labels.push(i);
 	}
 
 	var date = new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -7 : 0)));
@@ -2233,19 +2257,19 @@ function renderCharts(container) {
 				visits += items[year][month][day][hour];
 			}
 
-			skeleton.grid.columns[0].week.data.push(visits);
+			skeleton.grid.columns[0][1].week.data.push(visits);
 		} else {
-			skeleton.grid.columns[0].week.data.push(0);
+			skeleton.grid.columns[0][1].week.data.push(0);
 		}
 
-		skeleton.grid.columns[0].week.labels.push(week_days[i]);
+		skeleton.grid.columns[0][1].week.labels.push(week_days[i]);
 	}
 
 	for (var key in HM.transitions) {
 		var item = HM.transitions[key];
 
-		skeleton.grid.columns[0].transitions.labels.push(item.transition);
-		skeleton.grid.columns[0].transitions.data.push(item.visitCount);
+		skeleton.grid.columns[2][0].transitions.labels.push(item.transition);
+		skeleton.grid.columns[2][0].transitions.data.push(item.visitCount);
 	}
 
 	satus.render(skeleton, main);
@@ -2662,7 +2686,8 @@ satus.storage.load(function(items) {
 
 		satus.storage.attributes = [
 			'dark-theme',
-			'privacy-mode'
+			'privacy-mode',
+			'editor-mode'
 		];
 
 		satus.render({
