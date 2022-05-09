@@ -1,1 +1,0 @@
-REGEX_PARAMS = /[?&](q|search)=([^&]+)/;

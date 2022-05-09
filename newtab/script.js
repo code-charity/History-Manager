@@ -1,32 +1,35 @@
 /*--------------------------------------------------------------
->>> CONTENT SCRIPTS
+>>> SCRIPT
 ----------------------------------------------------------------
-# Clipboard
-# Keyboard
+# Skeleton
+# Initialization
 --------------------------------------------------------------*/
 
 /*--------------------------------------------------------------
-# CLIPBOARD
+# SKELETON
 --------------------------------------------------------------*/
 
-document.addEventListener('copy', function (event) {
-	chrome.extension.sendMessage({
-		type: 'clipboard',
-		href: location.href
-	});
-});
+var skeleton = {
+	component: 'base',
 
+	header: {
+		component: 'header'
+	},
+	main: {
+		component: 'main',
 
-/*--------------------------------------------------------------
-# KEYBOARD
---------------------------------------------------------------*/
-
-window.addEventListener('keypress', function (event) {
-	if (event.key.length === 1) {
-		chrome.extension.sendMessage({
-			type: 'keypress',
-			key: event.key,
-			href: location.href
-		});
+		sidebar: {
+			component: 'sidebar'
+		},
+		layers: {
+			component: 'layers'
+		}
 	}
-});
+};
+
+
+/*--------------------------------------------------------------
+# INITIALIZATION
+--------------------------------------------------------------*/
+
+satus.render(skeleton);

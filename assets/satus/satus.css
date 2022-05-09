@@ -1,0 +1,1344 @@
+/*--------------------------------------------------------------
+>>> NORMALIZE
+--------------------------------------------------------------*/
+
+:where([class^=satus]) {
+	box-sizing: border-box;
+}
+
+:where([class^=satus])[hidden]:not([hidden^='hidden']) {
+	display: none;
+}
+
+
+/*--------------------------------------------------------------
+# SCROLLBAR
+--------------------------------------------------------------*/
+
+.satus-base ::-webkit-scrollbar {
+    width: 4px;
+}
+
+.satus-base ::-webkit-scrollbar:hover {
+    width: 8px;
+}
+
+.satus-base ::-webkit-scrollbar-thumb {
+    background: rgba(var(--satus-light), .2);
+}
+
+.satus-base ::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--satus-light), .3);
+}
+/*--------------------------------------------------------------
+# ANIMATIONS
+--------------------------------------------------------------*/
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(.8);
+        opacity: 0;
+    }
+}
+/*--------------------------------------------------------------
+>>> THEMES
+--------------------------------------------------------------*/
+
+.satus-base {
+	--satus-light: 0, 20, 82;
+	--satus-primary: #ff4158;
+
+	--satus-base-background: #f3f4f6;
+	--satus-base-text: #565e76;
+
+	--satus-header-background: #fff;
+	--satus-header-text: #565e76;
+	--satus-header-shadow: #dcdee5;
+
+	--satus-layers-background: var(--satus-base-background);
+	--satus-layers-text: #565e76;
+
+	--satus-section-background: #fff;
+    --satus-section-border: #dcdee5;
+
+	--satus-sidebar-background: #fff;
+	--satus-sidebar-text: #565e76;
+	--satus-sidebar-shadow: #dcdee5;
+
+	--satus-modal-background: 255, 255, 255;
+	--satus-modal-text: 103, 118, 142;
+	--satus-modal-shadow: #7d86a1;
+
+	--satus-text-field-background: #edf0f2;
+	--satus-text-field-border: #dcdee5;
+	--satus-text-field-color: #7d8ba1;
+	--satus-text-field-selection: rgb(149, 166, 178, .35);
+	--satus-text-field-cursor: #fa0;
+
+	--satus-switch-track: #e1e4ea;
+	--satus-switch-thumb: #fff;
+
+	--satus-main-background: #f0f2f4;
+}
+/*--------------------------------------------------------------
+>>> BASE
+--------------------------------------------------------------*/
+
+.satus-base {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	color: var(--satus-base-text);
+	background: var(--satus-base-background);
+}
+/*--------------------------------------------------------------
+>>> MODAL
+----------------------------------------------------------------
+# Container
+# Scrim
+# Surface
+# Variants
+	# Vertical menu
+--------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------
+# CONTAINER
+--------------------------------------------------------------*/
+
+.satus-modal {
+	position: fixed;
+	z-index: 9;
+	top: 0;
+	left: 0;
+	display: flex;
+	width: 100%;
+	height: 100vh;
+	justify-content: center;
+	align-items: center;
+}
+
+
+/*--------------------------------------------------------------
+# SCRIM
+--------------------------------------------------------------*/
+
+.satus-modal__scrim {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	animation: fadeIn 150ms linear forwards;
+	opacity: 0;
+	background: rgba(0, 0, 0, .16);
+	backdrop-filter: blur(8px);
+}
+
+.satus-modal--closing .satus-modal__scrim {
+	animation: fadeOut 70ms linear forwards;
+}
+
+
+/*--------------------------------------------------------------
+# SURFACE
+--------------------------------------------------------------*/
+
+.satus-modal__surface {
+	display: flex;
+	overflow-y: auto;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: 95%;
+	min-width: 240px;
+	max-width: 560px;
+	max-height: 80%;
+	margin: 8px;
+	padding: 12px 16px;
+	transform: scale(.8);
+	animation: zoomIn 150ms linear forwards;
+	animation-delay: 20ms;
+	opacity: 0;
+	color: rgb(var(--satus-modal-text));
+	border-radius: 6px;
+	background-color: rgb(var(--satus-modal-background));
+	box-shadow: 0 1px 4px var(--satus-modal-shadow);
+}
+
+.satus-modal--closing .satus-modal__surface {
+	animation: zoomOut 70ms linear forwards;
+}
+
+
+/*--------------------------------------------------------------
+# VARIANTS
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# VERTICAL MENU
+--------------------------------------------------------------*/
+
+.satus-modal--vertical-menu .satus-modal__surface {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	left: auto;
+	min-width: 200px;
+	max-width: 200px;
+	margin: 0;
+	padding: 8px 0;
+	transform-origin: right top;
+}
+
+.satus-modal--vertical-menu .satus-modal__surface>.satus-button,
+.satus-modal--vertical-menu .satus-modal__surface>.satus-switch,
+.satus-modal--vertical-menu .satus-modal__surface>.satus-select {
+	height: 36px;
+	padding: 0 16px;
+}
+
+.satus-modal--vertical-menu .satus-modal__surface>.satus-tabs {
+	padding: 0 12px;
+}
+
+.satus-modal--vertical-menu .satus-modal__surface>.satus-span {
+	font-size: 13px;
+	font-weight: 500;
+	margin: 6px 0;
+	padding: 0 12px;
+}
+
+.satus-modal--vertical-menu .satus-button svg {
+	width: 20px;
+	height: 18px;
+	margin: 0 14px 0 0;
+	opacity: .75;
+	flex: 0 0 20px;
+}
+
+.satus-modal--vertical-menu .satus-button .satus-span {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+/*--------------------------------------------------------------
+>>> MAIN
+--------------------------------------------------------------*/
+
+.satus-main {
+	display: flex;
+	background: var(--satus-main-background);
+	flex: 1
+}
+/*--------------------------------------------------------------
+>>> SIDEBAR
+--------------------------------------------------------------*/
+
+.satus-sidebar {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    width: 56px;
+    padding: 12px 0;
+    color: var(--satus-sidebar-text);
+    background: var(--satus-sidebar-background);
+    box-shadow: 1px 0 0 var(--satus-sidebar-shadow)
+}
+/*--------------------------------------------------------------
+>>> LIST:
+--------------------------------------------------------------*/
+
+.satus-list {
+	list-style: none;
+    margin: 0;
+}
+
+.satus-list__item {
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0 16px;
+}
+
+.satus-list__item>*:not(:first-child) {
+    margin-left: 8px;
+}
+
+.satus-list__item>*:last-child {
+    text-align: right;
+}
+/*--------------------------------------------------------------
+>>> BUTTON
+----------------------------------------------------------------
+# Base
+# Basic
+# Icon
+--------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------
+# BASE
+--------------------------------------------------------------*/
+
+.satus-button {
+	font: inherit;
+	position: relative;
+	display: inline-flex;
+	overflow: hidden;
+	height: 36px;
+	padding: 8px;
+	color: inherit;
+	border: none;
+	background: transparent;
+	appearance: none;
+	align-items: center;
+}
+
+.satus-button:hover {
+	cursor: pointer;
+}
+
+.satus-button svg {
+	max-width: 24px;
+	max-height: 24px;
+	width: 100%;
+	height: 100%;
+}
+
+
+/*--------------------------------------------------------------
+# BASIC
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# ICON
+--------------------------------------------------------------*/
+
+.satus-button--icon {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	transition: background .3s cubic-bezier(.25,.8,.5,1);
+}
+
+.satus-button--icon:hover {
+	background: rgba(var(--satus-light), .08);
+}
+
+.satus-button--icon:focus {
+	background: rgba(var(--satus-light), .24);
+}
+
+.satus-button--icon svg {
+	width: 24px;
+	height: 24px;
+}
+/*--------------------------------------------------------------
+>>> RADIO
+--------------------------------------------------------------*/
+/*--------------------------------------------------------------
+>>> CHECKBOX
+--------------------------------------------------------------*/
+
+.satus-checkbox {
+    position: relative;
+    font: inherit;
+    display: flex;
+    color: inherit;
+    border: none;
+    background: transparent;
+    appearance: none;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.satus-checkbox:hover {
+    cursor: pointer;
+    background-color: var(--satus-hover);
+}
+
+.satus-checkbox:focus {
+    outline: none;
+}
+
+.satus-checkbox__content {
+    display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.satus-checkbox::before {
+    display: flex;
+    min-width: 16px;
+    width: 16px;
+    height: 16px;
+    margin: 0 12px 0 0;
+    content: '';
+    border: 1px solid var(--satus-checkbox--border);
+    border-radius: 6px;
+    background: var(--satus-checkbox--background);
+    align-items: center;
+    justify-content: center;
+}
+
+.satus-checkbox[data-value=true]::before {
+    background: var(--satus-primary);
+}
+
+.satus-checkbox[data-value=true]::after {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 8px;
+    height: 4px;
+    content: '';
+    transform: rotate(-45deg);
+    border: 2px solid var(--satus-checkbox--mark);
+    border-top: none;
+    border-right: none;
+}
+/*--------------------------------------------------------------
+>>> GRID
+--------------------------------------------------------------*/
+
+.satus-grid {
+	display: flex;
+	align-items: stretch;
+	height: 100%;
+	padding: 8px;
+}
+/*--------------------------------------------------------------
+>>> SELECT
+--------------------------------------------------------------*/
+
+.satus-select {
+	position: relative;
+	display: flex;
+	cursor: pointer;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.satus-select:hover {
+	background-color: var(--satus-hover);
+}
+
+.satus-select>span:nth-child(2) {
+	display: flex;
+	align-items: center;
+}
+
+.satus-select>span:nth-child(2)>svg {
+	width: 20px;
+	height: 18px;
+	margin: 0 14px 0 0;
+	opacity: .75;
+}
+
+.satus-select>span:nth-child(3) {
+	margin-left: 16px;
+	text-align: right;
+	opacity: .75;
+}
+
+.satus-select select {
+	font: inherit;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: inherit;
+	opacity: 0;
+	border: none;
+	outline: none;
+	appearance: none;
+	z-index: 1;
+	cursor: inherit;
+}
+
+.satus-select option {
+	color: var(--satus-select-text);
+	background: var(--satus-select-background);
+}
+/*--------------------------------------------------------------
+>>> SHORTCUT:
+----------------------------------------------------------------
+# 
+--------------------------------------------------------------*/
+
+.satus-shortcut__value {
+    font-size: 11px;
+
+    display: flex;
+
+    margin-left: 16px;
+
+    text-transform: uppercase;
+
+    align-items: center;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.satus-shortcut__actions {
+    display: flex;
+
+    justify-content: flex-end;
+}
+
+.satus-shortcut__actions .satus-button {
+    height: 32px;
+    margin: 8px 4px 0;
+
+    border-radius: 8px;
+    background: rgba(0, 0, 0, .15);
+}
+
+.satus-shortcut__actions .satus-button:hover {
+    background: rgba(0, 0, 0, .25);
+}
+
+.satus-shortcut__primary {
+    display: flex;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: 68px;
+    padding: 16px;
+
+    background: rgba(0, 0, 0, .16);
+
+    align-items: center;
+}
+
+.satus-shortcut__key {
+    display: flex;
+
+    box-sizing: border-box;
+    min-width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .15), inset 0 -3px 0 rgba(0, 0, 0, .1);
+
+    align-items: center;
+    justify-content: center;
+}
+
+.satus-shortcut__value>.satus-shortcut__key {
+    font-size: 14px;
+
+    min-width: 24px;
+    height: 24px;
+}
+
+.satus-shortcut__plus {
+    position: relative;
+
+    width: 12px;
+    height: 12px;
+    margin: 8px;
+}
+
+.satus-shortcut__plus::before {
+    position: absolute;
+    top: 0;
+    left: 5px;
+
+    width: 2px;
+    height: 12px;
+
+    content: '';
+
+    background-color: #aaa;
+}
+
+.satus-shortcut__plus::after {
+    position: absolute;
+    top: 5px;
+    left: 0;
+
+    width: 12px;
+    height: 2px;
+
+    content: '';
+
+    background-color: #aaa;
+}
+
+.satus-shortcut__mouse {
+    position: relative;
+
+    display: flex;
+
+    width: 28px;
+    height: 36px;
+
+    border-radius: 50%;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .15), inset 0 -3px 0 rgba(0, 0, 0, .1);
+}
+
+.satus-shortcut__value>.satus-shortcut__mouse {
+    width: 22px;
+    height: 28px;
+}
+
+.satus-shortcut__mouse>div {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 1px);
+
+    width: 2px;
+    height: 11px;
+
+    border-radius: 2px;
+    background: #ccc;
+}
+
+.satus-shortcut__mouse::before {
+    position: absolute;
+    top: -16%;
+    right: 14%;
+
+    width: 2px;
+    height: 60%;
+
+    content: '';
+
+    background: #f96754;
+}
+
+.satus-shortcut__mouse.false::before {
+    top: -6%;
+}
+
+.satus-shortcut__mouse.false::after {
+    position: absolute;
+    top: -20%;
+    right: calc(14% - 4px);
+
+    width: 0;
+    height: 0;
+
+    content: '';
+
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid #f96754;
+    border-left: 5px solid transparent;
+}
+
+.satus-shortcut__mouse.true::after {
+    position: absolute;
+    top: 40%;
+    right: calc(14% - 4px);
+
+    width: 0;
+    height: 0;
+
+    content: '';
+
+    border-top: 8px solid #f96754;
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
+}
+
+.satus-shortcut__mouse.click::before {
+    position: absolute;
+    top: 0;
+    left: -1px;
+
+    width: 10px;
+    height: 10px;
+
+    content: '';
+
+    border-radius: 50%;
+    background: #f96754;
+}
+
+.satus-shortcut__mouse.middle::before {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 50%;
+
+    width: 10px;
+    height: 10px;
+
+    content: '';
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+    background: #f96754;
+}
+
+.satus-shortcut__mouse.context::before {
+    position: absolute;
+    top: 0;
+    left: 15px;
+
+    width: 10px;
+    height: 10px;
+
+    content: '';
+
+    border-radius: 50%;
+    background: #f96754;
+}
+
+.satus-section_shortcut {
+    width: 100%;
+    margin: 8px 0 0;
+
+    justify-content: flex-end;
+}
+
+.satus-button_shortcut {
+    font-weight: 500;
+
+    overflow: hidden;
+
+    height: 28px;
+    min-height: 28px;
+    margin-right: 2px;
+    padding: 4px 8px;
+
+    text-transform: uppercase;
+
+    color: #f96754;
+    border-radius: 4px;
+}
+/*--------------------------------------------------------------
+>>> TEXT FIELD
+----------------------------------------------------------------
+# Parts
+    # Container
+    # Input
+    # 
+# Syntax highlighting
+    # Regular expression
+--------------------------------------------------------------*/
+
+.satus-text-field {
+    position: relative;
+    overflow: hidden;
+    height: 36px;
+    color: var(--satus-text-field-color, inherit);
+    border-radius: 4px;
+    background: var(--satus-text-field-background);
+    border: 1px solid var(--satus-text-field-border);
+}
+
+.satus-text-field__input {
+    font: inherit;
+    position: absolute;
+    z-index: 9;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    padding: 0 12px;
+    border: none;
+    border-radius: 4px;
+    appearance: none;
+    color: inherit;
+    outline: none;
+}
+
+.satus-text-field__input:not(:empty) {
+    opacity: 0;
+}
+
+.satus-text-field__pre {
+    font: inherit;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    height: 100%;
+    margin: 0 12px;
+    align-items: center;
+}
+
+.satus-text-field__hidden-value {
+    font: inherit;
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.satus-text-field__selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    width: 0;
+    height: 22px;
+    margin: 8px 12px 6px;
+    border: 1px solid var(--satus-text-field-selection);
+    border-radius: 3px;
+    background: var(--satus-text-field-selection);
+}
+
+.satus-text-field__cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    width: 2px;
+    height: 24px;
+    margin: 6px 10px 5px;
+    animation: blink 1s step-end 8;
+    background: var(--satus-text-field-cursor);
+}
+
+.satus-text-field__input:focus+*+*+*+.satus-text-field__cursor,
+.satus-text-field__selection:not([disabled]) {
+    display: block;
+}
+
+@keyframes blink {
+    from,
+    to {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+
+/*--------------------------------------------------------------
+# SYNTAX HIGHLIGHTING
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# REGULAR EXPRESSION
+--------------------------------------------------------------*/
+
+.satus-text-field__pre>.group {
+    color: #47ff47;
+    background-color: rgb(71, 255, 71, .16);
+}
+
+.satus-text-field__pre>.character-class {
+    color: #ffc247;
+    background-color: rgb(255, 170, 0, .16);
+}
+
+.satus-text-field__pre>.quantifier {
+    color: #47c2ff;
+    background-color: rgb(71, 194, 255, .16);
+}
+
+.satus-text-field__pre>.anchor {
+    color: #47c2ff;
+    background-color: rgb(71, 194, 255, .16);
+}
+
+.satus-text-field__pre>.metasequence {
+    color: #47ff47;
+    background-color: rgb(71, 255, 71, .16);
+}
+
+.satus-text-field__pre>.text {
+    color: #c4c4d4;
+    background-color: rgb(196, 196, 212, .16);
+}
+/*--------------------------------------------------------------
+>>> SWITCH
+----------------------------------------------------------------
+# Container
+# Track
+# Thumb
+--------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------
+# CONTAINER
+--------------------------------------------------------------*/
+
+.satus-switch {
+    font: inherit;
+    display: flex;
+    transition: background-color 75ms;
+    color: inherit;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.satus-switch:hover {
+    cursor: pointer;
+}
+
+.satus-switch__content {
+    display: flex;
+    align-items: center;
+}
+
+.satus-switch__content>svg {
+    width: 20px;
+    height: 18px;
+    margin: 0 14px 0 0;
+    opacity: .75;
+}
+
+
+/*--------------------------------------------------------------
+# TRACK
+--------------------------------------------------------------*/
+
+.satus-switch>i {
+    width: 32px;
+    height: 18px;
+    transition: background-color 150ms;
+    border-radius: 18px;
+    background-color: var(--satus-switch-track);
+    flex: 0 0 32px;
+}
+
+.satus-section--card .satus-switch>i {
+    margin-left: 16px;
+}
+
+.satus-switch[data-value='true']>i {
+    background-color: var(--satus-primary);
+}
+
+
+/*--------------------------------------------------------------
+# THUMB
+--------------------------------------------------------------*/
+
+.satus-switch>i::before {
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 2px;
+    content: '';
+    transition: transform 150ms cubic-bezier(.4, 0, .2, 1);
+    border-radius: 50%;
+    background-color: var(--satus-switch-thumb);
+    will-change: transform;
+}
+
+.satus-switch[data-value='true']>i::before {
+    transform: translateX(14px);
+}
+/*--------------------------------------------------------------
+>>> HEADER
+--------------------------------------------------------------*/
+
+.satus-header {
+	z-index: 1;
+	display: flex;
+	height: 56px;
+	padding: 0 12px;
+	color: var(--satus-header-text);
+	background: var(--satus-header-background);
+	box-shadow: 0 1px 0 var(--satus-header-shadow);
+	justify-content: space-between;
+	align-items: center;
+}
+
+.satus-span--title {
+	font-size: 16px;
+}
+/*--------------------------------------------------------------
+>>> SECTION
+----------------------------------------------------------------
+# Card
+--------------------------------------------------------------*/
+
+.satus-section {
+	display: flex;
+	box-sizing: border-box;
+	flex-wrap: wrap;
+}
+
+
+/*--------------------------------------------------------------
+# CARD
+--------------------------------------------------------------*/
+
+.satus-section--card {
+	flex-direction: column;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 900px;
+	margin: 8px auto;
+	padding: 8px 0;
+	border: 1px solid var(--satus-section-border);
+	border-radius: 8px;
+	background: var(--satus-section-background);
+	justify-content: stretch;
+}
+
+.satus-section--label {
+	display: block;
+	width: 100%;
+	max-width: 900px;
+	margin: 8px auto;
+}
+
+.satus-section--card>.satus-button,
+.satus-section--card>.satus-color-picker,
+.satus-section--card>.satus-radio,
+.satus-section--card>.satus-select,
+.satus-section--card>.satus-shortcut,
+.satus-section--card>.satus-slider,
+.satus-section--card>.satus-switch,
+.satus-section--card>.satus-span {
+	display: flex;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 48px;
+	padding: 8px 16px;
+	text-align: left;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.satus-section--card>.satus-button:hover,
+.satus-section--card>.satus-color-picker:hover,
+.satus-section--card>.satus-radio:hover,
+.satus-section--card>.satus-select:hover,
+.satus-section--card>.satus-shortcut:hover,
+.satus-section--card>.satus-slider:hover,
+.satus-section--card>.satus-switch:hover {
+	background-color: rgba(var(--satus-light), .06);
+}
+
+.satus-section--card>.satus-button {
+	justify-content: flex-start;
+}
+
+.satus-section--card>.satus-button>svg {
+	width: 20px;
+	margin: 2px 16px 0 0;
+	color: var(--satus-primary);
+}
+
+.satus-section--card>.satus-span {
+	display: flex;
+	align-items: center;
+}
+
+
+/*--------------------------------------------------------------
+# ALIGN
+--------------------------------------------------------------*/
+
+.satus-section--align-start {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.satus-section--align-start>*:not(:last-child) {
+	margin-right: 8px;
+}
+
+.satus-section--align-end {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.satus-section--align-end>*:not(:first-child) {
+	margin-left: 8px;
+}
+/*--------------------------------------------------------------
+>>> COLOR PICKER:
+----------------------------------------------------------------
+# Button
+# Modal
+--------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------
+# BUTTON
+--------------------------------------------------------------*/
+
+.satus-color-picker {
+    font-size: inherit;
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    margin: 0;
+    cursor: pointer;
+    color: inherit;
+    border: none;
+    outline: none;
+    background-color: var(--satus-theme-button);
+    justify-content: space-between;
+    -webkit-tap-highlight-color: transparent;
+    align-items: center;
+    -webkit-appearance: none;
+}
+
+.satus-color-picker__value {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(0, 0, 0, .16);
+    border-radius: 50%;
+}
+
+
+/*--------------------------------------------------------------
+# MODAL
+--------------------------------------------------------------*/
+
+.satus-modal--color-picker {
+    position: relative;
+}
+
+.satus-modal--color-picker .satus-modal__surface {
+    padding: 8px;
+}
+
+.satus-color-picker__palette {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 256px;
+    background-color: #f00;
+    border-radius: 5px;
+}
+
+.satus-color-picker__palette:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    content: '';
+    background-image: linear-gradient(0deg, black, transparent), linear-gradient(90deg, white, transparent);
+}
+
+.satus-color-picker__cursor {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #000;
+}
+
+.satus-modal--color-picker .satus-modal__surface .satus-section--color {
+    margin: 8px 16px 0;
+    align-items: center;
+}
+
+.satus-color-picker__color {
+    width: 32px;
+    height: 32px;
+    margin: 0 16px 0 0;
+    border: 2px solid rgba(0, 0, 0, .16);
+    border-radius: 50%;
+    background: #f00;
+}
+
+.satus-slider.satus-color-picker__hue {
+    padding: 0;
+    flex: 1;
+}
+
+.satus-color-picker__hue .satus-slider__track {
+    height: 16px;
+    border-radius: 4px;
+    background-image: linear-gradient(90deg, #f00, #ff2a00, #f50, #ff7f00, #fa0, #ffd400, #ff0, #d4ff00, #af0, #80ff00, #5f0, #2bff00, #0f0, #00ff2b, #0f5, #00ff80, #0fa, #00ffd5, #0ff, #00d4ff, #0af, #007fff, #05f, #002bff, #00f, #2a00ff, #50f, #7f00ff, #a0f, #d400ff, #f0f, #ff00d4, #f0a, #ff0080, #f05, #ff002b, #f00);
+}
+
+.satus-color-picker__hue .satus-slider__handle {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    box-shadow: 0 0 4px rgb(0, 0, 0, .64);
+}
+
+.satus-color-picker__hue::before,
+.satus-color-picker__hue .satus-slider__track-fill,
+.satus-color-picker__hue .satus-slider__handle:focus::after {
+    display: none;
+}
+/*--------------------------------------------------------------
+>>> LAYERS
+--------------------------------------------------------------*/
+
+.satus-layers {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+}
+
+.satus-layers__layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    color: var(--satus-layers-text);
+    background: var(--satus-layers-background);
+}
+/*--------------------------------------------------------------
+>>> SLIDER
+--------------------------------------------------------------*/
+
+.satus-slider__track {
+    height: 32px;
+}
+
+.satus-slider__track__range {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/*.satus-slider {
+    display: block;
+    background: #fff;
+}
+
+.satus-slider__label {
+    display: flex;
+    margin: 12px 0 0;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.satus-slider .satus-input[type=number] {
+    font: inherit;
+    width: 64px;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    color: inherit;
+    background: transparent;
+}
+
+.satus-slider__track {
+    position: relative;
+    display: block;
+    min-width: 128px;
+    height: 40px;
+    margin: 0 2px;
+}
+
+.satus-slider__track::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 2px;
+    content: '';
+    transform: translateY(-50%);
+    opacity: .24;
+    background: var(--satus-primary);
+}
+
+.satus-slider__slice {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    transform: translateY(-50%);
+    background: var(--satus-primary);
+}
+
+.satus-slider__slice::before {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: block;
+    width: 22px;
+    height: 22px;
+    content: '';
+    transition: width 200ms, height 200ms, opacity 200ms;
+    transform: translate(50%, -50%);
+    opacity: 0;
+    border-radius: 50%;
+    background: var(--satus-primary);
+}
+
+.satus-slider__track:focus .satus-slider__slice::before {
+    width: 32px;
+    height: 32px;
+    opacity: .16;
+}
+
+.satus-slider__slice::after {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: block;
+    width: 10px;
+    height: 10px;
+    content: '';
+    transition: width 200ms, height 200ms;
+    transform: translate(50%, -50%);
+    border-radius: 50%;
+    background: var(--satus-primary);
+}
+
+.satus-slider__track:focus .satus-slider__slice::after {
+    width: 12px;
+    height: 12px;
+}*/
