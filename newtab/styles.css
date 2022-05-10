@@ -3,6 +3,12 @@
 ----------------------------------------------------------------
 # Fonts
 # Body
+# Themes
+# Skeleton
+	# Header
+	# Main
+		# Sidebar
+		# Layers
 --------------------------------------------------------------*/
 
 /*--------------------------------------------------------------
@@ -11,6 +17,7 @@
 
 @font-face {
 	font-family: Roboto;
+
 	src: url(../assets/fonts/Roboto-Regular.ttf);
 }
 
@@ -21,7 +28,75 @@
 
 body {
 	font-family: Roboto, sans-serif;
+	font-size: 16px;
+
 	overflow: hidden;
+
 	height: 100vh;
 	margin: 0;
+}
+
+
+/*--------------------------------------------------------------
+# THEMES
+--------------------------------------------------------------*/
+
+.satus-base {
+	--satus-base-background: #fff;
+	--satus-main-background: #fff;
+}
+
+
+/*--------------------------------------------------------------
+# SKELETON
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# HEADER
+--------------------------------------------------------------*/
+
+.satus-header {
+	box-shadow: none;
+}
+
+.satus-header>* {
+	flex: 1;
+}
+
+.satus-header .satus-text-field {
+	flex-direction: row-reverse;
+}
+
+.satus-header .satus-text-field>.satus-button {
+	width: 20px;
+	height: 20px;
+	margin: 0 0 0 8px;
+
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+}
+
+
+/*--------------------------------------------------------------
+# MAIN
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# SIDEBAR
+--------------------------------------------------------------*/
+
+.satus-sidebar {
+	box-shadow: none;
+}
+
+
+/*--------------------------------------------------------------
+# LAYERS
+--------------------------------------------------------------*/
+
+.satus-layers {
+	border: 1px solid var(--satus-header-shadow);
+	border-right: none;
+	border-bottom: none;
 }

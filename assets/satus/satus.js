@@ -10,6 +10,7 @@
 # CSS
 # Empty
 # Events
+# Get property
 # Is
 # On
 # Render
@@ -123,7 +124,9 @@ satus.class = function (element, className) {
 
 satus.createElement = function (tagName, componentName, namespaceURI) {
 	var camelizedTagName = this.camelize(tagName),
-		element;
+		className = 'satus-' + (componentName || tagName),
+		element,
+		match = className.match(/__[^__]+/g);
 
 	if (!namespaceURI) {
 		if (tagName === 'svg') {
@@ -139,8 +142,12 @@ satus.createElement = function (tagName, componentName, namespaceURI) {
 		element = document.createElement(tagName);
 	}
 
+	if (match && match.length > 1) {
+		className = className.slice(0, className.indexOf('__')) + match[match.length - 1];
+	}
+
 	element.componentName = componentName;
-	element.className = 'satus-' + (componentName || tagName);
+	element.className = className;
 
 	element.createChildElement = function (tagName, componentName, namespaceURI) {
 		var element = satus.createElement(tagName, this.componentName + '__' + (componentName || tagName), namespaceURI);
@@ -237,6 +244,29 @@ satus.fetch = function (url, success, error) {
     }).catch(function () {
         error(success);
     });
+};
+
+
+/*--------------------------------------------------------------
+# GET PROPERTY
+--------------------------------------------------------------*/
+
+satus.getProperty = function (object, string) {
+	var properties = string.split('.');
+
+	for (var i = 0, l = properties.length; i < l; i++) {
+		var property = properties[i];
+
+		console.log(object);
+
+		if (object = object[property]) {
+			if (i === l - 1) {
+				return object;
+			}
+		} else {
+			return false;
+		}
+	}
 };
 
 
@@ -1744,11 +1774,12 @@ satus.components.shortcut = function (component, skeleton) {
 --------------------------------------------------------------*/
 
 satus.components.textField = function (component, skeleton) {
-	var input = component.createChildElement('input'),
-		pre = component.createChildElement('pre'),
-		hiddenValue = component.createChildElement('pre', 'hidden-value'),
-		selection = component.createChildElement('div', 'selection'),
-		cursor = component.createChildElement('div', 'cursor');
+	var container = component.createChildElement('div', 'container'),
+		input = container.createChildElement('input'),
+		pre = container.createChildElement('pre'),
+		hiddenValue = container.createChildElement('pre', 'hidden-value'),
+		selection = container.createChildElement('div', 'selection'),
+		cursor = container.createChildElement('div', 'cursor');
 
 	component.value = component.storage.value || '';
 	component.input = input;
@@ -1829,7 +1860,7 @@ satus.components.textField = function (component, skeleton) {
 	selection.setAttribute('disabled', '');
 
 	pre.update = function () {
-		var component = this.parentNode,
+		var component = this.parentNode.parentNode,
 			handler = component.syntax.handlers[component.syntax.current],
 			value = component.storage.value;
 
@@ -1845,7 +1876,7 @@ satus.components.textField = function (component, skeleton) {
 	};
 
 	cursor.update = function () {
-		var component = this.parentNode,
+		var component = this.parentNode.parentNode,
 			input = component.input,
 			start = input.selectionStart,
 			end = input.selectionEnd;
@@ -1884,7 +1915,7 @@ satus.components.textField = function (component, skeleton) {
 	});
 
 	input.addEventListener('input', function () {
-		var component = this.parentNode;
+		var component = this.parentNode.parentNode;
 
 		console.log('INPUIT', this.value);
 
@@ -1892,7 +1923,7 @@ satus.components.textField = function (component, skeleton) {
 	});
 
 	input.addEventListener('scroll', function (event) {
-		var component = this.parentNode;
+		var component = this.parentNode.parentNode;
 
 		component.pre.style.left = -this.scrollLeft + 'px';
 
@@ -1912,7 +1943,7 @@ satus.components.textField = function (component, skeleton) {
 	if (skeleton.on) {
 		for (var type in skeleton.on) {
 			input.addEventListener(type, function (event) {
-				this.parentNode.dispatchEvent(new Event(event.type));
+				this.parentNode.parentNode.dispatchEvent(new Event(event.type));
 			});
 		}
 	}

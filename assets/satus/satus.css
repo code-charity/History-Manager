@@ -88,7 +88,7 @@
 	--satus-header-text: #565e76;
 	--satus-header-shadow: #dcdee5;
 
-	--satus-layers-background: var(--satus-base-background);
+	--satus-layers-background: #f3f4f6;
 	--satus-layers-text: #565e76;
 
 	--satus-section-background: #fff;
@@ -763,21 +763,38 @@
 --------------------------------------------------------------*/
 
 .satus-text-field {
-    position: relative;
-    overflow: hidden;
+    display: flex;
+
+    min-width: 240px;
     height: 36px;
+
     color: var(--satus-text-field-color, inherit);
+    border: 1px solid var(--satus-text-field-border);
     border-radius: 4px;
     background: var(--satus-text-field-background);
-    border: 1px solid var(--satus-text-field-border);
+
+    align-items: center;
+    justify-content: space-between;
+}
+
+.satus-text-field__container {
+    position: relative;
+
+    overflow: hidden;
+
+    height: 100%;
+
+    flex: 1;
 }
 
 .satus-text-field__input {
     font: inherit;
+
     position: absolute;
     z-index: 9;
     top: 0;
     left: 0;
+
     width: 100%;
     min-width: 0;
     max-width: none;
@@ -786,11 +803,14 @@
     max-height: none;
     margin: 0;
     padding: 0 12px;
+
+    color: inherit;
     border: none;
     border-radius: 4px;
-    appearance: none;
-    color: inherit;
     outline: none;
+    background: transparent;
+
+    appearance: none;
 }
 
 .satus-text-field__input:not(:empty) {
@@ -799,19 +819,26 @@
 
 .satus-text-field__pre {
     font: inherit;
+
     position: absolute;
     top: 0;
     left: 0;
+
     display: flex;
+
     height: 100%;
     margin: 0 12px;
+
     align-items: center;
 }
 
 .satus-text-field__hidden-value {
     font: inherit;
+
     position: absolute;
+
     pointer-events: none;
+
     opacity: 0;
 }
 
@@ -819,10 +846,13 @@
     position: absolute;
     top: 0;
     left: 0;
+
     display: none;
+
     width: 0;
     height: 22px;
     margin: 8px 12px 6px;
+
     border: 1px solid var(--satus-text-field-selection);
     border-radius: 3px;
     background: var(--satus-text-field-selection);
@@ -832,11 +862,15 @@
     position: absolute;
     top: 0;
     left: 0;
+
     display: none;
+
     width: 2px;
     height: 24px;
     margin: 6px 10px 5px;
+
     animation: blink 1s step-end 8;
+
     background: var(--satus-text-field-cursor);
 }
 
@@ -846,10 +880,12 @@
 }
 
 @keyframes blink {
+
     from,
     to {
         opacity: 1;
     }
+
     50% {
         opacity: 0;
     }
