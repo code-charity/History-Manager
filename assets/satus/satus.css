@@ -7,7 +7,11 @@
 }
 
 :where([class^=satus])[hidden]:not([hidden^='hidden']) {
-	display: none;
+    display: none;
+}
+
+:where([class^=satus])[transparent] {
+    opacity: 0;
 }
 
 
@@ -804,17 +808,13 @@
     margin: 0;
     padding: 0 12px;
 
+    opacity: 0;
     color: inherit;
     border: none;
     border-radius: 4px;
     outline: none;
-    background: transparent;
 
     appearance: none;
-}
-
-.satus-text-field__input:not(:empty) {
-    opacity: 0;
 }
 
 .satus-text-field__pre {
@@ -867,7 +867,7 @@
 
     width: 2px;
     height: 24px;
-    margin: 6px 10px 5px;
+    margin: 5px 11px;
 
     animation: blink 1s step-end 8;
 
@@ -875,7 +875,7 @@
 }
 
 .satus-text-field__input:focus+*+*+*+.satus-text-field__cursor,
-.satus-text-field__selection:not([disabled]) {
+.satus-text-field__input:focus+*+*+.satus-text-field__selection:not([disabled]) {
     display: block;
 }
 

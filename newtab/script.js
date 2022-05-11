@@ -21,21 +21,18 @@ var skeleton = {
 		},
 		search: {
 			component: 'text-field',
-			placeholder: 'searchEngineOrTypeAUrl',
 			storage: false,
-			on: {
-				render: function () {
-					var placeholder = satus.locale.get(this.skeleton.placeholder),
-						search_engine = satus.storage.get('searchEngine');
+			placeholder: function () {
+				var placeholder = satus.locale.get('searchEngineOrTypeAUrl'),
+					search_engine = satus.storage.get('searchEngine');
 
-					if (this.skeleton.engines[search_engine]) {
-						search_engine = this.skeleton.engines[search_engine].name;
-					} else {
-						search_engine = this.skeleton.engines['google'].name;
-					}
-
-					this.input.placeholder = placeholder.replace('{ENGINE}', search_engine);
+				if (this.skeleton.engines[search_engine]) {
+					search_engine = this.skeleton.engines[search_engine].name;
+				} else {
+					search_engine = this.skeleton.engines['google'].name;
 				}
+
+				return placeholder.replace('{ENGINE}', search_engine);
 			},
 			engines: {
 				google: {
@@ -70,20 +67,26 @@ var skeleton = {
 				}
 			},
 
-			icon: {
+			button: {
 				component: 'button',
-				on: {
-					render: function () {
-						var search_engine = satus.storage.get('searchEngine'),
-							favicon = '';
 
-						if (this.parentNode.skeleton.engines[search_engine]) {
-							favicon = this.parentNode.skeleton.engines[search_engine].favicon;
-						} else {
-							favicon = this.parentNode.skeleton.engines['google'].favicon;
+				svg: {
+					component: 'svg',
+					attr: {
+						'viewBox': '0 0 24 24',
+						'fill': 'currentColor'
+					},
+
+					path: {
+						component: 'path',
+						attr: {
+							'd': 'm20.5 19-5.7-5.7a6.5 6.5 0 1 0-1.5 1.5l5.7 5.7 1.5-1.5zM5 9.5a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0z'
 						}
-
-						this.style.backgroundImage = 'url(' + favicon + ')';
+					}
+				},
+				on: {
+					click: function () {
+						this.skeleton.parentSkeleton.rendered.focus();
 					}
 				}
 			}
@@ -113,7 +116,7 @@ var skeleton = {
 satus.storage.import(function (items) {
 	var language = items.language || window.navigator.language;
 
-    satus.locale.import(language, function () {
-        satus.render(skeleton);
-    }, '_locales/');
+	satus.locale.import(language, function () {
+		satus.render(skeleton);
+	}, '_locales/');
 });

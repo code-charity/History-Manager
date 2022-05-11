@@ -1781,7 +1781,7 @@ satus.components.textField = function (component, skeleton) {
 		selection = container.createChildElement('div', 'selection'),
 		cursor = container.createChildElement('div', 'cursor');
 
-	component.value = component.storage.value || '';
+	component.placeholder = skeleton.placeholder;
 	component.input = input;
 	component.pre = pre;
 	component.hiddenValue = hiddenValue;
@@ -1791,40 +1791,40 @@ satus.components.textField = function (component, skeleton) {
 		current: 'text',
 		handlers: {
 			regex: function (value, target) {
-			    var regex_token = /\[\^?]?(?:[^\\\]]+|\\[\S\s]?)*]?|\\(?:0(?:[0-3][0-7]{0,2}|[4-7][0-7]?)?|[1-9][0-9]*|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|c[A-Za-z]|[\S\s]?)|\((?:\?[:=!]?)?|(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})\??|[^.?*+^${[()|\\]+|./g,
-			        char_class_token = /[^\\-]+|-|\\(?:[0-3][0-7]{0,2}|[4-7][0-7]?|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|c[A-Za-z]|[\S\s]?)/g,
-			        char_class_parts = /^(\[\^?)(]?(?:[^\\\]]+|\\[\S\s]?)*)(]?)$/,
-			        quantifier = /^(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})\??$/,
-			        matches = value.match(regex_token);
+				var regex_token = /\[\^?]?(?:[^\\\]]+|\\[\S\s]?)*]?|\\(?:0(?:[0-3][0-7]{0,2}|[4-7][0-7]?)?|[1-9][0-9]*|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|c[A-Za-z]|[\S\s]?)|\((?:\?[:=!]?)?|(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})\??|[^.?*+^${[()|\\]+|./g,
+					char_class_token = /[^\\-]+|-|\\(?:[0-3][0-7]{0,2}|[4-7][0-7]?|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|c[A-Za-z]|[\S\s]?)/g,
+					char_class_parts = /^(\[\^?)(]?(?:[^\\\]]+|\\[\S\s]?)*)(]?)$/,
+					quantifier = /^(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})\??$/,
+					matches = value.match(regex_token);
 
-			    function create(type, string) {
-			        var span = document.createElement('span');
+				function create(type, string) {
+					var span = document.createElement('span');
 
-			        span.className = type;
-			        span.textContent = string;
+					span.className = type;
+					span.textContent = string;
 
-			        target.appendChild(span);
-			    }
+					target.appendChild(span);
+				}
 
-			    for (var i = 0, l = matches.length; i < l; i++) {
-			        var match = matches[i];
+				for (var i = 0, l = matches.length; i < l; i++) {
+					var match = matches[i];
 
-			        if (match[0] === '[') {
-			            create('character-class', match);
-			        } else if (match[0] === '(') {
-			            create('group', match);
-			        } else if (match[0] === ')') {
-			            create('group', match);
-			        } else if (match[0] === '\\' || match === '^') {
-			            create('anchor', match);
-			        } else if (quantifier.test(match)) {
-			            create('quantifier', match);
-			        } else if (match === '|' || match === '.') {
-			            create('metasequence', match);
-			        } else {
-			            create('text', match);
-			        }
-			    }
+					if (match[0] === '[') {
+						create('character-class', match);
+					} else if (match[0] === '(') {
+						create('group', match);
+					} else if (match[0] === ')') {
+						create('group', match);
+					} else if (match[0] === '\\' || match === '^') {
+						create('anchor', match);
+					} else if (quantifier.test(match)) {
+						create('quantifier', match);
+					} else if (match === '|' || match === '.') {
+						create('metasequence', match);
+					} else {
+						create('text', match);
+					}
+				}
 			}
 		},
 		set: function (syntax) {
@@ -1855,23 +1855,32 @@ satus.components.textField = function (component, skeleton) {
 	}
 
 	input.type = 'text';
-	input.placeholder = satus.locale.get(skeleton.placeholder) || '';
 
 	selection.setAttribute('disabled', '');
 
 	pre.update = function () {
 		var component = this.parentNode.parentNode,
 			handler = component.syntax.handlers[component.syntax.current],
-			value = component.storage.value;
+			value = component.storage.value || '';
 
 		for (var i = this.childNodes.length - 1; i > -1; i--) {
-	        this.childNodes[i].remove();
-	    }
+			this.childNodes[i].remove();
+		}
 
 		if (handler) {
 			handler(value, this);
 		} else {
 			this.textContent = value;
+		}
+
+		if (value.length === 0) {
+			var placeholder = component.placeholder;
+
+			if (typeof placeholder === 'function') {
+				placeholder = component.placeholder();
+			}
+
+			this.textContent = placeholder;
 		}
 	};
 
@@ -1879,7 +1888,8 @@ satus.components.textField = function (component, skeleton) {
 		var component = this.parentNode.parentNode,
 			input = component.input,
 			start = input.selectionStart,
-			end = input.selectionEnd;
+			end = input.selectionEnd,
+			value = input.value;
 
 		this.style.animation = 'none';
 
@@ -1888,19 +1898,19 @@ satus.components.textField = function (component, skeleton) {
 		} else {
 			component.selection.removeAttribute('disabled');
 
-			component.hiddenValue.textContent = input.value.substring(0, start);
+			component.hiddenValue.textContent = value.substring(0, start);
 
 			component.selection.style.left = component.hiddenValue.offsetWidth - input.scrollLeft + 'px';
 
-			component.hiddenValue.textContent = input.value.substring(start, end);
+			component.hiddenValue.textContent = value.substring(start, end);
 
 			component.selection.style.width = component.hiddenValue.offsetWidth + 'px';
 		}
 
 		if (input.selectionDirection === 'forward') {
-			component.hiddenValue.textContent = input.value.substring(0, end);
+			component.hiddenValue.textContent = value.substring(0, end);
 		} else {
-			component.hiddenValue.textContent = input.value.substring(0, start);
+			component.hiddenValue.textContent = value.substring(0, start);
 		}
 
 		this.style.left = component.hiddenValue.offsetWidth - input.scrollLeft + 'px';
@@ -1911,15 +1921,17 @@ satus.components.textField = function (component, skeleton) {
 	};
 
 	document.addEventListener('selectionchange', function (event) {
+		component.pre.update();
 		component.cursor.update();
 	});
 
 	input.addEventListener('input', function () {
 		var component = this.parentNode.parentNode;
 
-		console.log('INPUIT', this.value);
-
 		component.storage.value = this.value;
+
+		component.pre.update();
+		component.cursor.update();
 	});
 
 	input.addEventListener('scroll', function (event) {
@@ -1927,6 +1939,7 @@ satus.components.textField = function (component, skeleton) {
 
 		component.pre.style.left = -this.scrollLeft + 'px';
 
+		component.pre.update();
 		component.cursor.update();
 	});
 
@@ -1935,10 +1948,12 @@ satus.components.textField = function (component, skeleton) {
 		this.cursor.update();
 	});
 
-	input.value = component.value;
+	component.value = component.storage.value || '';
 
-	component.pre.update();
-	component.cursor.update();
+	component.addEventListener('render', function () {
+		component.pre.update();
+		component.cursor.update();
+	});
 
 	if (skeleton.on) {
 		for (var type in skeleton.on) {
