@@ -357,15 +357,15 @@
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	transition: background .3s cubic-bezier(.25,.8,.5,1);
+	transition: background-color .3s cubic-bezier(.25,.8,.5,1);
 }
 
 .satus-button--icon:hover {
-	background: rgba(var(--satus-light), .08);
+	background-color: rgba(var(--satus-light), .08);
 }
 
 .satus-button--icon:focus {
-	background: rgba(var(--satus-light), .24);
+	background-color: rgba(var(--satus-light), .24);
 }
 
 .satus-button--icon svg {
@@ -851,7 +851,7 @@
 
     width: 0;
     height: 22px;
-    margin: 8px 12px 6px;
+    margin: 6px 12px;
 
     border: 1px solid var(--satus-text-field-selection);
     border-radius: 3px;

@@ -64,18 +64,78 @@ body {
 }
 
 .satus-header .satus-text-field {
+	position: relative;
+
 	flex-direction: row-reverse;
 }
 
+.satus-header .satus-text-field[focus][results] {
+	border-bottom-color: transparent;
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
 .satus-header .satus-text-field>.satus-button {
-	width: 28px;
-	height: 28px;
-	margin: 0 0 0 6px;
-	padding: 4px 3px 2px;
+	box-sizing: unset;
+	width: 34px;
+	height: 34px;
+	padding: 0 0 0 6px;
 
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: contain;
+
+	justify-content: center;
+	align-items: center;
+}
+
+.satus-header .satus-text-field>.satus-button>svg {
+	max-width: 22px;
+	max-height: 22px;
+}
+
+.satus-search__results {
+	position: absolute;
+	top: 100%;
+	left: -1px;
+
+	display: none;
+
+	width: calc(100% + 2px);
+
+	border: 1px solid var(--satus-text-field-border);
+	border-top: 0;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	background: var(--satus-text-field-background);
+}
+
+.satus-header .satus-text-field[focus][results] .satus-search__results {
+	display: flex;
+	flex-direction: column;
+}
+
+.satus-search-engines {
+	display: flex;
+
+	margin: 4px 6px 0;
+	padding: 8px;
+
+	border-top: 1px solid var(--satus-text-field-border);
+
+	align-items: center;
+}
+
+.satus-search-engines>button {
+	width: 28px;
+	height: 28px;
+	margin: 0 0 0 8px;
+
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 18px;
+
+	image-rendering: pixelated;
 }
 
 

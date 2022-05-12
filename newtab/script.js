@@ -11,6 +11,23 @@
 
 var skeleton = {
 	component: 'base',
+	on: {
+		click: function (event) {
+			var founded = false;
+
+			for (var i = 0, l = event.path.length; i < l; i++) {
+				var element = event.path[i];
+
+				if (element.className && element.className.indexOf('satus-search') !== -1) {
+					founded = true;
+				}
+			}
+
+			if (founded === false) {
+				skeleton.header.search.rendered.removeAttribute('focus');
+			}
+		}
+	},
 
 	header: {
 		component: 'header',
@@ -21,6 +38,7 @@ var skeleton = {
 		},
 		search: {
 			component: 'text-field',
+			class: 'satus-search',
 			storage: false,
 			placeholder: function () {
 				var placeholder = satus.locale.get('searchEngineOrTypeAUrl'),
@@ -33,6 +51,18 @@ var skeleton = {
 				}
 
 				return placeholder.replace('{ENGINE}', search_engine);
+			},
+			on: {
+				focus: function () {
+					this.setAttribute('focus', '');
+				},
+				input: function () {
+					if (this.value.length > 0) {
+						this.setAttribute('results', '');
+					} else {
+						this.removeAttribute('results');
+					}
+				}
 			},
 			engines: {
 				google: {
@@ -87,6 +117,37 @@ var skeleton = {
 				on: {
 					click: function () {
 						this.skeleton.parentSkeleton.rendered.focus();
+					}
+				}
+			},
+			results: {
+				component: 'div',
+				class: 'satus-search__results',
+
+				searchEnginesBar: {
+					component: 'div',
+					class: 'satus-search-engines',
+					on: {
+						render: function () {
+							var search_engines = this.skeleton.parentSkeleton.parentSkeleton.engines;
+
+							satus.render({
+								component: 'span',
+								text: 'thisTimeSearchWith'
+							}, this);
+
+							for (var key in search_engines) {
+								var search_engine = search_engines[key];
+
+								satus.render({
+									component: 'button',
+									variant: 'icon',
+									style: {
+										backgroundImage: 'url(' + search_engine.favicon + ')'
+									}
+								}, this);
+							}
+						}
 					}
 				}
 			}

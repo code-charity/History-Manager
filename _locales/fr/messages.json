@@ -1,5 +1,8 @@
 {
     "searchEngineOrTypeAUrl": {
         "message": "Search {ENGINE} or type a URL"
+    },
+    "thisTimeSearchWith": {
+        "message": "This time, search with:"
     }
 }
