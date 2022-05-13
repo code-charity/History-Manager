@@ -75,11 +75,11 @@ body {
 	border-bottom-left-radius: 0;
 }
 
-.satus-header .satus-text-field>.satus-button {
+.satus-header .satus-text-field>svg {
 	box-sizing: unset;
-	width: 34px;
-	height: 34px;
-	padding: 0 0 0 6px;
+	max-width: 22px;
+	max-height: 22px;
+	margin: 0 0 0 8px;
 
 	background-repeat: no-repeat;
 	background-position: center;
@@ -89,19 +89,16 @@ body {
 	align-items: center;
 }
 
-.satus-header .satus-text-field>.satus-button>svg {
-	max-width: 22px;
-	max-height: 22px;
-}
-
-.satus-search__results {
+.satus-search__dropdown-menu {
 	position: absolute;
 	top: 100%;
 	left: -1px;
 
 	display: none;
+	flex-direction: column;
 
 	width: calc(100% + 2px);
+	padding: 4px 8px 0;
 
 	border: 1px solid var(--satus-text-field-border);
 	border-top: 0;
@@ -110,16 +107,43 @@ body {
 	background: var(--satus-text-field-background);
 }
 
-.satus-header .satus-text-field[focus][results] .satus-search__results {
+.satus-header .satus-text-field[focus][results] .satus-search__dropdown-menu {
 	display: flex;
-	flex-direction: column;
+}
+
+.satus-search__results-list {
+	display: flex;
+
+	padding: 8px 0;
+
+	border-top: 1px solid var(--satus-text-field-border);
+
+	align-items: center;
+}
+
+.satus-search__results-list>.satus-button {
+	width: 100%;
+	padding: 6px 4px;
+
+	border-radius: 4px;
+}
+
+.satus-search__results-list>.satus-button {
+	transition: background-color .3s cubic-bezier(.25, .8, .5, 1);
+}
+
+.satus-search__results-list>.satus-button:hover {
+	background-color: rgba(var(--satus-light), .08);
+}
+
+.satus-search__results-list>.satus-button:focus {
+	background-color: rgba(var(--satus-light), .24);
 }
 
 .satus-search-engines {
 	display: flex;
 
-	margin: 4px 6px 0;
-	padding: 8px;
+	padding: 8px 0;
 
 	border-top: 1px solid var(--satus-text-field-border);
 

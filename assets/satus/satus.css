@@ -321,14 +321,20 @@
 
 .satus-button {
 	font: inherit;
+
 	position: relative;
+
 	display: inline-flex;
 	overflow: hidden;
+
 	height: 36px;
 	padding: 8px;
+
 	color: inherit;
 	border: none;
+	outline: none;
 	background: transparent;
+
 	appearance: none;
 	align-items: center;
 }
@@ -338,10 +344,10 @@
 }
 
 .satus-button svg {
-	max-width: 24px;
-	max-height: 24px;
 	width: 100%;
+	max-width: 24px;
 	height: 100%;
+	max-height: 24px;
 }
 
 
@@ -356,8 +362,10 @@
 .satus-button--icon {
 	width: 40px;
 	height: 40px;
+
+	transition: background-color .3s cubic-bezier(.25, .8, .5, 1);
+
 	border-radius: 50%;
-	transition: background-color .3s cubic-bezier(.25,.8,.5,1);
 }
 
 .satus-button--icon:hover {

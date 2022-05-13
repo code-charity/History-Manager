@@ -18,7 +18,7 @@ var skeleton = {
 			for (var i = 0, l = event.path.length; i < l; i++) {
 				var element = event.path[i];
 
-				if (element.className && element.className.indexOf('satus-search') !== -1) {
+				if (typeof element.className === 'string' && element.className.indexOf('satus-search') !== -1) {
 					founded = true;
 				}
 			}
@@ -57,10 +57,17 @@ var skeleton = {
 					this.setAttribute('focus', '');
 				},
 				input: function () {
+					this.skeleton.dropDownMenu.rendered.update();
+
 					if (this.value.length > 0) {
 						this.setAttribute('results', '');
 					} else {
 						this.removeAttribute('results');
+					}
+				},
+				keydown: function (event) {
+					if (event.keyCode === 13) {
+						document.querySelector('.satus-search__results-list>.satus-button').click();
 					}
 				}
 			},
@@ -97,33 +104,50 @@ var skeleton = {
 				}
 			},
 
-			button: {
-				component: 'button',
-
-				svg: {
-					component: 'svg',
-					attr: {
-						'viewBox': '0 0 24 24',
-						'fill': 'currentColor'
-					},
-
-					path: {
-						component: 'path',
-						attr: {
-							'd': 'm20.5 19-5.7-5.7a6.5 6.5 0 1 0-1.5 1.5l5.7 5.7 1.5-1.5zM5 9.5a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0z'
-						}
-					}
+			svg: {
+				component: 'svg',
+				attr: {
+					'viewBox': '0 0 24 24',
+					'fill': 'currentColor'
 				},
-				on: {
-					click: function () {
-						this.skeleton.parentSkeleton.rendered.focus();
+
+				path: {
+					component: 'path',
+					attr: {
+						'd': 'm20.5 19-5.7-5.7a6.5 6.5 0 1 0-1.5 1.5l5.7 5.7 1.5-1.5zM5 9.5a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0z'
 					}
 				}
 			},
-			results: {
+			dropDownMenu: {
 				component: 'div',
-				class: 'satus-search__results',
+				class: 'satus-search__dropdown-menu',
+				properties: {
+					update: function () {
+						var list = this.skeleton.searchEngineResultsList.rendered,
+							search_engines = this.skeleton.parentSkeleton.engines,
+							default_search_engine = satus.storage.get('defaultSearchEngine') || 'google';
 
+						satus.empty(list);
+
+						satus.render({
+							component: 'button',
+							attr: {
+								url: search_engines[default_search_engine].url
+							},
+							text: this.skeleton.parentSkeleton.rendered.value + ' - ' + search_engines[default_search_engine].name + ' ' + 'Search',
+							on: {
+								click: function () {
+									window.open(this.getAttribute('url') + encodeURIComponent(this.parentNode.skeleton.parentSkeleton.parentSkeleton.rendered.value), '_self');
+								}
+							}
+						}, list);
+					}
+				},
+
+				searchEngineResultsList: {
+					component: 'div',
+					class: 'satus-search__results-list'
+				},
 				searchEnginesBar: {
 					component: 'div',
 					class: 'satus-search-engines',
@@ -142,8 +166,23 @@ var skeleton = {
 								satus.render({
 									component: 'button',
 									variant: 'icon',
+									attr: {
+										name: key
+									},
 									style: {
 										backgroundImage: 'url(' + search_engine.favicon + ')'
+									},
+									on: {
+										click: function () {
+											var name = this.getAttribute('name'),
+												search_engine = this.parentNode.skeleton.parentSkeleton.parentSkeleton.engines[name];
+
+											satus.storage.set('defaultSearchEngine', name);
+
+											this.parentNode.skeleton.parentSkeleton.rendered.update();
+
+											console.log(search_engine);
+										}
 									}
 								}, this);
 							}
