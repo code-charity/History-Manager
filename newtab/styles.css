@@ -5,10 +5,10 @@
 # Body
 # Themes
 # Skeleton
-	# Header
-	# Main
-		# Sidebar
-		# Layers
+    # Header
+    # Main
+        # Sidebar
+        # Layers
 --------------------------------------------------------------*/
 
 /*--------------------------------------------------------------
@@ -16,9 +16,9 @@
 --------------------------------------------------------------*/
 
 @font-face {
-	font-family: Roboto;
+    font-family: Roboto;
 
-	src: url(../assets/fonts/Roboto-Regular.ttf);
+    src: url(../assets/fonts/Roboto-Regular.ttf);
 }
 
 
@@ -27,13 +27,13 @@
 --------------------------------------------------------------*/
 
 body {
-	font-family: Roboto, sans-serif;
-	font-size: 16px;
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
 
-	overflow: hidden;
+    overflow: hidden;
 
-	height: 100vh;
-	margin: 0;
+    height: 100vh;
+    margin: 0;
 }
 
 
@@ -42,8 +42,8 @@ body {
 --------------------------------------------------------------*/
 
 .satus-base {
-	--satus-base-background: #fff;
-	--satus-main-background: #fff;
+    --satus-base-background: #fff;
+    --satus-main-background: #fff;
 }
 
 
@@ -56,110 +56,125 @@ body {
 --------------------------------------------------------------*/
 
 .satus-header {
-	box-shadow: none;
+    box-shadow: none;
 }
 
 .satus-header>* {
-	flex: 1;
+    flex: 1;
 }
 
 .satus-header .satus-text-field {
-	position: relative;
+    position: relative;
 
-	flex-direction: row-reverse;
+    flex-direction: row-reverse;
 }
 
 .satus-header .satus-text-field[focus][results] {
-	border-bottom-color: transparent;
-	border-bottom-right-radius: 0;
-	border-bottom-left-radius: 0;
+    border-bottom-color: transparent;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .satus-header .satus-text-field>svg {
-	box-sizing: unset;
-	max-width: 22px;
-	max-height: 22px;
-	margin: 0 0 0 8px;
+    box-sizing: unset;
+    max-width: 22px;
+    max-height: 22px;
+    margin: 0 0 0 8px;
 
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 
-	justify-content: center;
-	align-items: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .satus-search__dropdown-menu {
-	position: absolute;
-	top: 100%;
-	left: -1px;
+    position: absolute;
+    top: 100%;
+    left: -1px;
 
-	display: none;
-	flex-direction: column;
+    display: none;
+    flex-direction: column;
 
-	width: calc(100% + 2px);
-	padding: 4px 8px 0;
+    width: calc(100% + 2px);
+    padding: 4px 8px 0;
 
-	border: 1px solid var(--satus-text-field-border);
-	border-top: 0;
-	border-bottom-right-radius: 4px;
-	border-bottom-left-radius: 4px;
-	background: var(--satus-text-field-background);
+    border: 1px solid var(--satus-text-field-border);
+    border-top: 0;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    background: var(--satus-text-field-background);
 }
 
 .satus-header .satus-text-field[focus][results] .satus-search__dropdown-menu {
-	display: flex;
+    display: flex;
 }
 
 .satus-search__results-list {
-	display: flex;
+    display: flex;
 
-	padding: 8px 0;
+    padding: 8px 0;
 
-	border-top: 1px solid var(--satus-text-field-border);
+    border-top: 1px solid var(--satus-text-field-border);
 
-	align-items: center;
+    align-items: center;
 }
 
-.satus-search__results-list>.satus-button {
-	width: 100%;
-	padding: 6px 4px;
+.satus-search-results__item {
+    width: 100%;
+    padding: 6px 4px;
 
-	border-radius: 4px;
+    border-radius: 4px;
 }
 
-.satus-search__results-list>.satus-button {
-	transition: background-color .3s cubic-bezier(.25, .8, .5, 1);
+.satus-search-results__item {
+    transition: background-color .3s cubic-bezier(.25, .8, .5, 1);
 }
 
-.satus-search__results-list>.satus-button:hover {
-	background-color: rgba(var(--satus-light), .08);
+.satus-search-results__item:hover {
+    background-color: rgba(var(--satus-light), .08);
 }
 
-.satus-search__results-list>.satus-button:focus {
-	background-color: rgba(var(--satus-light), .24);
+.satus-search-results__item:focus {
+    background-color: rgba(var(--satus-light), .24);
+}
+
+.satus-search-results__item>span:first-child {
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.satus-search-results__item>span:last-child {
+    padding-left: .3em;
+
+    white-space: nowrap;
+
+    opacity: .64;
 }
 
 .satus-search-engines {
-	display: flex;
+    display: flex;
 
-	padding: 8px 0;
+    padding: 8px 0;
 
-	border-top: 1px solid var(--satus-text-field-border);
+    border-top: 1px solid var(--satus-text-field-border);
 
-	align-items: center;
+    align-items: center;
 }
 
 .satus-search-engines>button {
-	width: 28px;
-	height: 28px;
-	margin: 0 0 0 8px;
+    width: 28px;
+    height: 28px;
+    margin: 0 0 0 8px;
 
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 18px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px;
 
-	image-rendering: pixelated;
+    image-rendering: pixelated;
 }
 
 
@@ -172,7 +187,7 @@ body {
 --------------------------------------------------------------*/
 
 .satus-sidebar {
-	box-shadow: none;
+    box-shadow: none;
 }
 
 
@@ -181,7 +196,7 @@ body {
 --------------------------------------------------------------*/
 
 .satus-layers {
-	border: 1px solid var(--satus-header-shadow);
-	border-right: none;
-	border-bottom: none;
+    border: 1px solid var(--satus-header-shadow);
+    border-right: none;
+    border-bottom: none;
 }

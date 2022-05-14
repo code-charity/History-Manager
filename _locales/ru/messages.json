@@ -1,8 +1,8 @@
 {
     "searchEngineOrTypeAUrl": {
-        "message": "Search {ENGINE} or type a URL"
+        "message": "Найдите в {ENGINE} или введите адрес"
     },
     "thisTimeSearchWith": {
-        "message": "This time, search with:"
+        "message": "В этот раз искать в:"
     }
 }

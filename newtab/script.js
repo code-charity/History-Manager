@@ -131,14 +131,23 @@ var skeleton = {
 
 						satus.render({
 							component: 'button',
+							class: 'satus-search-results__item',
 							attr: {
 								url: search_engines[default_search_engine].url
 							},
-							text: this.skeleton.parentSkeleton.rendered.value + ' - ' + search_engines[default_search_engine].name + ' ' + 'Search',
 							on: {
 								click: function () {
 									window.open(this.getAttribute('url') + encodeURIComponent(this.parentNode.skeleton.parentSkeleton.parentSkeleton.rendered.value), '_self');
 								}
+							},
+
+							query: {
+								component: 'span',
+								text: this.skeleton.parentSkeleton.rendered.value
+							},
+							engine: {
+								component: 'span',
+								text: '- ' + search_engines[default_search_engine].name + ' ' + 'Search'
 							}
 						}, list);
 					}
