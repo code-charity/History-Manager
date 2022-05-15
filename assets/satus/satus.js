@@ -295,12 +295,20 @@ satus.isArray = function (array) {
     }
 };
 
+satus.isElement = function (object) {
+	return object instanceof Element || object instanceof HTMLDocument;
+};
+
 satus.isNumber = function (number) {
     if (typeof number === 'number' && isNaN(number) === false) {
         return true;
     } else {
         return false;
     }
+};
+
+satus.isObject = function (object) {
+	return object instanceof Object;
 };
 
 
@@ -389,6 +397,19 @@ satus.parentify = function (parentObject, exclude) {
 
 
 /*--------------------------------------------------------------
+# PREPEND
+--------------------------------------------------------------*/
+
+satus.prepend = function (child, parent) {
+	if (this.isElement(child)) {
+		parent.prepend(child);
+	} else if (this.isObject(child)) {
+		this.render(child, parent, undefined, undefined, true);
+	}
+};
+
+
+/*--------------------------------------------------------------
 # PROPERTIES
 --------------------------------------------------------------*/
 
@@ -411,7 +432,7 @@ satus.properties = function (element, properties) {
 # RENDER
 --------------------------------------------------------------*/
 
-satus.render = function (skeleton, container, property, childrenOnly) {
+satus.render = function (skeleton, container, property, childrenOnly, prepend) {
 	var element;
 
 	if (skeleton.component && childrenOnly !== true) {
@@ -451,7 +472,13 @@ satus.render = function (skeleton, container, property, childrenOnly) {
 		this.properties(element, skeleton.properties);
 		this.text(element, skeleton.text);
 		this.on(element, skeleton.on);
-		this.append(element, container);
+		this.prepend(skeleton.before, element);
+		
+		if (prepend) {
+			this.prepend(element, container);
+		} else {
+			this.append(element, container);
+		}
 
 		element.storage = (function () {
         	var parent = element,
@@ -515,7 +542,7 @@ satus.render = function (skeleton, container, property, childrenOnly) {
 						item.parentElement = element;
 					}
 
-					this.render(item, container, key);
+					this.render(item, container, key, undefined, prepend);
 				}
 			}
 		}
@@ -748,516 +775,6 @@ satus.text = function (element, value) {
 	}
 };
 /*--------------------------------------------------------------
-# SEARCH
---------------------------------------------------------------*/
-
-satus.search = function (query, object, callback) {
-    var elements = ['switch', 'select', 'slider', 'shortcut', 'radio', 'color-picker'],
-        threads = 0,
-        results = {},
-        excluded = [
-            'baseProvider',
-            'childrenContainer',
-            'parentElement',
-            'parentObject',
-            'parentSkeleton',
-            'rendered',
-            'namespaceURI'
-        ];
-
-    query = query.toLowerCase();
-
-    function parse(items, parent) {
-        threads++;
-
-        for (var key in items) {
-            if (excluded.indexOf(key) === -1) {
-                var item = items[key];
-
-                if (item.component) {
-                    //console.log(key, item.component);
-
-                    if (elements.indexOf(item.component) !== -1 && key.indexOf(query) !== -1) {
-                        results[key] = Object.assign({}, item);
-                    }
-                }
-
-                if (typeof item === 'object') {
-                    parse(item, items);
-                }
-            }
-        }
-
-        threads--;
-
-        if (threads === 0) {
-            callback(results);
-        }
-    }
-
-    parse(object);
-};
-/*--------------------------------------------------------------
->>> USER
---------------------------------------------------------------*/
-
-satus.user = function () {
-    /*--------------------------------------------------------------
-    1.0 VARIABLES
-    --------------------------------------------------------------*/
-
-    var user_agent = navigator.userAgent,
-        random_cookie = 'ta{t`nX6cMXK,Wsc',
-        video = document.createElement('video'),
-        video_formats = {
-            ogg: 'video/ogg; codecs="theora"',
-            h264: 'video/mp4; codecs="avc1.42E01E"',
-            webm: 'video/webm; codecs="vp8, vorbis"',
-            vp9: 'video/webm; codecs="vp9"',
-            hls: 'application/x-mpegURL; codecs="avc1.42E01E"'
-        },
-        audio = document.createElement('audio'),
-        audio_formats = {
-            mp3: 'audio/mpeg',
-            mp4: 'audio/mp4',
-            aif: 'audio/x-aiff'
-        },
-        cvs = document.createElement('canvas'),
-        ctx = cvs.getContext('webgl'),
-        data = {
-            browser: {
-                audio: null,
-                cookies: null,
-                flash: null,
-                java: null,
-                languages: null,
-                name: null,
-                platform: null,
-                version: null,
-                video: null,
-                webgl: null
-            },
-            os: {
-                name: null,
-                type: null
-            },
-            device: {
-                connection: {
-                    type: null,
-                    speed: null
-                },
-                cores: null,
-                gpu: null,
-                max_touch_points: null,
-                ram: null,
-                screen: null,
-                touch: null
-            }
-        };
-
-
-    /*--------------------------------------------------------------
-    2.0 SOFTWARE
-    --------------------------------------------------------------*/
-
-    /*--------------------------------------------------------------
-    2.1.0 OS
-    --------------------------------------------------------------*/
-
-    /*--------------------------------------------------------------
-    2.1.1 NAME
-    --------------------------------------------------------------*/
-
-    if (navigator.appVersion.indexOf('Win') !== -1) {
-        if (navigator.appVersion.match(/(Windows 10.0|Windows NT 10.0)/)) {
-            data.os.name = 'Windows 10';
-        } else if (navigator.appVersion.match(/(Windows 8.1|Windows NT 6.3)/)) {
-            data.os.name = 'Windows 8.1';
-        } else if (navigator.appVersion.match(/(Windows 8|Windows NT 6.2)/)) {
-            data.os.name = 'Windows 8';
-        } else if (navigator.appVersion.match(/(Windows 7|Windows NT 6.1)/)) {
-            data.os.name = 'Windows 7';
-        } else if (navigator.appVersion.match(/(Windows NT 6.0)/)) {
-            data.os.name = 'Windows Vista';
-        } else if (navigator.appVersion.match(/(Windows NT 5.1|Windows XP)/)) {
-            data.os.name = 'Windows XP';
-        } else {
-            data.os.name = 'Windows';
-        }
-    } else if (navigator.appVersion.indexOf('(iPhone|iPad|iPod)') !== -1) {
-        data.os.name = 'iOS';
-    } else if (navigator.appVersion.indexOf('Mac') !== -1) {
-        data.os.name = 'macOS';
-    } else if (navigator.appVersion.indexOf('Android') !== -1) {
-        data.os.name = 'Android';
-    } else if (navigator.appVersion.indexOf('OpenBSD') !== -1) {
-        data.os.name = 'OpenBSD';
-    } else if (navigator.appVersion.indexOf('SunOS') !== -1) {
-        data.os.name = 'SunOS';
-    } else if (navigator.appVersion.indexOf('Linux') !== -1) {
-        data.os.name = 'Linux';
-    } else if (navigator.appVersion.indexOf('X11') !== -1) {
-        data.os.name = 'UNIX';
-    }
-
-    /*--------------------------------------------------------------
-    2.1.2 TYPE
-    --------------------------------------------------------------*/
-
-    if (navigator.appVersion.match(/(Win64|x64|x86_64|WOW64)/)) {
-        data.os.type = '64-bit';
-    } else {
-        data.os.type = '32-bit';
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.0 BROWSER
-    --------------------------------------------------------------*/
-
-    /*--------------------------------------------------------------
-    2.2.1 NAME
-    --------------------------------------------------------------*/
-
-    if (user_agent.indexOf('Opera') !== -1) {
-        data.browser.name = 'Opera';
-    } else if (user_agent.indexOf('Vivaldi') !== -1) {
-        data.browser.name = 'Vivaldi';
-    } else if (user_agent.indexOf('Edge') !== -1) {
-        data.browser.name = 'Edge';
-    } else if (user_agent.indexOf('Chrome') !== -1) {
-        data.browser.name = 'Chrome';
-    } else if (user_agent.indexOf('Safari') !== -1) {
-        data.browser.name = 'Safari';
-    } else if (user_agent.indexOf('Firefox') !== -1) {
-        data.browser.name = 'Firefox';
-    } else if (user_agent.indexOf('MSIE') !== -1) {
-        data.browser.name = 'IE';
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.2 VERSION
-    --------------------------------------------------------------*/
-
-    var browser_version = user_agent.match(new RegExp(data.browser.name + '/([0-9.]+)'));
-
-    if (browser_version[1]) {
-        data.browser.version = browser_version[1];
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.3 PLATFORM
-    --------------------------------------------------------------*/
-
-    data.browser.platform = navigator.platform || null;
-
-
-    /*--------------------------------------------------------------
-    2.2.4 LANGUAGES
-    --------------------------------------------------------------*/
-
-    data.browser.languages = navigator.languages || null;
-
-
-    /*--------------------------------------------------------------
-    2.2.5 COOKIES
-    --------------------------------------------------------------*/
-
-    if (document.cookie) {
-        document.cookie = random_cookie;
-
-        if (document.cookie.indexOf(random_cookie) !== -1) {
-            data.browser.cookies = true;
-        }
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.6 FLASH
-    --------------------------------------------------------------*/
-
-    try {
-        if (new ActiveXObject('ShockwaveFlash.ShockwaveFlash')) {
-            data.browser.flash = true;
-        }
-    } catch (e) {
-        if (navigator.mimeTypes['application/x-shockwave-flash']) {
-            data.browser.flash = true;
-        }
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.7 JAVA
-    --------------------------------------------------------------*/
-
-    if (typeof navigator.javaEnabled === 'function' && navigator.javaEnabled()) {
-        data.browser.java = true;
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.8 VIDEO FORMATS
-    --------------------------------------------------------------*/
-
-    if (typeof video.canPlayType === 'function') {
-        data.browser.video = {};
-
-        for (var i in video_formats) {
-            var can_play_type = video.canPlayType(video_formats[i]);
-
-            if (can_play_type === '') {
-                data.browser.video[i] = false;
-            } else {
-                data.browser.video[i] = can_play_type;
-            }
-        }
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.9 AUDIO FORMATS
-    --------------------------------------------------------------*/
-
-    if (typeof audio.canPlayType === 'function') {
-        data.browser.audio = {};
-
-        for (var i in audio_formats) {
-            var can_play_type = audio.canPlayType(audio_formats[i]);
-
-            if (can_play_type == '') {
-                data.browser.audio[i] = false;
-            } else {
-                data.browser.audio[i] = can_play_type;
-            }
-        }
-    }
-
-
-    /*--------------------------------------------------------------
-    2.2.10 WEBGL
-    --------------------------------------------------------------*/
-
-    if (ctx && ctx instanceof WebGLRenderingContext) {
-        data.browser.webgl = true;
-    }
-
-
-    /*--------------------------------------------------------------
-    3.0 HARDWARE
-    --------------------------------------------------------------*/
-
-    /*--------------------------------------------------------------
-    3.1 SCREEN
-    --------------------------------------------------------------*/
-
-    if (screen) {
-        data.device.screen = screen.width + 'x' + screen.height;
-    }
-
-
-    /*--------------------------------------------------------------
-    3.2 RAM
-    --------------------------------------------------------------*/
-
-    if ('deviceMemory' in navigator) {
-        data.device.ram = navigator.deviceMemory + ' GB';
-    }
-
-
-    /*--------------------------------------------------------------
-    3.3 GPU
-    --------------------------------------------------------------*/
-
-    if (
-        ctx &&
-        ctx instanceof WebGLRenderingContext &&
-        'getParameter' in ctx &&
-        'getExtension' in ctx
-    ) {
-        var info = ctx.getExtension('WEBGL_debug_renderer_info');
-
-        if (info) {
-            data.device.gpu = ctx.getParameter(info.UNMASKED_RENDERER_WEBGL);
-        }
-    }
-
-
-    /*--------------------------------------------------------------
-    3.4 CORES
-    --------------------------------------------------------------*/
-
-    if (navigator.hardwareConcurrency) {
-        data.device.cores = navigator.hardwareConcurrency;
-    }
-
-
-    /*--------------------------------------------------------------
-    3.5 TOUCH
-    --------------------------------------------------------------*/
-
-    if (
-        window.hasOwnProperty('ontouchstart') ||
-        window.DocumentTouch && document instanceof window.DocumentTouch ||
-        navigator.maxTouchPoints > 0 ||
-        window.navigator.msMaxTouchPoints > 0
-    ) {
-        data.device.touch = true;
-        data.device.max_touch_points = navigator.maxTouchPoints;
-    }
-
-
-    /*--------------------------------------------------------------
-    3.6 CONNECTION
-    --------------------------------------------------------------*/
-
-    if (typeof navigator.connection === 'object') {
-        data.device.connection.type = navigator.connection.effectiveType || null;
-
-        if (navigator.connection.downlink) {
-            data.device.connection.speed = navigator.connection.downlink + ' Mbps';
-        }
-    }
-
-
-    /*--------------------------------------------------------------
-    4.0 CLEARING
-    --------------------------------------------------------------*/
-
-    video.remove();
-    audio.remove();
-    cvs.remove();
-
-
-    return data;
-};
-/*--------------------------------------------------------------
->>> COLOR:
-----------------------------------------------------------------
-# RGB to HSL
-# HUE to RGB
-# HSL to RGB
---------------------------------------------------------------*/
-
-satus.color = {};
-
-
-/*--------------------------------------------------------------
-# RGB TO HSL
---------------------------------------------------------------*/
-
-satus.color.rgbToHsl = function (array) {
-	var r = array[0] / 255,
-		g = array[1] / 255,
-		b = array[2] / 255,
-		min = Math.min(r, g, b),
-		max = Math.max(r, g, b),
-		h = 0,
-		s = 0,
-		l = (min + max) / 2;
-
-	if (min === max) {
-		h = 0;
-		s = 0;
-	} else {
-		var delta = max - min;
-
-		s = l <= 0.5 ? delta / (max + min) : delta / (2 - max - min);
-
-		if (max === r) {
-			h = (g - b) / delta + (g < b ? 6 : 0);
-		} else if (max === g) {
-			h = (b - r) / delta + 2;
-		} else if (max === b) {
-			h = (r - g) / delta + 4;
-		}
-
-		h /= 6;
-	}
-
-	h *= 360;
-	s *= 100;
-	l *= 100;
-
-	if (array.length === 3) {
-		return [h, s, l];
-	} else {
-		return [h, s, l, array[3]];
-	}
-};
-
-
-/*--------------------------------------------------------------
-# HUE TO RGB
---------------------------------------------------------------*/
-
-satus.color.hueToRgb = function (array) {
-	var t1 = array[0],
-		t2 = array[1],
-		hue = array[2];
-
-	if (hue < 0) {
-		hue += 6;
-	}
-
-	if (hue >= 6) {
-		hue -= 6;
-	}
-
-	if (hue < 1) {
-		return (t2 - t1) * hue + t1;
-	} else if (hue < 3) {
-		return t2;
-	} else if (hue < 4) {
-		return (t2 - t1) * (4 - hue) + t1;
-	} else {
-		return t1;
-	}
-};
-
-
-/*--------------------------------------------------------------
-# HSL TO RGB
---------------------------------------------------------------*/
-
-satus.color.hslToRgb = function (array) {
-	var h = array[0] / 360,
-		s = array[1] / 100,
-		l = array[2] / 100,
-		r, g, b;
-
-	if (s == 0) {
-		r = g = b = l;
-	} else {
-		var hue2rgb = function hue2rgb(p, q, t) {
-			if (t < 0) t += 1;
-			if (t > 1) t -= 1;
-			if (t < 1 / 6) return p + (q - p) * 6 * t;
-			if (t < 1 / 2) return q;
-			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-			return p;
-		}
-
-		var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		var p = 2 * l - q;
-		r = hue2rgb(p, q, h + 1 / 3);
-		g = hue2rgb(p, q, h);
-		b = hue2rgb(p, q, h - 1 / 3);
-	}
-
-	return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-};
-/*--------------------------------------------------------------
->>> BASE
---------------------------------------------------------------*/
-
-satus.components.base = function (component) {
-	component.baseProvider = component;
-	component.layers = [];
-};
-/*--------------------------------------------------------------
 >>> MODAL
 --------------------------------------------------------------*/
 
@@ -1284,490 +801,11 @@ satus.components.modal = function (component, skeleton) {
 	component.childrenContainer = component.surface;
 };
 /*--------------------------------------------------------------
->>> SIDEBAR
---------------------------------------------------------------*/
-
-satus.components.sidebar = function (component, skeleton) {};
-/*--------------------------------------------------------------
->>> LIST
---------------------------------------------------------------*/
-
-satus.components.list = function (component, skeleton) {
-	for (var i = 0, l = skeleton.items.length; i < l; i++) {
-		var li = component.createChildElement('div', 'item'),
-			item = skeleton.items[i];
-
-		for (var j = 0, k = item.length; j < k; j++) {
-			var child = item[j];
-
-			if (typeof child === 'string') {
-				var span = li.createChildElement('span');
-
-				span.textContent = satus.locale.get(child);
-			} else {
-				satus.render(child, li);
-			}
-		}
-	}
-};
-/*--------------------------------------------------------------
->>> RADIO
---------------------------------------------------------------*/
-
-satus.components.radio = function (component, skeleton) {
-	var content = document.createElement('span'),
-		radio = document.createElement('input');
-
-	component.inner = content;
-
-	radio.type = 'radio';
-
-	if (skeleton.group) {
-		component.storage.key = skeleton.group;
-		radio.name = skeleton.group;
-	}
-
-	if (skeleton.value) {
-		radio.value = skeleton.value;
-	}
-
-	component.addEventListener('render', function () {
-		this.storage.value = satus.storage.get(this.storage.key);
-
-		if (satus.isset(this.storage.value)) {
-			radio.checked = this.storage.value === skeleton.value;
-		} else if (skeleton.checked) {
-			radio.checked = true;
-		}
-	});
-
-	radio.addEventListener('change', function () {
-		this.parentNode.storage.value = this.value;
-	});
-
-	component.appendChild(content);
-	component.appendChild(radio);
-};
-/*--------------------------------------------------------------
->>> CHECKBOX
---------------------------------------------------------------*/
-
-satus.components.checkbox = function (component, skeleton) {
-	var content = component.add('span', 'checkbox__content');
-
-	component.inner = content;
-
-	component.addEventListener('click', function () {
-		if (this.dataset.value === 'true') {
-			this.storage.value = false;
-			this.dataset.value = 'false';
-		} else {
-			this.storage.value = true;
-			this.dataset.value = 'true';
-		}
-	});
-
-	component.addEventListener('render', function () {
-		this.dataset.value = this.storage.value;
-	});
-};
-/*--------------------------------------------------------------
 >>> GRID
 --------------------------------------------------------------*/
 
 satus.components.grid = function (component, skeleton) {
 	console.log(component, skeleton);
-};
-/*--------------------------------------------------------------
->>> SELECT
---------------------------------------------------------------*/
-
-satus.components.select = function (component, skeleton) {
-	var component_content = document.createElement('span'),
-		component_value = document.createElement('span'),
-		component_select = document.createElement('select');
-
-	for (var i = 0, l = skeleton.options.length; i < l; i++) {
-		var option = document.createElement('option');
-
-		option.value = skeleton.options[i].value;
-
-		satus.text(option, skeleton.options[i].text);
-
-		component_select.appendChild(option);
-	}
-
-	component.inner = component_content;
-	component.select = component_select;
-
-	Object.defineProperty(component, 'value', {
-		get() {
-			return this.select.value;
-		},
-		set(value) {
-			this.select.value = value;
-		}
-	});
-
-	component.render = function () {
-		var value_element = this.children[2];
-
-		satus.empty(value_element);
-
-		satus.text(value_element, this.select.options[this.select.selectedIndex].text);
-
-		this.dataset.value = this.value;
-	};
-
-	component.addEventListener('render', function () {
-		this.value = this.storage.value || this.skeleton.options[0].value;
-
-		this.render();
-	});
-
-	component_select.addEventListener('change', function () {
-		var component = this.parentNode;
-
-		component.storage.value = this.value;
-
-		component.render();
-	});
-
-	component.appendChild(component_select);
-	component.appendChild(component_content);
-	component.appendChild(component_value);
-};
-/*--------------------------------------------------------------
->>> SHORTCUT
---------------------------------------------------------------*/
-
-satus.components.shortcut = function (component, skeleton) {
-    var content = document.createElement('span'),
-        value = document.createElement('div');
-
-    component.inner = content;
-
-    component.className = 'satus-button';
-    value.className = 'satus-shortcut__value';
-
-    component.render = function (parent) {
-        var self = this,
-            parent = parent || self.primary,
-            children = parent.children;
-
-        satus.empty(parent);
-
-        function createElement(name) {
-            var element = document.createElement('div');
-
-            element.className = 'satus-shortcut__' + name;
-
-            parent.appendChild(element);
-
-            return element;
-        }
-
-        if (this.data.alt) {
-            createElement('key').textContent = 'Alt';
-        }
-
-        if (this.data.ctrl) {
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            createElement('key').textContent = 'Ctrl';
-        }
-
-        if (this.data.shift) {
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            createElement('key').textContent = 'Shift';
-        }
-
-        for (var code in this.data.keys) {
-            var key = this.data.keys[code].key,
-                arrows = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'],
-                index = arrows.indexOf(key);
-
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            if (index !== -1) {
-                createElement('key').textContent = ['↑', '→', '↓', '←'][index];
-            } else if (key === ' ') {
-                createElement('key').textContent = '␣';
-            } else if (key) {
-                createElement('key').textContent = key.toUpperCase();
-            }
-        }
-
-        if (this.data.wheel) {
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            var mouse = createElement('mouse'),
-                div = document.createElement('div');
-
-            mouse.appendChild(div);
-
-            mouse.className += ' ' + (this.data.wheel > 0);
-        }
-
-        if (this.data.click) {
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            var mouse = createElement('mouse'),
-                div = document.createElement('div');
-
-            mouse.appendChild(div);
-
-            mouse.className += ' click';
-        }
-
-        if (this.data.middle) {
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            var mouse = createElement('mouse'),
-                div = document.createElement('div');
-
-            mouse.appendChild(div);
-
-            mouse.className += ' middle';
-        }
-
-        if (this.data.context) {
-            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
-                createElement('plus');
-            }
-
-            var mouse = createElement('mouse'),
-                div = document.createElement('div');
-
-            mouse.appendChild(div);
-
-            mouse.className += ' context';
-        }
-    };
-
-    component.valueElement = value;
-
-    component.appendChild(content);
-    component.appendChild(value);
-
-    component.keydown = function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        component.data = {
-            alt: event.altKey,
-            ctrl: event.ctrlKey,
-            shift: event.shiftKey,
-            keys: {}
-        };
-
-        if (['control', 'alt', 'altgraph', 'shift'].indexOf(event.key.toLowerCase()) === -1) {
-            component.data.keys[event.keyCode] = {
-                code: event.code,
-                key: event.key
-            };
-        }
-
-        component.data.wheel = 0;
-
-        component.render();
-
-        return false;
-    };
-
-    if (skeleton.wheel !== false) {
-        component.mousewheel = function (event) {
-            event.stopPropagation();
-
-            if (
-                (
-                    component.data.wheel === 0 &&
-                    (
-                        Object.keys(component.data.keys).length === 0 &&
-                        component.data.alt === false &&
-                        component.data.ctrl === false &&
-                        component.data.shift === false
-                    )
-                ) ||
-                component.data.wheel < 0 && event.deltaY > 0 ||
-                component.data.wheel > 0 && event.deltaY < 0) {
-                component.data = {
-                    alt: false,
-                    ctrl: false,
-                    shift: false,
-                    keys: {}
-                };
-            }
-
-            component.data.wheel = event.deltaY < 0 ? -1 : 1;
-
-            component.render();
-
-            return false;
-        };
-    }
-
-    component.addEventListener('click', function () {
-        satus.render({
-            component: 'modal',
-            properties: {
-                parent: this
-            },
-            on: {
-                close: function () {
-                    window.removeEventListener('keydown', component.keydown);
-                    window.removeEventListener('wheel', component.mousewheel);
-                }
-            },
-
-            primary: {
-                component: 'div',
-                class: 'satus-shortcut__primary',
-                on: {
-                    render: function () {
-                        component.primary = this;
-
-                        if (component.skeleton.mouseButtons === true) {
-                            this.addEventListener('mousedown', function (event) {
-                                if (
-                                    component.data.click && event.button === 0 ||
-                                    component.data.middle && event.button === 1
-                                ) {
-                                    component.data = {
-                                        alt: false,
-                                        ctrl: false,
-                                        shift: false,
-                                        keys: {}
-                                    };
-                                }
-
-                                component.data.click = false;
-                                component.data.middle = false;
-                                component.data.context = false;
-
-                                if (event.button === 0) {
-                                    component.data.click = true;
-                                    
-                                    component.render();
-                                } else if (event.button === 1) {
-                                    component.data.middle = true;
-                                    
-                                    component.render();
-                                }
-                            });
-
-                            this.addEventListener('contextmenu', function (event) {
-                                event.preventDefault();
-                                event.stopPropagation();
-
-                                if (component.data.context) {
-                                    component.data = {
-                                        alt: false,
-                                        ctrl: false,
-                                        shift: false,
-                                        keys: {}
-                                    };
-                                }
-
-                                component.data.context = true;
-                                component.data.middle = false;
-                                component.data.click = false;
-
-                                component.render();
-
-                                return false;
-                            });
-                        }
-
-                        component.render();
-                    }
-                }
-            },
-            actions: {
-                component: 'section',
-                variant: 'actions',
-
-                reset: {
-                    component: 'button',
-                    text: 'reset',
-                    on: {
-                        click: function () {
-                            var component = this.parentNode.parentNode.parentNode.parent;
-
-                            component.data = component.skeleton.value || {};
-
-                            component.render(component.valueElement);
-
-                            satus.storage.remove(component.storage);
-
-                            this.parentNode.parentNode.parentNode.close();
-
-                            window.removeEventListener('keydown', component.keydown);
-                            window.removeEventListener('wheel', component.mousewheel);
-                        }
-                    }
-                },
-                cancel: {
-                    component: 'button',
-                    text: 'cancel',
-                    on: {
-                        click: function () {
-                            component.data = satus.storage.get(component.storage) || component.skeleton.value || {};
-
-                            component.render(component.valueElement);
-
-                            this.parentNode.parentNode.parentNode.close();
-
-                            window.removeEventListener('keydown', component.keydown);
-                            window.removeEventListener('wheel', component.mousewheel);
-                        }
-                    }
-                },
-                save: {
-                    component: 'button',
-                    text: 'save',
-                    on: {
-                        click: function () {
-                            component.storage.value = component.data;
-
-                            component.render(component.valueElement);
-
-                            this.parentNode.parentNode.parentNode.close();
-
-                            window.removeEventListener('keydown', component.keydown);
-                            window.removeEventListener('wheel', component.mousewheel);
-                        }
-                    }
-                }
-            }
-        }, this.baseProvider);
-
-        window.addEventListener('keydown', this.keydown);
-        window.addEventListener('wheel', this.mousewheel);
-    });
-
-    component.data = component.storage.value || {
-        alt: false,
-        ctrl: false,
-        shift: false,
-        keys: {},
-        wheel: 0
-    };
-
-    component.render(component.valueElement);
 };
 /*--------------------------------------------------------------
 >>> TEXT FIELD
@@ -1861,7 +899,7 @@ satus.components.textField = function (component, skeleton) {
 	pre.update = function () {
 		var component = this.parentNode.parentNode,
 			handler = component.syntax.handlers[component.syntax.current],
-			value = component.storage.value || '';
+			value = component.value || '';
 
 		for (var i = this.childNodes.length - 1; i > -1; i--) {
 			this.childNodes[i].remove();
@@ -1878,6 +916,8 @@ satus.components.textField = function (component, skeleton) {
 
 			if (typeof placeholder === 'function') {
 				placeholder = component.placeholder();
+			} else {
+				placeholder = satus.locale.get(placeholder);
 			}
 
 			this.textContent = placeholder;
@@ -1964,27 +1004,141 @@ satus.components.textField = function (component, skeleton) {
 	}
 };
 /*--------------------------------------------------------------
->>> SWITCH
+>>> SELECT
 --------------------------------------------------------------*/
 
-satus.components.switch = function (component, skeleton) {
-	var component_thumb = document.createElement('i');
+satus.components.select = function (component, skeleton) {
+	var component_content = document.createElement('span'),
+		component_value = document.createElement('span'),
+		component_select = document.createElement('select');
 
-	component.addEventListener('click', function () {
-		if (this.dataset.value === 'true') {
-			this.storage.value = false;
-			this.dataset.value = 'false';
-		} else {
-			this.storage.value = true;
-			this.dataset.value = 'true';
+	for (var i = 0, l = skeleton.options.length; i < l; i++) {
+		var option = document.createElement('option');
+
+		option.value = skeleton.options[i].value;
+
+		satus.text(option, skeleton.options[i].text);
+
+		component_select.appendChild(option);
+	}
+
+	component.inner = component_content;
+	component.select = component_select;
+
+	Object.defineProperty(component, 'value', {
+		get() {
+			return this.select.value;
+		},
+		set(value) {
+			this.select.value = value;
 		}
-	}, true);
-
-	component.addEventListener('render', function () {
-		this.dataset.value = this.storage.value;
 	});
 
-	component.appendChild(component_thumb);
+	component.render = function () {
+		var value_element = this.children[2];
+
+		satus.empty(value_element);
+
+		satus.text(value_element, this.select.options[this.select.selectedIndex].text);
+
+		this.dataset.value = this.value;
+	};
+
+	component.addEventListener('render', function () {
+		this.value = this.storage.value || this.skeleton.options[0].value;
+
+		this.render();
+	});
+
+	component_select.addEventListener('change', function () {
+		var component = this.parentNode;
+
+		component.storage.value = this.value;
+
+		component.render();
+	});
+
+	component.appendChild(component_select);
+	component.appendChild(component_content);
+	component.appendChild(component_value);
+};
+/*--------------------------------------------------------------
+>>> BASE
+--------------------------------------------------------------*/
+
+satus.components.base = function (component) {
+	component.baseProvider = component;
+	component.layers = [];
+};
+/*--------------------------------------------------------------
+>>> SIDEBAR
+--------------------------------------------------------------*/
+
+satus.components.sidebar = function (component, skeleton) {};
+/*--------------------------------------------------------------
+>>> LAYERS
+--------------------------------------------------------------*/
+
+satus.components.layers = function (component, skeleton) {
+	component.path = [];
+	component.renderChildren = false;
+	component.baseProvider.layers.push(component);
+
+	component.back = function () {
+		if (this.path.length > 1) {
+			this.path.pop();
+
+			this.open(this.path[this.path.length - 1], false);
+		}
+	};
+
+	component.open = function (skeleton, history) {
+		satus.empty(this);
+
+		var layer = this.createChildElement('div', 'layer');
+
+		if (history !== false) {
+			this.path.push(skeleton);
+		}
+
+		layer.skeleton = skeleton;
+		layer.baseProvider = this.baseProvider;
+
+		satus.render(skeleton, layer, undefined, skeleton.component === 'layers');
+
+		this.dispatchEvent(new Event('open'));
+	};
+
+	component.update = function () {
+		var layer = this.querySelector('.satus-layers__layer');
+
+		satus.empty(layer);
+		satus.render(layer.skeleton, layer);
+	};
+
+	component.open(skeleton);
+};
+/*--------------------------------------------------------------
+>>> LIST
+--------------------------------------------------------------*/
+
+satus.components.list = function (component, skeleton) {
+	for (var i = 0, l = skeleton.items.length; i < l; i++) {
+		var li = component.createChildElement('div', 'item'),
+			item = skeleton.items[i];
+
+		for (var j = 0, k = item.length; j < k; j++) {
+			var child = item[j];
+
+			if (typeof child === 'string') {
+				var span = li.createChildElement('span');
+
+				span.textContent = satus.locale.get(child);
+			} else {
+				satus.render(child, li);
+			}
+		}
+	}
 };
 /*--------------------------------------------------------------
 >>> COLOR PICKER
@@ -2334,47 +1488,42 @@ satus.components.colorPicker = function (component, skeleton) {
     });
 };
 /*--------------------------------------------------------------
->>> LAYERS
+>>> RADIO
 --------------------------------------------------------------*/
 
-satus.components.layers = function (component, skeleton) {
-	component.path = [];
-	component.renderChildren = false;
-	component.baseProvider.layers.push(component);
+satus.components.radio = function (component, skeleton) {
+	var content = document.createElement('span'),
+		radio = document.createElement('input');
 
-	component.back = function () {
-		if (this.path.length > 1) {
-			this.path.pop();
+	component.inner = content;
 
-			this.open(this.path[this.path.length - 1], false);
+	radio.type = 'radio';
+
+	if (skeleton.group) {
+		component.storage.key = skeleton.group;
+		radio.name = skeleton.group;
+	}
+
+	if (skeleton.value) {
+		radio.value = skeleton.value;
+	}
+
+	component.addEventListener('render', function () {
+		this.storage.value = satus.storage.get(this.storage.key);
+
+		if (satus.isset(this.storage.value)) {
+			radio.checked = this.storage.value === skeleton.value;
+		} else if (skeleton.checked) {
+			radio.checked = true;
 		}
-	};
+	});
 
-	component.open = function (skeleton, history) {
-		satus.empty(this);
+	radio.addEventListener('change', function () {
+		this.parentNode.storage.value = this.value;
+	});
 
-		var layer = this.createChildElement('div', 'layer');
-
-		if (history !== false) {
-			this.path.push(skeleton);
-		}
-
-		layer.skeleton = skeleton;
-		layer.baseProvider = this.baseProvider;
-
-		satus.render(skeleton, layer, undefined, skeleton.component === 'layers');
-
-		this.dispatchEvent(new Event('open'));
-	};
-
-	component.update = function () {
-		var layer = this.querySelector('.satus-layers__layer');
-
-		satus.empty(layer);
-		satus.render(layer.skeleton, layer);
-	};
-
-	component.open(skeleton);
+	component.appendChild(content);
+	component.appendChild(radio);
 };
 /*--------------------------------------------------------------
 >>> SLIDER
@@ -2503,4 +1652,884 @@ satus.components.slider = function (component, skeleton) {
 			});
 		}
 	}
+};
+/*--------------------------------------------------------------
+>>> SHORTCUT
+--------------------------------------------------------------*/
+
+satus.components.shortcut = function (component, skeleton) {
+    var content = document.createElement('span'),
+        value = document.createElement('div');
+
+    component.inner = content;
+
+    component.className = 'satus-button';
+    value.className = 'satus-shortcut__value';
+
+    component.render = function (parent) {
+        var self = this,
+            parent = parent || self.primary,
+            children = parent.children;
+
+        satus.empty(parent);
+
+        function createElement(name) {
+            var element = document.createElement('div');
+
+            element.className = 'satus-shortcut__' + name;
+
+            parent.appendChild(element);
+
+            return element;
+        }
+
+        if (this.data.alt) {
+            createElement('key').textContent = 'Alt';
+        }
+
+        if (this.data.ctrl) {
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            createElement('key').textContent = 'Ctrl';
+        }
+
+        if (this.data.shift) {
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            createElement('key').textContent = 'Shift';
+        }
+
+        for (var code in this.data.keys) {
+            var key = this.data.keys[code].key,
+                arrows = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'],
+                index = arrows.indexOf(key);
+
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            if (index !== -1) {
+                createElement('key').textContent = ['↑', '→', '↓', '←'][index];
+            } else if (key === ' ') {
+                createElement('key').textContent = '␣';
+            } else if (key) {
+                createElement('key').textContent = key.toUpperCase();
+            }
+        }
+
+        if (this.data.wheel) {
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            var mouse = createElement('mouse'),
+                div = document.createElement('div');
+
+            mouse.appendChild(div);
+
+            mouse.className += ' ' + (this.data.wheel > 0);
+        }
+
+        if (this.data.click) {
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            var mouse = createElement('mouse'),
+                div = document.createElement('div');
+
+            mouse.appendChild(div);
+
+            mouse.className += ' click';
+        }
+
+        if (this.data.middle) {
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            var mouse = createElement('mouse'),
+                div = document.createElement('div');
+
+            mouse.appendChild(div);
+
+            mouse.className += ' middle';
+        }
+
+        if (this.data.context) {
+            if (children.length && children[children.length - 1].className.indexOf('plus') === -1) {
+                createElement('plus');
+            }
+
+            var mouse = createElement('mouse'),
+                div = document.createElement('div');
+
+            mouse.appendChild(div);
+
+            mouse.className += ' context';
+        }
+    };
+
+    component.valueElement = value;
+
+    component.appendChild(content);
+    component.appendChild(value);
+
+    component.keydown = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        component.data = {
+            alt: event.altKey,
+            ctrl: event.ctrlKey,
+            shift: event.shiftKey,
+            keys: {}
+        };
+
+        if (['control', 'alt', 'altgraph', 'shift'].indexOf(event.key.toLowerCase()) === -1) {
+            component.data.keys[event.keyCode] = {
+                code: event.code,
+                key: event.key
+            };
+        }
+
+        component.data.wheel = 0;
+
+        component.render();
+
+        return false;
+    };
+
+    if (skeleton.wheel !== false) {
+        component.mousewheel = function (event) {
+            event.stopPropagation();
+
+            if (
+                (
+                    component.data.wheel === 0 &&
+                    (
+                        Object.keys(component.data.keys).length === 0 &&
+                        component.data.alt === false &&
+                        component.data.ctrl === false &&
+                        component.data.shift === false
+                    )
+                ) ||
+                component.data.wheel < 0 && event.deltaY > 0 ||
+                component.data.wheel > 0 && event.deltaY < 0) {
+                component.data = {
+                    alt: false,
+                    ctrl: false,
+                    shift: false,
+                    keys: {}
+                };
+            }
+
+            component.data.wheel = event.deltaY < 0 ? -1 : 1;
+
+            component.render();
+
+            return false;
+        };
+    }
+
+    component.addEventListener('click', function () {
+        satus.render({
+            component: 'modal',
+            properties: {
+                parent: this
+            },
+            on: {
+                close: function () {
+                    window.removeEventListener('keydown', component.keydown);
+                    window.removeEventListener('wheel', component.mousewheel);
+                }
+            },
+
+            primary: {
+                component: 'div',
+                class: 'satus-shortcut__primary',
+                on: {
+                    render: function () {
+                        component.primary = this;
+
+                        if (component.skeleton.mouseButtons === true) {
+                            this.addEventListener('mousedown', function (event) {
+                                if (
+                                    component.data.click && event.button === 0 ||
+                                    component.data.middle && event.button === 1
+                                ) {
+                                    component.data = {
+                                        alt: false,
+                                        ctrl: false,
+                                        shift: false,
+                                        keys: {}
+                                    };
+                                }
+
+                                component.data.click = false;
+                                component.data.middle = false;
+                                component.data.context = false;
+
+                                if (event.button === 0) {
+                                    component.data.click = true;
+                                    
+                                    component.render();
+                                } else if (event.button === 1) {
+                                    component.data.middle = true;
+                                    
+                                    component.render();
+                                }
+                            });
+
+                            this.addEventListener('contextmenu', function (event) {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                if (component.data.context) {
+                                    component.data = {
+                                        alt: false,
+                                        ctrl: false,
+                                        shift: false,
+                                        keys: {}
+                                    };
+                                }
+
+                                component.data.context = true;
+                                component.data.middle = false;
+                                component.data.click = false;
+
+                                component.render();
+
+                                return false;
+                            });
+                        }
+
+                        component.render();
+                    }
+                }
+            },
+            actions: {
+                component: 'section',
+                variant: 'actions',
+
+                reset: {
+                    component: 'button',
+                    text: 'reset',
+                    on: {
+                        click: function () {
+                            var component = this.parentNode.parentNode.parentNode.parent;
+
+                            component.data = component.skeleton.value || {};
+
+                            component.render(component.valueElement);
+
+                            satus.storage.remove(component.storage);
+
+                            this.parentNode.parentNode.parentNode.close();
+
+                            window.removeEventListener('keydown', component.keydown);
+                            window.removeEventListener('wheel', component.mousewheel);
+                        }
+                    }
+                },
+                cancel: {
+                    component: 'button',
+                    text: 'cancel',
+                    on: {
+                        click: function () {
+                            component.data = satus.storage.get(component.storage) || component.skeleton.value || {};
+
+                            component.render(component.valueElement);
+
+                            this.parentNode.parentNode.parentNode.close();
+
+                            window.removeEventListener('keydown', component.keydown);
+                            window.removeEventListener('wheel', component.mousewheel);
+                        }
+                    }
+                },
+                save: {
+                    component: 'button',
+                    text: 'save',
+                    on: {
+                        click: function () {
+                            component.storage.value = component.data;
+
+                            component.render(component.valueElement);
+
+                            this.parentNode.parentNode.parentNode.close();
+
+                            window.removeEventListener('keydown', component.keydown);
+                            window.removeEventListener('wheel', component.mousewheel);
+                        }
+                    }
+                }
+            }
+        }, this.baseProvider);
+
+        window.addEventListener('keydown', this.keydown);
+        window.addEventListener('wheel', this.mousewheel);
+    });
+
+    component.data = component.storage.value || {
+        alt: false,
+        ctrl: false,
+        shift: false,
+        keys: {},
+        wheel: 0
+    };
+
+    component.render(component.valueElement);
+};
+/*--------------------------------------------------------------
+>>> CHECKBOX
+--------------------------------------------------------------*/
+
+satus.components.checkbox = function (component, skeleton) {
+	var content = component.add('span', 'checkbox__content');
+
+	component.inner = content;
+
+	component.addEventListener('click', function () {
+		if (this.dataset.value === 'true') {
+			this.storage.value = false;
+			this.dataset.value = 'false';
+		} else {
+			this.storage.value = true;
+			this.dataset.value = 'true';
+		}
+	});
+
+	component.addEventListener('render', function () {
+		this.dataset.value = this.storage.value;
+	});
+};
+/*--------------------------------------------------------------
+>>> SWITCH
+--------------------------------------------------------------*/
+
+satus.components.switch = function (component, skeleton) {
+	var component_thumb = document.createElement('i');
+
+	component.addEventListener('click', function () {
+		if (this.dataset.value === 'true') {
+			this.storage.value = false;
+			this.dataset.value = 'false';
+		} else {
+			this.storage.value = true;
+			this.dataset.value = 'true';
+		}
+	}, true);
+
+	component.addEventListener('render', function () {
+		this.dataset.value = this.storage.value;
+	});
+
+	component.appendChild(component_thumb);
+};
+/*--------------------------------------------------------------
+>>> COLOR:
+----------------------------------------------------------------
+# RGB to HSL
+# HUE to RGB
+# HSL to RGB
+--------------------------------------------------------------*/
+
+satus.color = {};
+
+
+/*--------------------------------------------------------------
+# RGB TO HSL
+--------------------------------------------------------------*/
+
+satus.color.rgbToHsl = function (array) {
+	var r = array[0] / 255,
+		g = array[1] / 255,
+		b = array[2] / 255,
+		min = Math.min(r, g, b),
+		max = Math.max(r, g, b),
+		h = 0,
+		s = 0,
+		l = (min + max) / 2;
+
+	if (min === max) {
+		h = 0;
+		s = 0;
+	} else {
+		var delta = max - min;
+
+		s = l <= 0.5 ? delta / (max + min) : delta / (2 - max - min);
+
+		if (max === r) {
+			h = (g - b) / delta + (g < b ? 6 : 0);
+		} else if (max === g) {
+			h = (b - r) / delta + 2;
+		} else if (max === b) {
+			h = (r - g) / delta + 4;
+		}
+
+		h /= 6;
+	}
+
+	h *= 360;
+	s *= 100;
+	l *= 100;
+
+	if (array.length === 3) {
+		return [h, s, l];
+	} else {
+		return [h, s, l, array[3]];
+	}
+};
+
+
+/*--------------------------------------------------------------
+# HUE TO RGB
+--------------------------------------------------------------*/
+
+satus.color.hueToRgb = function (array) {
+	var t1 = array[0],
+		t2 = array[1],
+		hue = array[2];
+
+	if (hue < 0) {
+		hue += 6;
+	}
+
+	if (hue >= 6) {
+		hue -= 6;
+	}
+
+	if (hue < 1) {
+		return (t2 - t1) * hue + t1;
+	} else if (hue < 3) {
+		return t2;
+	} else if (hue < 4) {
+		return (t2 - t1) * (4 - hue) + t1;
+	} else {
+		return t1;
+	}
+};
+
+
+/*--------------------------------------------------------------
+# HSL TO RGB
+--------------------------------------------------------------*/
+
+satus.color.hslToRgb = function (array) {
+	var h = array[0] / 360,
+		s = array[1] / 100,
+		l = array[2] / 100,
+		r, g, b;
+
+	if (s == 0) {
+		r = g = b = l;
+	} else {
+		var hue2rgb = function hue2rgb(p, q, t) {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		}
+
+		var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		var p = 2 * l - q;
+		r = hue2rgb(p, q, h + 1 / 3);
+		g = hue2rgb(p, q, h);
+		b = hue2rgb(p, q, h - 1 / 3);
+	}
+
+	return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+};
+/*--------------------------------------------------------------
+>>> USER
+--------------------------------------------------------------*/
+
+satus.user = function () {
+    /*--------------------------------------------------------------
+    1.0 VARIABLES
+    --------------------------------------------------------------*/
+
+    var user_agent = navigator.userAgent,
+        random_cookie = 'ta{t`nX6cMXK,Wsc',
+        video = document.createElement('video'),
+        video_formats = {
+            ogg: 'video/ogg; codecs="theora"',
+            h264: 'video/mp4; codecs="avc1.42E01E"',
+            webm: 'video/webm; codecs="vp8, vorbis"',
+            vp9: 'video/webm; codecs="vp9"',
+            hls: 'application/x-mpegURL; codecs="avc1.42E01E"'
+        },
+        audio = document.createElement('audio'),
+        audio_formats = {
+            mp3: 'audio/mpeg',
+            mp4: 'audio/mp4',
+            aif: 'audio/x-aiff'
+        },
+        cvs = document.createElement('canvas'),
+        ctx = cvs.getContext('webgl'),
+        data = {
+            browser: {
+                audio: null,
+                cookies: null,
+                flash: null,
+                java: null,
+                languages: null,
+                name: null,
+                platform: null,
+                version: null,
+                video: null,
+                webgl: null
+            },
+            os: {
+                name: null,
+                type: null
+            },
+            device: {
+                connection: {
+                    type: null,
+                    speed: null
+                },
+                cores: null,
+                gpu: null,
+                max_touch_points: null,
+                ram: null,
+                screen: null,
+                touch: null
+            }
+        };
+
+
+    /*--------------------------------------------------------------
+    2.0 SOFTWARE
+    --------------------------------------------------------------*/
+
+    /*--------------------------------------------------------------
+    2.1.0 OS
+    --------------------------------------------------------------*/
+
+    /*--------------------------------------------------------------
+    2.1.1 NAME
+    --------------------------------------------------------------*/
+
+    if (navigator.appVersion.indexOf('Win') !== -1) {
+        if (navigator.appVersion.match(/(Windows 10.0|Windows NT 10.0)/)) {
+            data.os.name = 'Windows 10';
+        } else if (navigator.appVersion.match(/(Windows 8.1|Windows NT 6.3)/)) {
+            data.os.name = 'Windows 8.1';
+        } else if (navigator.appVersion.match(/(Windows 8|Windows NT 6.2)/)) {
+            data.os.name = 'Windows 8';
+        } else if (navigator.appVersion.match(/(Windows 7|Windows NT 6.1)/)) {
+            data.os.name = 'Windows 7';
+        } else if (navigator.appVersion.match(/(Windows NT 6.0)/)) {
+            data.os.name = 'Windows Vista';
+        } else if (navigator.appVersion.match(/(Windows NT 5.1|Windows XP)/)) {
+            data.os.name = 'Windows XP';
+        } else {
+            data.os.name = 'Windows';
+        }
+    } else if (navigator.appVersion.indexOf('(iPhone|iPad|iPod)') !== -1) {
+        data.os.name = 'iOS';
+    } else if (navigator.appVersion.indexOf('Mac') !== -1) {
+        data.os.name = 'macOS';
+    } else if (navigator.appVersion.indexOf('Android') !== -1) {
+        data.os.name = 'Android';
+    } else if (navigator.appVersion.indexOf('OpenBSD') !== -1) {
+        data.os.name = 'OpenBSD';
+    } else if (navigator.appVersion.indexOf('SunOS') !== -1) {
+        data.os.name = 'SunOS';
+    } else if (navigator.appVersion.indexOf('Linux') !== -1) {
+        data.os.name = 'Linux';
+    } else if (navigator.appVersion.indexOf('X11') !== -1) {
+        data.os.name = 'UNIX';
+    }
+
+    /*--------------------------------------------------------------
+    2.1.2 TYPE
+    --------------------------------------------------------------*/
+
+    if (navigator.appVersion.match(/(Win64|x64|x86_64|WOW64)/)) {
+        data.os.type = '64-bit';
+    } else {
+        data.os.type = '32-bit';
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.0 BROWSER
+    --------------------------------------------------------------*/
+
+    /*--------------------------------------------------------------
+    2.2.1 NAME
+    --------------------------------------------------------------*/
+
+    if (user_agent.indexOf('Opera') !== -1) {
+        data.browser.name = 'Opera';
+    } else if (user_agent.indexOf('Vivaldi') !== -1) {
+        data.browser.name = 'Vivaldi';
+    } else if (user_agent.indexOf('Edge') !== -1) {
+        data.browser.name = 'Edge';
+    } else if (user_agent.indexOf('Chrome') !== -1) {
+        data.browser.name = 'Chrome';
+    } else if (user_agent.indexOf('Safari') !== -1) {
+        data.browser.name = 'Safari';
+    } else if (user_agent.indexOf('Firefox') !== -1) {
+        data.browser.name = 'Firefox';
+    } else if (user_agent.indexOf('MSIE') !== -1) {
+        data.browser.name = 'IE';
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.2 VERSION
+    --------------------------------------------------------------*/
+
+    var browser_version = user_agent.match(new RegExp(data.browser.name + '/([0-9.]+)'));
+
+    if (browser_version[1]) {
+        data.browser.version = browser_version[1];
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.3 PLATFORM
+    --------------------------------------------------------------*/
+
+    data.browser.platform = navigator.platform || null;
+
+
+    /*--------------------------------------------------------------
+    2.2.4 LANGUAGES
+    --------------------------------------------------------------*/
+
+    data.browser.languages = navigator.languages || null;
+
+
+    /*--------------------------------------------------------------
+    2.2.5 COOKIES
+    --------------------------------------------------------------*/
+
+    if (document.cookie) {
+        document.cookie = random_cookie;
+
+        if (document.cookie.indexOf(random_cookie) !== -1) {
+            data.browser.cookies = true;
+        }
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.6 FLASH
+    --------------------------------------------------------------*/
+
+    try {
+        if (new ActiveXObject('ShockwaveFlash.ShockwaveFlash')) {
+            data.browser.flash = true;
+        }
+    } catch (e) {
+        if (navigator.mimeTypes['application/x-shockwave-flash']) {
+            data.browser.flash = true;
+        }
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.7 JAVA
+    --------------------------------------------------------------*/
+
+    if (typeof navigator.javaEnabled === 'function' && navigator.javaEnabled()) {
+        data.browser.java = true;
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.8 VIDEO FORMATS
+    --------------------------------------------------------------*/
+
+    if (typeof video.canPlayType === 'function') {
+        data.browser.video = {};
+
+        for (var i in video_formats) {
+            var can_play_type = video.canPlayType(video_formats[i]);
+
+            if (can_play_type === '') {
+                data.browser.video[i] = false;
+            } else {
+                data.browser.video[i] = can_play_type;
+            }
+        }
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.9 AUDIO FORMATS
+    --------------------------------------------------------------*/
+
+    if (typeof audio.canPlayType === 'function') {
+        data.browser.audio = {};
+
+        for (var i in audio_formats) {
+            var can_play_type = audio.canPlayType(audio_formats[i]);
+
+            if (can_play_type == '') {
+                data.browser.audio[i] = false;
+            } else {
+                data.browser.audio[i] = can_play_type;
+            }
+        }
+    }
+
+
+    /*--------------------------------------------------------------
+    2.2.10 WEBGL
+    --------------------------------------------------------------*/
+
+    if (ctx && ctx instanceof WebGLRenderingContext) {
+        data.browser.webgl = true;
+    }
+
+
+    /*--------------------------------------------------------------
+    3.0 HARDWARE
+    --------------------------------------------------------------*/
+
+    /*--------------------------------------------------------------
+    3.1 SCREEN
+    --------------------------------------------------------------*/
+
+    if (screen) {
+        data.device.screen = screen.width + 'x' + screen.height;
+    }
+
+
+    /*--------------------------------------------------------------
+    3.2 RAM
+    --------------------------------------------------------------*/
+
+    if ('deviceMemory' in navigator) {
+        data.device.ram = navigator.deviceMemory + ' GB';
+    }
+
+
+    /*--------------------------------------------------------------
+    3.3 GPU
+    --------------------------------------------------------------*/
+
+    if (
+        ctx &&
+        ctx instanceof WebGLRenderingContext &&
+        'getParameter' in ctx &&
+        'getExtension' in ctx
+    ) {
+        var info = ctx.getExtension('WEBGL_debug_renderer_info');
+
+        if (info) {
+            data.device.gpu = ctx.getParameter(info.UNMASKED_RENDERER_WEBGL);
+        }
+    }
+
+
+    /*--------------------------------------------------------------
+    3.4 CORES
+    --------------------------------------------------------------*/
+
+    if (navigator.hardwareConcurrency) {
+        data.device.cores = navigator.hardwareConcurrency;
+    }
+
+
+    /*--------------------------------------------------------------
+    3.5 TOUCH
+    --------------------------------------------------------------*/
+
+    if (
+        window.hasOwnProperty('ontouchstart') ||
+        window.DocumentTouch && document instanceof window.DocumentTouch ||
+        navigator.maxTouchPoints > 0 ||
+        window.navigator.msMaxTouchPoints > 0
+    ) {
+        data.device.touch = true;
+        data.device.max_touch_points = navigator.maxTouchPoints;
+    }
+
+
+    /*--------------------------------------------------------------
+    3.6 CONNECTION
+    --------------------------------------------------------------*/
+
+    if (typeof navigator.connection === 'object') {
+        data.device.connection.type = navigator.connection.effectiveType || null;
+
+        if (navigator.connection.downlink) {
+            data.device.connection.speed = navigator.connection.downlink + ' Mbps';
+        }
+    }
+
+
+    /*--------------------------------------------------------------
+    4.0 CLEARING
+    --------------------------------------------------------------*/
+
+    video.remove();
+    audio.remove();
+    cvs.remove();
+
+
+    return data;
+};
+/*--------------------------------------------------------------
+# SEARCH
+--------------------------------------------------------------*/
+
+satus.search = function (query, object, callback) {
+    var elements = ['switch', 'select', 'slider', 'shortcut', 'radio', 'color-picker'],
+        threads = 0,
+        results = {},
+        excluded = [
+            'baseProvider',
+            'childrenContainer',
+            'parentElement',
+            'parentObject',
+            'parentSkeleton',
+            'rendered',
+            'namespaceURI'
+        ];
+
+    query = query.toLowerCase();
+
+    function parse(items, parent) {
+        threads++;
+
+        for (var key in items) {
+            if (excluded.indexOf(key) === -1) {
+                var item = items[key];
+
+                if (item.component) {
+                    //console.log(key, item.component);
+
+                    if (elements.indexOf(item.component) !== -1 && key.indexOf(query) !== -1) {
+                        results[key] = Object.assign({}, item);
+                    }
+                }
+
+                if (typeof item === 'object') {
+                    parse(item, items);
+                }
+            }
+        }
+
+        threads--;
+
+        if (threads === 0) {
+            callback(results);
+        }
+    }
+
+    parse(object);
 };

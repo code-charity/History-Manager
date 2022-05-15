@@ -60,6 +60,7 @@ var skeleton = {
 					this.skeleton.dropDownMenu.rendered.update();
 
 					if (this.value.length > 0) {
+						this.setAttribute('focus', '');
 						this.setAttribute('results', '');
 					} else {
 						this.removeAttribute('results');
@@ -140,13 +141,24 @@ var skeleton = {
 									window.open(this.getAttribute('url') + encodeURIComponent(this.parentNode.skeleton.parentSkeleton.parentSkeleton.rendered.value), '_self');
 								}
 							},
+							before: {
+								icon: {
+									component: 'span',
+									class: 'satus-search-results__item-icon',
+									style: {
+										backgroundImage: 'url(' + search_engines[default_search_engine].favicon + ')'
+									}
+								}
+							},
 
 							query: {
 								component: 'span',
+								class: 'satus-search-results__item-query',
 								text: this.skeleton.parentSkeleton.rendered.value
 							},
 							engine: {
 								component: 'span',
+								class: 'satus-search-results__item-engine',
 								text: '- ' + search_engines[default_search_engine].name + ' ' + 'Search'
 							}
 						}, list);

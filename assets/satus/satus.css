@@ -1,40 +1,4 @@
 /*--------------------------------------------------------------
->>> NORMALIZE
---------------------------------------------------------------*/
-
-:where([class^=satus]) {
-	box-sizing: border-box;
-}
-
-:where([class^=satus])[hidden]:not([hidden^='hidden']) {
-    display: none;
-}
-
-:where([class^=satus])[transparent] {
-    opacity: 0;
-}
-
-
-/*--------------------------------------------------------------
-# SCROLLBAR
---------------------------------------------------------------*/
-
-.satus-base ::-webkit-scrollbar {
-    width: 4px;
-}
-
-.satus-base ::-webkit-scrollbar:hover {
-    width: 8px;
-}
-
-.satus-base ::-webkit-scrollbar-thumb {
-    background: rgba(var(--satus-light), .2);
-}
-
-.satus-base ::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--satus-light), .3);
-}
-/*--------------------------------------------------------------
 # ANIMATIONS
 --------------------------------------------------------------*/
 
@@ -118,16 +82,40 @@
 	--satus-main-background: #f0f2f4;
 }
 /*--------------------------------------------------------------
->>> BASE
+>>> NORMALIZE
 --------------------------------------------------------------*/
 
-.satus-base {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	height: 100%;
-	color: var(--satus-base-text);
-	background: var(--satus-base-background);
+:where([class^=satus]) {
+	box-sizing: border-box;
+}
+
+:where([class^=satus])[hidden]:not([hidden^='hidden']) {
+    display: none;
+}
+
+:where([class^=satus])[transparent] {
+    opacity: 0;
+}
+
+
+/*--------------------------------------------------------------
+# SCROLLBAR
+--------------------------------------------------------------*/
+
+.satus-base ::-webkit-scrollbar {
+    width: 4px;
+}
+
+.satus-base ::-webkit-scrollbar:hover {
+    width: 8px;
+}
+
+.satus-base ::-webkit-scrollbar-thumb {
+    background: rgba(var(--satus-light), .2);
+}
+
+.satus-base ::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--satus-light), .3);
 }
 /*--------------------------------------------------------------
 >>> MODAL
@@ -260,6 +248,362 @@
 	text-overflow: ellipsis;
 }
 /*--------------------------------------------------------------
+>>> GRID
+--------------------------------------------------------------*/
+
+.satus-grid {
+	display: flex;
+	align-items: stretch;
+	height: 100%;
+	padding: 8px;
+}
+/*--------------------------------------------------------------
+>>> TEXT FIELD
+----------------------------------------------------------------
+# Parts
+    # Container
+    # Input
+    # 
+# Syntax highlighting
+    # Regular expression
+--------------------------------------------------------------*/
+
+.satus-text-field {
+    display: flex;
+
+    min-width: 240px;
+    height: 36px;
+
+    color: var(--satus-text-field-color, inherit);
+    border: 1px solid var(--satus-text-field-border);
+    border-radius: 4px;
+    background: var(--satus-text-field-background);
+
+    align-items: center;
+    justify-content: space-between;
+}
+
+.satus-text-field__container {
+    position: relative;
+
+    overflow: hidden;
+
+    height: 100%;
+
+    flex: 1;
+}
+
+.satus-text-field__input {
+    font: inherit;
+
+    position: absolute;
+    z-index: 9;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    padding: 0 12px;
+
+    opacity: 0;
+    color: inherit;
+    border: none;
+    border-radius: 4px;
+    outline: none;
+
+    appearance: none;
+}
+
+.satus-text-field__pre {
+    font: inherit;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+
+    height: 100%;
+    margin: 0 12px;
+
+    align-items: center;
+}
+
+.satus-text-field__hidden-value {
+    font: inherit;
+
+    position: absolute;
+
+    pointer-events: none;
+
+    opacity: 0;
+}
+
+.satus-text-field__selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: none;
+
+    width: 0;
+    height: 22px;
+    margin: 6px 12px;
+
+    border: 1px solid var(--satus-text-field-selection);
+    border-radius: 3px;
+    background: var(--satus-text-field-selection);
+}
+
+.satus-text-field__cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: none;
+
+    width: 2px;
+    height: 24px;
+    margin: 5px 11px;
+
+    animation: blink 1s step-end 8;
+
+    background: var(--satus-text-field-cursor);
+}
+
+.satus-text-field__input:focus+*+*+*+.satus-text-field__cursor,
+.satus-text-field__input:focus+*+*+.satus-text-field__selection:not([disabled]) {
+    display: block;
+}
+
+@keyframes blink {
+
+    from,
+    to {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+
+/*--------------------------------------------------------------
+# SYNTAX HIGHLIGHTING
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# REGULAR EXPRESSION
+--------------------------------------------------------------*/
+
+.satus-text-field__pre>.group {
+    color: #47ff47;
+    background-color: rgb(71, 255, 71, .16);
+}
+
+.satus-text-field__pre>.character-class {
+    color: #ffc247;
+    background-color: rgb(255, 170, 0, .16);
+}
+
+.satus-text-field__pre>.quantifier {
+    color: #47c2ff;
+    background-color: rgb(71, 194, 255, .16);
+}
+
+.satus-text-field__pre>.anchor {
+    color: #47c2ff;
+    background-color: rgb(71, 194, 255, .16);
+}
+
+.satus-text-field__pre>.metasequence {
+    color: #47ff47;
+    background-color: rgb(71, 255, 71, .16);
+}
+
+.satus-text-field__pre>.text {
+    color: #c4c4d4;
+    background-color: rgb(196, 196, 212, .16);
+}
+/*--------------------------------------------------------------
+>>> SELECT
+--------------------------------------------------------------*/
+
+.satus-select {
+	position: relative;
+	display: flex;
+	cursor: pointer;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.satus-select:hover {
+	background-color: var(--satus-hover);
+}
+
+.satus-select>span:nth-child(2) {
+	display: flex;
+	align-items: center;
+}
+
+.satus-select>span:nth-child(2)>svg {
+	width: 20px;
+	height: 18px;
+	margin: 0 14px 0 0;
+	opacity: .75;
+}
+
+.satus-select>span:nth-child(3) {
+	margin-left: 16px;
+	text-align: right;
+	opacity: .75;
+}
+
+.satus-select select {
+	font: inherit;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: inherit;
+	opacity: 0;
+	border: none;
+	outline: none;
+	appearance: none;
+	z-index: 1;
+	cursor: inherit;
+	color: inherit;
+}
+
+.satus-select option {
+	color: var(--satus-select-text);
+	background: var(--satus-select-background);
+}
+/*--------------------------------------------------------------
+>>> SECTION
+----------------------------------------------------------------
+# Card
+--------------------------------------------------------------*/
+
+.satus-section {
+	display: flex;
+	box-sizing: border-box;
+	flex-wrap: wrap;
+}
+
+
+/*--------------------------------------------------------------
+# CARD
+--------------------------------------------------------------*/
+
+.satus-section--card {
+	flex-direction: column;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 900px;
+	margin: 8px auto;
+	padding: 8px 0;
+	border: 1px solid var(--satus-section-border);
+	border-radius: 8px;
+	background: var(--satus-section-background);
+	justify-content: stretch;
+}
+
+.satus-section--label {
+	display: block;
+	width: 100%;
+	max-width: 900px;
+	margin: 8px auto;
+}
+
+.satus-section--card>.satus-button,
+.satus-section--card>.satus-color-picker,
+.satus-section--card>.satus-radio,
+.satus-section--card>.satus-select,
+.satus-section--card>.satus-shortcut,
+.satus-section--card>.satus-slider,
+.satus-section--card>.satus-switch,
+.satus-section--card>.satus-span {
+	display: flex;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 48px;
+	padding: 8px 16px;
+	text-align: left;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.satus-section--card>.satus-button:hover,
+.satus-section--card>.satus-color-picker:hover,
+.satus-section--card>.satus-radio:hover,
+.satus-section--card>.satus-select:hover,
+.satus-section--card>.satus-shortcut:hover,
+.satus-section--card>.satus-slider:hover,
+.satus-section--card>.satus-switch:hover {
+	background-color: rgba(var(--satus-light), .06);
+}
+
+.satus-section--card>.satus-button {
+	justify-content: flex-start;
+}
+
+.satus-section--card>.satus-button>svg {
+	width: 20px;
+	margin: 2px 16px 0 0;
+	color: var(--satus-primary);
+}
+
+.satus-section--card>.satus-span {
+	display: flex;
+	align-items: center;
+}
+
+
+/*--------------------------------------------------------------
+# ALIGN
+--------------------------------------------------------------*/
+
+.satus-section--align-start {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.satus-section--align-start>*:not(:last-child) {
+	margin-right: 8px;
+}
+
+.satus-section--align-end {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.satus-section--align-end>*:not(:first-child) {
+	margin-left: 8px;
+}
+/*--------------------------------------------------------------
+>>> BASE
+--------------------------------------------------------------*/
+
+.satus-base {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	color: var(--satus-base-text);
+	background: var(--satus-base-background);
+}
+/*--------------------------------------------------------------
 >>> MAIN
 --------------------------------------------------------------*/
 
@@ -281,6 +625,27 @@
     color: var(--satus-sidebar-text);
     background: var(--satus-sidebar-background);
     box-shadow: 1px 0 0 var(--satus-sidebar-shadow)
+}
+/*--------------------------------------------------------------
+>>> LAYERS
+--------------------------------------------------------------*/
+
+.satus-layers {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+}
+
+.satus-layers__layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    color: var(--satus-layers-text);
+    background: var(--satus-layers-background);
 }
 /*--------------------------------------------------------------
 >>> LIST:
@@ -305,6 +670,122 @@
 
 .satus-list__item>*:last-child {
     text-align: right;
+}
+/*--------------------------------------------------------------
+>>> COLOR PICKER:
+----------------------------------------------------------------
+# Button
+# Modal
+--------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------
+# BUTTON
+--------------------------------------------------------------*/
+
+.satus-color-picker {
+    font-size: inherit;
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    margin: 0;
+    cursor: pointer;
+    color: inherit;
+    border: none;
+    outline: none;
+    background-color: var(--satus-theme-button);
+    justify-content: space-between;
+    -webkit-tap-highlight-color: transparent;
+    align-items: center;
+    -webkit-appearance: none;
+}
+
+.satus-color-picker__value {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(0, 0, 0, .16);
+    border-radius: 50%;
+}
+
+
+/*--------------------------------------------------------------
+# MODAL
+--------------------------------------------------------------*/
+
+.satus-modal--color-picker {
+    position: relative;
+}
+
+.satus-modal--color-picker .satus-modal__surface {
+    padding: 8px;
+}
+
+.satus-color-picker__palette {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 256px;
+    background-color: #f00;
+    border-radius: 5px;
+}
+
+.satus-color-picker__palette:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    content: '';
+    background-image: linear-gradient(0deg, black, transparent), linear-gradient(90deg, white, transparent);
+}
+
+.satus-color-picker__cursor {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #000;
+}
+
+.satus-modal--color-picker .satus-modal__surface .satus-section--color {
+    margin: 8px 16px 0;
+    align-items: center;
+}
+
+.satus-color-picker__color {
+    width: 32px;
+    height: 32px;
+    margin: 0 16px 0 0;
+    border: 2px solid rgba(0, 0, 0, .16);
+    border-radius: 50%;
+    background: #f00;
+}
+
+.satus-slider.satus-color-picker__hue {
+    padding: 0;
+    flex: 1;
+}
+
+.satus-color-picker__hue .satus-slider__track {
+    height: 16px;
+    border-radius: 4px;
+    background-image: linear-gradient(90deg, #f00, #ff2a00, #f50, #ff7f00, #fa0, #ffd400, #ff0, #d4ff00, #af0, #80ff00, #5f0, #2bff00, #0f0, #00ff2b, #0f5, #00ff80, #0fa, #00ffd5, #0ff, #00d4ff, #0af, #007fff, #05f, #002bff, #00f, #2a00ff, #50f, #7f00ff, #a0f, #d400ff, #f0f, #ff00d4, #f0a, #ff0080, #f05, #ff002b, #f00);
+}
+
+.satus-color-picker__hue .satus-slider__handle {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    box-shadow: 0 0 4px rgb(0, 0, 0, .64);
+}
+
+.satus-color-picker__hue::before,
+.satus-color-picker__hue .satus-slider__track-fill,
+.satus-color-picker__hue .satus-slider__handle:focus::after {
+    display: none;
 }
 /*--------------------------------------------------------------
 >>> BUTTON
@@ -381,135 +862,133 @@
 	height: 24px;
 }
 /*--------------------------------------------------------------
+>>> HEADER
+--------------------------------------------------------------*/
+
+.satus-header {
+	z-index: 1;
+	display: flex;
+	height: 56px;
+	padding: 0 12px;
+	color: var(--satus-header-text);
+	background: var(--satus-header-background);
+	box-shadow: 0 1px 0 var(--satus-header-shadow);
+	justify-content: space-between;
+	align-items: center;
+}
+
+.satus-span--title {
+	font-size: 16px;
+}
+/*--------------------------------------------------------------
 >>> RADIO
 --------------------------------------------------------------*/
 /*--------------------------------------------------------------
->>> CHECKBOX
+>>> SLIDER
 --------------------------------------------------------------*/
 
-.satus-checkbox {
-    position: relative;
-    font: inherit;
-    display: flex;
-    color: inherit;
-    border: none;
-    background: transparent;
-    appearance: none;
-    align-items: center;
-    justify-content: flex-start;
+.satus-slider__track {
+    height: 32px;
 }
 
-.satus-checkbox:hover {
-    cursor: pointer;
-    background-color: var(--satus-hover);
+.satus-slider__track__range {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
-.satus-checkbox:focus {
-    outline: none;
-}
-
-.satus-checkbox__content {
+/*.satus-slider {
     display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    background: #fff;
 }
 
-.satus-checkbox::before {
+.satus-slider__label {
     display: flex;
-    min-width: 16px;
-    width: 16px;
-    height: 16px;
-    margin: 0 12px 0 0;
-    content: '';
-    border: 1px solid var(--satus-checkbox--border);
-    border-radius: 6px;
-    background: var(--satus-checkbox--background);
+    margin: 12px 0 0;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
 }
 
-.satus-checkbox[data-value=true]::before {
+.satus-slider .satus-input[type=number] {
+    font: inherit;
+    width: 64px;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    color: inherit;
+    background: transparent;
+}
+
+.satus-slider__track {
+    position: relative;
+    display: block;
+    min-width: 128px;
+    height: 40px;
+    margin: 0 2px;
+}
+
+.satus-slider__track::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 2px;
+    content: '';
+    transform: translateY(-50%);
+    opacity: .24;
     background: var(--satus-primary);
 }
 
-.satus-checkbox[data-value=true]::after {
+.satus-slider__slice {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 8px;
-    height: 4px;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    transform: translateY(-50%);
+    background: var(--satus-primary);
+}
+
+.satus-slider__slice::before {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: block;
+    width: 22px;
+    height: 22px;
     content: '';
-    transform: rotate(-45deg);
-    border: 2px solid var(--satus-checkbox--mark);
-    border-top: none;
-    border-right: none;
-}
-/*--------------------------------------------------------------
->>> GRID
---------------------------------------------------------------*/
-
-.satus-grid {
-	display: flex;
-	align-items: stretch;
-	height: 100%;
-	padding: 8px;
-}
-/*--------------------------------------------------------------
->>> SELECT
---------------------------------------------------------------*/
-
-.satus-select {
-	position: relative;
-	display: flex;
-	cursor: pointer;
-	align-items: center;
-	justify-content: space-between;
+    transition: width 200ms, height 200ms, opacity 200ms;
+    transform: translate(50%, -50%);
+    opacity: 0;
+    border-radius: 50%;
+    background: var(--satus-primary);
 }
 
-.satus-select:hover {
-	background-color: var(--satus-hover);
+.satus-slider__track:focus .satus-slider__slice::before {
+    width: 32px;
+    height: 32px;
+    opacity: .16;
 }
 
-.satus-select>span:nth-child(2) {
-	display: flex;
-	align-items: center;
+.satus-slider__slice::after {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: block;
+    width: 10px;
+    height: 10px;
+    content: '';
+    transition: width 200ms, height 200ms;
+    transform: translate(50%, -50%);
+    border-radius: 50%;
+    background: var(--satus-primary);
 }
 
-.satus-select>span:nth-child(2)>svg {
-	width: 20px;
-	height: 18px;
-	margin: 0 14px 0 0;
-	opacity: .75;
-}
-
-.satus-select>span:nth-child(3) {
-	margin-left: 16px;
-	text-align: right;
-	opacity: .75;
-}
-
-.satus-select select {
-	font: inherit;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	padding: inherit;
-	opacity: 0;
-	border: none;
-	outline: none;
-	appearance: none;
-	z-index: 1;
-	cursor: inherit;
-}
-
-.satus-select option {
-	color: var(--satus-select-text);
-	background: var(--satus-select-background);
-}
+.satus-slider__track:focus .satus-slider__slice::after {
+    width: 12px;
+    height: 12px;
+}*/
 /*--------------------------------------------------------------
 >>> SHORTCUT:
 ----------------------------------------------------------------
@@ -764,178 +1243,66 @@
     border-radius: 4px;
 }
 /*--------------------------------------------------------------
->>> TEXT FIELD
-----------------------------------------------------------------
-# Parts
-    # Container
-    # Input
-    # 
-# Syntax highlighting
-    # Regular expression
+>>> CHECKBOX
 --------------------------------------------------------------*/
 
-.satus-text-field {
-    display: flex;
-
-    min-width: 240px;
-    height: 36px;
-
-    color: var(--satus-text-field-color, inherit);
-    border: 1px solid var(--satus-text-field-border);
-    border-radius: 4px;
-    background: var(--satus-text-field-background);
-
-    align-items: center;
-    justify-content: space-between;
-}
-
-.satus-text-field__container {
+.satus-checkbox {
     position: relative;
-
-    overflow: hidden;
-
-    height: 100%;
-
-    flex: 1;
-}
-
-.satus-text-field__input {
     font: inherit;
-
-    position: absolute;
-    z-index: 9;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-    height: 100%;
-    min-height: 0;
-    max-height: none;
-    margin: 0;
-    padding: 0 12px;
-
-    opacity: 0;
+    display: flex;
     color: inherit;
     border: none;
-    border-radius: 4px;
-    outline: none;
-
+    background: transparent;
     appearance: none;
-}
-
-.satus-text-field__pre {
-    font: inherit;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    display: flex;
-
-    height: 100%;
-    margin: 0 12px;
-
     align-items: center;
+    justify-content: flex-start;
 }
 
-.satus-text-field__hidden-value {
-    font: inherit;
-
-    position: absolute;
-
-    pointer-events: none;
-
-    opacity: 0;
+.satus-checkbox:hover {
+    cursor: pointer;
+    background-color: var(--satus-hover);
 }
 
-.satus-text-field__selection {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    display: none;
-
-    width: 0;
-    height: 22px;
-    margin: 6px 12px;
-
-    border: 1px solid var(--satus-text-field-selection);
-    border-radius: 3px;
-    background: var(--satus-text-field-selection);
+.satus-checkbox:focus {
+    outline: none;
 }
 
-.satus-text-field__cursor {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    display: none;
-
-    width: 2px;
-    height: 24px;
-    margin: 5px 11px;
-
-    animation: blink 1s step-end 8;
-
-    background: var(--satus-text-field-cursor);
-}
-
-.satus-text-field__input:focus+*+*+*+.satus-text-field__cursor,
-.satus-text-field__input:focus+*+*+.satus-text-field__selection:not([disabled]) {
+.satus-checkbox__content {
     display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
-@keyframes blink {
-
-    from,
-    to {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0;
-    }
+.satus-checkbox::before {
+    display: flex;
+    min-width: 16px;
+    width: 16px;
+    height: 16px;
+    margin: 0 12px 0 0;
+    content: '';
+    border: 1px solid var(--satus-checkbox--border);
+    border-radius: 6px;
+    background: var(--satus-checkbox--background);
+    align-items: center;
+    justify-content: center;
 }
 
-
-/*--------------------------------------------------------------
-# SYNTAX HIGHLIGHTING
---------------------------------------------------------------*/
-
-/*--------------------------------------------------------------
-# REGULAR EXPRESSION
---------------------------------------------------------------*/
-
-.satus-text-field__pre>.group {
-    color: #47ff47;
-    background-color: rgb(71, 255, 71, .16);
+.satus-checkbox[data-value=true]::before {
+    background: var(--satus-primary);
 }
 
-.satus-text-field__pre>.character-class {
-    color: #ffc247;
-    background-color: rgb(255, 170, 0, .16);
-}
-
-.satus-text-field__pre>.quantifier {
-    color: #47c2ff;
-    background-color: rgb(71, 194, 255, .16);
-}
-
-.satus-text-field__pre>.anchor {
-    color: #47c2ff;
-    background-color: rgb(71, 194, 255, .16);
-}
-
-.satus-text-field__pre>.metasequence {
-    color: #47ff47;
-    background-color: rgb(71, 255, 71, .16);
-}
-
-.satus-text-field__pre>.text {
-    color: #c4c4d4;
-    background-color: rgb(196, 196, 212, .16);
+.satus-checkbox[data-value=true]::after {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 8px;
+    height: 4px;
+    content: '';
+    transform: rotate(-45deg);
+    border: 2px solid var(--satus-checkbox--mark);
+    border-top: none;
+    border-right: none;
 }
 /*--------------------------------------------------------------
 >>> SWITCH
@@ -1020,369 +1387,3 @@
 .satus-switch[data-value='true']>i::before {
     transform: translateX(14px);
 }
-/*--------------------------------------------------------------
->>> HEADER
---------------------------------------------------------------*/
-
-.satus-header {
-	z-index: 1;
-	display: flex;
-	height: 56px;
-	padding: 0 12px;
-	color: var(--satus-header-text);
-	background: var(--satus-header-background);
-	box-shadow: 0 1px 0 var(--satus-header-shadow);
-	justify-content: space-between;
-	align-items: center;
-}
-
-.satus-span--title {
-	font-size: 16px;
-}
-/*--------------------------------------------------------------
->>> SECTION
-----------------------------------------------------------------
-# Card
---------------------------------------------------------------*/
-
-.satus-section {
-	display: flex;
-	box-sizing: border-box;
-	flex-wrap: wrap;
-}
-
-
-/*--------------------------------------------------------------
-# CARD
---------------------------------------------------------------*/
-
-.satus-section--card {
-	flex-direction: column;
-	box-sizing: border-box;
-	width: 100%;
-	max-width: 900px;
-	margin: 8px auto;
-	padding: 8px 0;
-	border: 1px solid var(--satus-section-border);
-	border-radius: 8px;
-	background: var(--satus-section-background);
-	justify-content: stretch;
-}
-
-.satus-section--label {
-	display: block;
-	width: 100%;
-	max-width: 900px;
-	margin: 8px auto;
-}
-
-.satus-section--card>.satus-button,
-.satus-section--card>.satus-color-picker,
-.satus-section--card>.satus-radio,
-.satus-section--card>.satus-select,
-.satus-section--card>.satus-shortcut,
-.satus-section--card>.satus-slider,
-.satus-section--card>.satus-switch,
-.satus-section--card>.satus-span {
-	display: flex;
-	box-sizing: border-box;
-	width: 100%;
-	min-height: 48px;
-	padding: 8px 16px;
-	text-align: left;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.satus-section--card>.satus-button:hover,
-.satus-section--card>.satus-color-picker:hover,
-.satus-section--card>.satus-radio:hover,
-.satus-section--card>.satus-select:hover,
-.satus-section--card>.satus-shortcut:hover,
-.satus-section--card>.satus-slider:hover,
-.satus-section--card>.satus-switch:hover {
-	background-color: rgba(var(--satus-light), .06);
-}
-
-.satus-section--card>.satus-button {
-	justify-content: flex-start;
-}
-
-.satus-section--card>.satus-button>svg {
-	width: 20px;
-	margin: 2px 16px 0 0;
-	color: var(--satus-primary);
-}
-
-.satus-section--card>.satus-span {
-	display: flex;
-	align-items: center;
-}
-
-
-/*--------------------------------------------------------------
-# ALIGN
---------------------------------------------------------------*/
-
-.satus-section--align-start {
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-}
-
-.satus-section--align-start>*:not(:last-child) {
-	margin-right: 8px;
-}
-
-.satus-section--align-end {
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-}
-
-.satus-section--align-end>*:not(:first-child) {
-	margin-left: 8px;
-}
-/*--------------------------------------------------------------
->>> COLOR PICKER:
-----------------------------------------------------------------
-# Button
-# Modal
---------------------------------------------------------------*/
-
-
-/*--------------------------------------------------------------
-# BUTTON
---------------------------------------------------------------*/
-
-.satus-color-picker {
-    font-size: inherit;
-    position: relative;
-    display: flex;
-    box-sizing: border-box;
-    margin: 0;
-    cursor: pointer;
-    color: inherit;
-    border: none;
-    outline: none;
-    background-color: var(--satus-theme-button);
-    justify-content: space-between;
-    -webkit-tap-highlight-color: transparent;
-    align-items: center;
-    -webkit-appearance: none;
-}
-
-.satus-color-picker__value {
-    width: 22px;
-    height: 22px;
-    border: 2px solid rgba(0, 0, 0, .16);
-    border-radius: 50%;
-}
-
-
-/*--------------------------------------------------------------
-# MODAL
---------------------------------------------------------------*/
-
-.satus-modal--color-picker {
-    position: relative;
-}
-
-.satus-modal--color-picker .satus-modal__surface {
-    padding: 8px;
-}
-
-.satus-color-picker__palette {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    height: 256px;
-    background-color: #f00;
-    border-radius: 5px;
-}
-
-.satus-color-picker__palette:before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    content: '';
-    background-image: linear-gradient(0deg, black, transparent), linear-gradient(90deg, white, transparent);
-}
-
-.satus-color-picker__cursor {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    border: 1px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px #000;
-}
-
-.satus-modal--color-picker .satus-modal__surface .satus-section--color {
-    margin: 8px 16px 0;
-    align-items: center;
-}
-
-.satus-color-picker__color {
-    width: 32px;
-    height: 32px;
-    margin: 0 16px 0 0;
-    border: 2px solid rgba(0, 0, 0, .16);
-    border-radius: 50%;
-    background: #f00;
-}
-
-.satus-slider.satus-color-picker__hue {
-    padding: 0;
-    flex: 1;
-}
-
-.satus-color-picker__hue .satus-slider__track {
-    height: 16px;
-    border-radius: 4px;
-    background-image: linear-gradient(90deg, #f00, #ff2a00, #f50, #ff7f00, #fa0, #ffd400, #ff0, #d4ff00, #af0, #80ff00, #5f0, #2bff00, #0f0, #00ff2b, #0f5, #00ff80, #0fa, #00ffd5, #0ff, #00d4ff, #0af, #007fff, #05f, #002bff, #00f, #2a00ff, #50f, #7f00ff, #a0f, #d400ff, #f0f, #ff00d4, #f0a, #ff0080, #f05, #ff002b, #f00);
-}
-
-.satus-color-picker__hue .satus-slider__handle {
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    box-shadow: 0 0 4px rgb(0, 0, 0, .64);
-}
-
-.satus-color-picker__hue::before,
-.satus-color-picker__hue .satus-slider__track-fill,
-.satus-color-picker__hue .satus-slider__handle:focus::after {
-    display: none;
-}
-/*--------------------------------------------------------------
->>> LAYERS
---------------------------------------------------------------*/
-
-.satus-layers {
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-}
-
-.satus-layers__layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    overflow: auto;
-    width: 100%;
-    height: 100%;
-    padding: 0 12px;
-    color: var(--satus-layers-text);
-    background: var(--satus-layers-background);
-}
-/*--------------------------------------------------------------
->>> SLIDER
---------------------------------------------------------------*/
-
-.satus-slider__track {
-    height: 32px;
-}
-
-.satus-slider__track__range {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-}
-
-/*.satus-slider {
-    display: block;
-    background: #fff;
-}
-
-.satus-slider__label {
-    display: flex;
-    margin: 12px 0 0;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.satus-slider .satus-input[type=number] {
-    font: inherit;
-    width: 64px;
-    margin: 0;
-    padding: 0;
-    text-align: right;
-    color: inherit;
-    background: transparent;
-}
-
-.satus-slider__track {
-    position: relative;
-    display: block;
-    min-width: 128px;
-    height: 40px;
-    margin: 0 2px;
-}
-
-.satus-slider__track::before {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    display: block;
-    width: 100%;
-    height: 2px;
-    content: '';
-    transform: translateY(-50%);
-    opacity: .24;
-    background: var(--satus-primary);
-}
-
-.satus-slider__slice {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    height: 2px;
-    transform: translateY(-50%);
-    background: var(--satus-primary);
-}
-
-.satus-slider__slice::before {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    display: block;
-    width: 22px;
-    height: 22px;
-    content: '';
-    transition: width 200ms, height 200ms, opacity 200ms;
-    transform: translate(50%, -50%);
-    opacity: 0;
-    border-radius: 50%;
-    background: var(--satus-primary);
-}
-
-.satus-slider__track:focus .satus-slider__slice::before {
-    width: 32px;
-    height: 32px;
-    opacity: .16;
-}
-
-.satus-slider__slice::after {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    display: block;
-    width: 10px;
-    height: 10px;
-    content: '';
-    transition: width 200ms, height 200ms;
-    transform: translate(50%, -50%);
-    border-radius: 50%;
-    background: var(--satus-primary);
-}
-
-.satus-slider__track:focus .satus-slider__slice::after {
-    width: 12px;
-    height: 12px;
-}*/

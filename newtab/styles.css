@@ -140,14 +140,23 @@ body {
     background-color: rgba(var(--satus-light), .24);
 }
 
-.satus-search-results__item>span:first-child {
+.satus-search-results__item-icon {
+    width: 18px;
+    height: 18px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-right: 8px;
+}
+
+.satus-search-results__item-query {
     overflow: hidden;
 
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.satus-search-results__item>span:last-child {
+.satus-search-results__item-engine {
     padding-left: .3em;
 
     white-space: nowrap;
@@ -173,8 +182,6 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     background-size: 18px;
-
-    image-rendering: pixelated;
 }
 
 
