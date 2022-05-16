@@ -57,7 +57,7 @@ var skeleton = {
 					this.setAttribute('focus', '');
 				},
 				input: function () {
-					this.skeleton.dropDownMenu.rendered.update();
+					this.skeleton.dropDownMenu.results.rendered.update();
 
 					if (this.value.length > 0) {
 						this.setAttribute('focus', '');
@@ -80,7 +80,7 @@ var skeleton = {
 				},
 				youtube: {
 					name: 'YouTube',
-					url: 'https://youtube.com/?q=',
+					url: 'https://youtube.com/results?search_query=',
 					favicon: 'https://youtube.com/favicon.ico'
 				},
 				duckduckgo: {
@@ -94,7 +94,7 @@ var skeleton = {
 					favicon: 'https://www.bing.com/favicon.ico'
 				},
 				yahoo: {
-					name: 'Bing',
+					name: 'Yahoo',
 					url: 'https://search.yahoo.com/',
 					favicon: 'https://search.yahoo.com/favicon.ico'
 				},
@@ -104,72 +104,79 @@ var skeleton = {
 					favicon: 'https://cdn-static.ecosia.org/assets/images/ico/favicon.ico'
 				}
 			},
-
-			svg: {
-				component: 'svg',
-				attr: {
-					'viewBox': '0 0 24 24',
-					'fill': 'currentColor'
-				},
-
-				path: {
-					component: 'path',
+			before: {
+				svg: {
+					component: 'svg',
 					attr: {
-						'd': 'm20.5 19-5.7-5.7a6.5 6.5 0 1 0-1.5 1.5l5.7 5.7 1.5-1.5zM5 9.5a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0z'
+						'viewBox': '0 0 24 24',
+						'fill': 'currentColor'
+					},
+
+					path: {
+						component: 'path',
+						attr: {
+							'd': 'm20.5 19-5.7-5.7a6.5 6.5 0 1 0-1.5 1.5l5.7 5.7 1.5-1.5zM5 9.5a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0z'
+						}
 					}
 				}
 			},
+
 			dropDownMenu: {
 				component: 'div',
 				class: 'satus-search__dropdown-menu',
-				properties: {
-					update: function () {
-						var list = this.skeleton.searchEngineResultsList.rendered,
-							search_engines = this.skeleton.parentSkeleton.engines,
-							default_search_engine = satus.storage.get('defaultSearchEngine') || 'google';
 
-						satus.empty(list);
+				results: {
+					component: 'div',
+					class: 'satus-search__results-list',
+					properties: {
+						update: function () {
+							var list = this.skeleton.rendered,
+								search_element = this.skeleton.parentSkeleton.parentSkeleton.rendered,
+								search_engines = this.skeleton.parentSkeleton.parentSkeleton.engines,
+								default_search_engine = satus.storage.get('defaultSearchEngine') || 'google';
 
-						satus.render({
-							component: 'button',
-							class: 'satus-search-results__item',
-							attr: {
-								url: search_engines[default_search_engine].url
-							},
-							on: {
-								click: function () {
-									window.open(this.getAttribute('url') + encodeURIComponent(this.parentNode.skeleton.parentSkeleton.parentSkeleton.rendered.value), '_self');
-								}
-							},
-							before: {
-								icon: {
-									component: 'span',
-									class: 'satus-search-results__item-icon',
-									style: {
-										backgroundImage: 'url(' + search_engines[default_search_engine].favicon + ')'
-									}
-								}
-							},
-
-							query: {
-								component: 'span',
-								class: 'satus-search-results__item-query',
-								text: this.skeleton.parentSkeleton.rendered.value
-							},
-							engine: {
-								component: 'span',
-								class: 'satus-search-results__item-engine',
-								text: '- ' + search_engines[default_search_engine].name + ' ' + 'Search'
+							if (satus.isElement(search_element.temporaryEngine)) {
+								default_search_engine = search_element.temporaryEngine.name;
 							}
-						}, list);
+
+							satus.empty(list);
+
+							satus.render({
+								component: 'button',
+								class: 'satus-search-results__item',
+								attr: {
+									url: search_engines[default_search_engine].url
+								},
+								on: {
+									click: function () {
+										window.open(this.getAttribute('url') + encodeURIComponent(this.parentNode.skeleton.parentSkeleton.parentSkeleton.rendered.value), '_self');
+									}
+								},
+								before: {
+									icon: {
+										component: 'span',
+										class: 'satus-search-results__item-icon',
+										style: {
+											backgroundImage: 'url(' + search_engines[default_search_engine].favicon + ')'
+										}
+									}
+								},
+
+								query: {
+									component: 'span',
+									class: 'satus-search-results__item-query',
+									text: this.skeleton.parentSkeleton.parentSkeleton.rendered.value
+								},
+								engine: {
+									component: 'span',
+									class: 'satus-search-results__item-engine',
+									text: '- ' + search_engines[default_search_engine].name + ' ' + 'Search'
+								}
+							}, list);
+						}
 					}
 				},
-
-				searchEngineResultsList: {
-					component: 'div',
-					class: 'satus-search__results-list'
-				},
-				searchEnginesBar: {
+				engines: {
 					component: 'div',
 					class: 'satus-search-engines',
 					on: {
@@ -196,13 +203,37 @@ var skeleton = {
 									on: {
 										click: function () {
 											var name = this.getAttribute('name'),
-												search_engine = this.parentNode.skeleton.parentSkeleton.parentSkeleton.engines[name];
+												search_element = this.parentNode.skeleton.parentSkeleton.parentSkeleton.rendered,
+												search_engine = search_element.skeleton.engines[name];
 
-											satus.storage.set('defaultSearchEngine', name);
+											if (search_element.temporaryEngine) {
+												search_element.temporaryEngine.remove();
+											}
 
-											this.parentNode.skeleton.parentSkeleton.rendered.update();
+											search_element.temporaryEngine = satus.render({
+												component: 'button',
+												class: 'temporary-engine',
+												text: search_engine.name,
+												properties: {
+													name: name,
+													data: search_engine
+												},
+												on: {
+													click: function () {
+														var search_element = skeleton.header.search.rendered;
 
-											console.log(search_engine);
+														this.remove();
+
+														delete search_element.temporaryEngine;
+
+														search_element.skeleton.dropDownMenu.results.rendered.update();
+													}
+												}
+											});
+
+											search_element.firstChild.after(search_element.temporaryEngine);
+
+											search_element.skeleton.dropDownMenu.results.rendered.update();
 										}
 									}
 								}, this);
