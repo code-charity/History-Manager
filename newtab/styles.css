@@ -96,6 +96,23 @@ body {
     background: var(--satus-header-background);
 }
 
+.temporary-engine::after {
+    line-height: 0;
+
+    position: relative;
+    top: 1px;
+
+    margin-left: 8px;
+
+    content: '✕';
+
+    opacity: .4;
+}
+
+.temporary-engine:hover::after {
+    opacity: .85;
+}
+
 .satus-search__dropdown-menu {
     position: absolute;
     top: 100%;
@@ -155,6 +172,8 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+
+    flex: 0 0 18px;
 }
 
 .satus-search-results__item-query {
