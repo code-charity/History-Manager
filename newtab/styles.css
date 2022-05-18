@@ -105,6 +105,7 @@ body {
     margin-left: 8px;
 
     content: '✕';
+    transition: opacity .3s cubic-bezier(.25, .8, .5, 1);
 
     opacity: .4;
 }
@@ -191,7 +192,7 @@ body {
     opacity: .64;
 }
 
-.satus-search-engines {
+.satus-search__engines {
     display: flex;
 
     padding: 8px 0;
@@ -201,7 +202,7 @@ body {
     align-items: center;
 }
 
-.satus-search-engines>button {
+.satus-search__engines>button {
     width: 28px;
     height: 28px;
     margin: 0 0 0 8px;

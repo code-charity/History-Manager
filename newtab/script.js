@@ -68,7 +68,11 @@ var skeleton = {
 				},
 				keydown: function (event) {
 					if (event.keyCode === 13) {
-						document.querySelector('.satus-search__results-list>.satus-button').click();
+						var list = this.skeleton.dropDownMenu.results.rendered;
+
+						if (list.firstChild) {
+							list.firstChild.click();
+						}
 					}
 				}
 			},
@@ -178,7 +182,7 @@ var skeleton = {
 				},
 				engines: {
 					component: 'div',
-					class: 'satus-search-engines',
+					class: 'satus-search__engines',
 					on: {
 						render: function () {
 							var search_engines = this.skeleton.parentSkeleton.parentSkeleton.engines;
