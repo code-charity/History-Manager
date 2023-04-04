@@ -10,6 +10,7 @@ Superb new tab page to treasure & apply your whole history whenever you need it!
 
 <i>*(should soon be a multi-search, requiring no selection) </i>
 </div>
+
 ---
 
 Also coinsider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer r in 2022 :( 
