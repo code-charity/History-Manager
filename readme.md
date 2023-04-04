@@ -7,7 +7,7 @@ _(storage is to reduce forgetting, not promote it. Just like we also avoid Alzhe
 
 ### [**PREVIEW alpha version!**](https://github.com/code-charity/History-Manager-with-indexedDB/archive/453f6696892e1182c9667467e5a50927a72d71ba.zip)   (commit from [july26](https://github.com/code-charity/History-Manager-with-indexedDB/tree/453f6696892e1182c9667467e5a50927a72d71ba)  )
 
- Please just select* "SEARCH IN TABLES", to understand the essential feature, that is 
+ Please just select* "SEARCH IN TABLES", to understand the essential feature - thats it for today. 
 ## to filter & make use of your history in multiple ways at once.  
 
 <i>*(should soon be a multi-search, requiring no selection) </i>
