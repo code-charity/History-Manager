@@ -13,7 +13,7 @@ Superb new tab page to treasure & apply your whole history whenever you need it!
 
 ---
 
-Also coinsider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer r in 2022 :( 
+Also coinsider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer in 2022 :( 
 
  - Maybe compare with this DEMO from feburary:  https://github.com/code-charity/History-Manager/releases/tag/v1.0-alpha.5 (it looks polished & has search in tables enabled by default. Yet missing data and features)
  
