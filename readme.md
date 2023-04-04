@@ -1,9 +1,6 @@
-Superb new tab page to treasure - and apply your whole history!
-
- -  Be smarter & faster  - Chromium deletes history after 90 days. 
-
-'Senile storage' is a paradox 
-_(storage is to reduce forgetting, not promote it. Just like we also avoid Alzheimers & Snapchat)_
+Superb new tab page to treasure & apply your whole history whenever you need it! / faster than searching things again
+ -  Chromium deletes history after 90 days. 
+ -  'Senile storage' is a paradox   _(storage is to reduce forgetting, not promote it. Just like we also avoid Alzheimers & Snapchat)_
 
 ### [**PREVIEW alpha version!**](https://github.com/code-charity/History-Manager-with-indexedDB/archive/453f6696892e1182c9667467e5a50927a72d71ba.zip)   (commit from [july26](https://github.com/code-charity/History-Manager-with-indexedDB/tree/453f6696892e1182c9667467e5a50927a72d71ba)  )
 
