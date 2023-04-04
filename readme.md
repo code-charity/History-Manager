@@ -1,14 +1,15 @@
 Superb new tab page to treasure & apply your whole history whenever you need it! / faster than searching things again
  -  Chromium deletes history after 90 days. 
  -  'Senile storage' is a paradox   _(storage is to reduce forgetting, not promote it. Just like we also avoid Alzheimers & Snapchat)_
-
+<div align="center">
+ 
 ### [**PREVIEW alpha version!**](https://github.com/code-charity/History-Manager-with-indexedDB/archive/453f6696892e1182c9667467e5a50927a72d71ba.zip)   (commit from [july26](https://github.com/code-charity/History-Manager-with-indexedDB/tree/453f6696892e1182c9667467e5a50927a72d71ba)  )
 
  Please just select* "SEARCH IN TABLES", to understand the essential feature - thats it for today. 
 ## to filter & make use of your history in multiple ways at once.  
 
 <i>*(should soon be a multi-search, requiring no selection) </i>
-
+</div>
 ---
 
 Also coinsider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer r in 2022 :( 
