@@ -1,8 +1,28 @@
-### july26  is the most functional / nicest we got! https://github.com/code-charity/History-Manager-with-indexedDB/tree/453f6696892e1182c9667467e5a50927a72d71ba
+Superb new tab page to treasure - and apply your whole history!
 
-- select search in tables!
+ -  Be smarter & faster  - Chromium deletes history after 90 days. 
 
-   - (maybe check fburary 3:  https://github.com/code-charity/History-Manager/releases/tag/v1.0-alpha.5  - i just makes a demo of thhe essential feature.  you will see the amounts of data is little/broken)
+'Senile storage' is a paradox 
+_(storage is to reduce forgetting, not promote it. Just like we also avoid Alzheimers & Snapchat)_
+
+### [**PREVIEW alpha version!**](https://github.com/code-charity/History-Manager-with-indexedDB/archive/453f6696892e1182c9667467e5a50927a72d71ba.zip)   (commit from [july26](https://github.com/code-charity/History-Manager-with-indexedDB/tree/453f6696892e1182c9667467e5a50927a72d71ba)  )
+
+### Please just select* "SEARCH IN TABLES", to understand the essential feature 
+## to filter and make use of your history treasure in 3 different ways at once.  
+
+<i>*(should soon be a multi-search, requiring no selection) </i>
+
+---
+
+Also coinsider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer r in 2022 :( 
+
+ - Maybe compare with this DEMO from feburary:  https://github.com/code-charity/History-Manager/releases/tag/v1.0-alpha.5 (it looks polished & has search in tables enabled by default. Yet missing data and features)
+ 
+ -  I think we shouldnt reinvent the wheel either way,
+   but use the most powerful JS lib for search with "(no)SQL" queries and more!
+
+ -  While july26 (above)  is the most functional we got,   the current master.zip already has great GUI updates/enhancements. 
+     Please help us pick up/carry on our GUI lib too: https://github.com/code-for-charity/SATUS  I dont know why the "latest commits in this repo are the older ones"
 
 ---
 
