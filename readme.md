@@ -1,3 +1,16 @@
+<h3 align="center">History Manager</h3>
+
+<p align="center">
+    Manage your browser history.
+    <br>
+    <a href="https://github.com/code4charity/History-Manager/wiki/Developer-Notes">Wiki »</a>
+</p>
+<p align="center">
+    <a href="https://github.com/victor-savinov/history-manager">
+        <img src="https://github.com/victor-savinov/graphics/blob/master/icons/history-manager/raised-128.png">
+    </a>
+</p>
+
 Superb new tab page to treasure & apply your whole history whenever you need it! / faster than searching things again
  -  Chromium deletes history after 90 days. 
     -  'Senile storage' is a paradox   _(storage is to reduce forgetting, not promote it. Just like we also avoid Alzheimers & Snapchat)_
@@ -23,16 +36,3 @@ Also consider joining us please. We fulfill wishes since ~10 years https://githu
      Please help us pick up/carry on our GUI lib too: https://github.com/code-for-charity/SATUS  I dont know why the "latest commits in this repo are the older ones"
 
 ---
-
-<h3 align="center">History Manager</h3>
-
-<p align="center">
-    Manage your browser history.
-    <br>
-    <a href="https://github.com/code4charity/History-Manager/wiki/Developer-Notes">Developer Notes »</a>
-</p>
-<p align="center">
-    <a href="https://github.com/victor-savinov/history-manager">
-        <img src="https://github.com/victor-savinov/graphics/blob/master/icons/history-manager/raised-128.png">
-    </a>
-</p>
