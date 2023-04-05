@@ -13,12 +13,11 @@ Superb new tab page to treasure & apply your whole history whenever you need it!
 
 ---
 
-Also coinsider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer in 2022 :( 
+Also consider joining us please. We fulfill wishes since ~10 years https://github.com/code-charity  . Unfortunately we lost our main developer in 2022. :( 
 
- - Maybe compare with this DEMO from feburary:  https://github.com/code-charity/History-Manager/releases/tag/v1.0-alpha.5 (it looks polished & has search in tables enabled by default. Yet missing data and features)
+ - Maybe compare History Manager with this DEMO from feburary:  https://github.com/code-charity/History-Manager/releases/tag/v1.0-alpha.5 (it looks polished & has search in tables enabled by default. Yet missing data and features)
  
- -  I think we shouldnt reinvent the wheel either way,
-   but use the most powerful JS lib for search with "(no)SQL" queries and more!
+ -  I think we  should use the most powerful JS lib for search with "(no)SQL" queries and more!   ( but not reinvent the wheel either way)
 
  -  While july26 (above)  is the most functional we got,   the current master.zip already has great GUI updates/enhancements. 
      Please help us pick up/carry on our GUI lib too: https://github.com/code-for-charity/SATUS  I dont know why the "latest commits in this repo are the older ones"
