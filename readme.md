@@ -1,5 +1,5 @@
 <p align="center">
-<img width="840" alt="b" src="https://user-images.githubusercontent.com/25022245/230707548-2c3049b1-a2eb-4174-819b-5237910f3422.png">
+<img width="880" alt="b" src="https://user-images.githubusercontent.com/25022245/230707548-2c3049b1-a2eb-4174-819b-5237910f3422.png">
 </p>
 <p align="center">
     <a href="https://chrome.google.com/webstore/detail/history-manager/odognhgojidbcgconbcipmgffjcmfaoj">
