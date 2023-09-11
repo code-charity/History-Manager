@@ -4,6 +4,7 @@
 	"version": "1.0",
 	"version_name": "May 2020",
 	"default_locale": "en",
+	"offline_enabled": true,
 	"background": {
 		"service_worker": "background.js"
 	},
