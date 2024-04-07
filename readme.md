@@ -18,10 +18,11 @@
 
 Please consider joining us. We fulfill wishes since 10+ years & unfortunately lost our main developer in 2022 :( 
 
- -  I think we  should use the most powerful JS lib for search with "(no)SQL" queries! (but not reinvent the wheel either way. SqlLite is also back for chrome https://www.sqlite.org/2024/sqlite-wasm-3450200.zip btw.)
-    - Compare History Manager with this older version from feburary using neither DB (just JS) https://github.com/code-charity/History-Manager/releases/tag/v1.0-alpha.5 (it looks polished & has search in tables enabled by default. Yet missing some features)
+1.) Should we use the most powerful JS lib for search and various smart, predictive queries in future? (but not reinvent the wheel) 
+    - Compare History Manager with this older version from feburary using neither DB (just JS) https://github.com/code-charity/History-Manager-with-no-DB/releases/tag/v1.0-alpha.5 (it looks polished & has search in tables enabled by default. Yet missing some features)
+    - (BTW SqlLite is also back for chrome by now https://www.sqlite.org/2024/sqlite-wasm-3450200.zip, unlike when we started)
  
--  While july26 (above)  is the most functional we got, the current master.zip already has GUI updates/enhancements. 
+2.) While july26 (above)  is the most functional we got, the current master.zip already has GUI updates/enhancements. 
      Please help us pick up/carry on our GUI lib too: https://github.com/code-for-charity/SATUS  I dont know why the "latest commits in this repo are the older ones"
 
  <img width="390" src="https://user-images.githubusercontent.com/25022245/230707546-15ae4ef7-6c00-4362-8bae-515080895ba7.png">  
